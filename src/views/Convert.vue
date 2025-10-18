@@ -197,6 +197,13 @@
     </button>
     <button
       class="batchBar__button"
+      :disabled="processed.length <= 0"
+      @click="downloadZip"
+    >
+      <div>Download ZIP</div>
+    </button>
+    <button
+      class="batchBar__button"
       :disabled="nonProcessed.length <= 0 && processed.length <= 0"
       @click="clearAll"
     >
@@ -276,6 +283,7 @@ import List from "@/components/list.vue";
 import { FILE_STATUS } from "@/js/constants";
 import Information from "@/components/information.vue";
 import { useMeta } from "vue-meta";
+import JSZip from "jszip";
 export default {
   name: "App",
 
@@ -460,6 +468,33 @@ export default {
         a.click();
         document.body.removeChild(a);
       });
+    },
+    async downloadZip() {
+      const zip = new JSZip();
+      
+      for (const file of this.processed) {
+        try {
+          const response = await fetch(file.output.url);
+          const blob = await response.blob();
+          
+          zip.file(file.output.name, blob);
+        } catch (error) {
+          console.error(`Error adding ${file.output.name} to zip:`, error);
+        }
+      }
+      
+      const content = await zip.generateAsync({ type: "blob" });
+      
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.download = `converted_${this.format}_to_${this.format2}_files.zip`;
+      a.href = url;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      // Clean up the URL object
+      URL.revokeObjectURL(url);
     },
     clearAll() {
       this.$store.dispatch("clearFiles");
