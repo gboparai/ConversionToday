@@ -45,18 +45,11 @@
   }
 }
 .files {
-  @include mid-width-flex;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  @include mid-width;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 1rem;
-
-  @media screen and (max-width: $tablet-break) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  @media screen and (max-width: $mobile-break) {
-    grid-template-columns: repeat(1, 1fr);
-  }
 }
 .batchBar {
   @include mid-width;
