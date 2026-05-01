@@ -1,20 +1,33 @@
 <style scoped lang="scss">
 @import "src/styles/_utilities";
+
 .information {
-  padding: 0.5rem 1rem;
-  background-color: lighten($alBlack, 10);
+  padding: 1rem 1.25rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: $default-radius;
-  transition: 0.6s ease, padding 0.1s ease;
-  display: inline-block;
+  box-shadow: var(--shadow-sm);
   text-decoration: none;
-  color: $alWhite;
+  color: var(--text-primary);
+  transition: box-shadow 0.2s, border-color 0.2s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-accent);
+  }
 }
-.informationDescription {
-  margin-top: 10px;
-}
+
 .informationName {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.informationDescription {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 </style>
 

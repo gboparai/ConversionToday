@@ -1,72 +1,61 @@
 <style scoped lang="scss">
 @import "src/styles/_utilities";
+
 .card {
-  padding: 0.5rem 1rem;
-  background-color: lighten($alBlack, 10);
+  padding: 1.25rem 1.5rem 3.5rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: $default-radius;
-  transition: 0.6s ease, padding 0.1s ease;
-  display: inline-block;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, border-color 0.2s;
+  display: block;
   text-decoration: none;
-  color: $alWhite;
-  padding-bottom: 40px;
+  color: var(--text-primary);
   text-align: center;
-}
-.cardName {
-  text-align: center;
-}
-.cardDescription {
-  text-align: center;
-  margin-top: 10px;
-}
-.cardType {
-  display: inline-block;
-  background-color: $alWhite;
-  color: $alBlack;
-  text-align: center;
-  padding: 3px 25px 3px 10px;
-  border-radius: 10px;
 
-  position: relative;
-  appearance: none;
-}
-
-.arrow {
-  content: "";
-  position: absolute;
-  top: calc(50% - 3px);
-  right: 10px;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 6px 6px 0 6px;
-  border-color: $alBlack transparent transparent transparent;
-  pointer-events: none; /* Ensure the arrow doesn't interfere with clicks */
-  z-index: 2;
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-accent);
+  }
 }
 
 .cardTypeContainer {
-  display: inline-block;
-  text-align: center;
-  position: relative;
-  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
 }
+
 .cardName {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  text-align: center;
+  margin: 0.75rem 0 0.5rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
 }
+
+.cardDescription {
+  text-align: center;
+  margin-top: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .cardLink {
   text-align: center;
   font-weight: bold;
-  font-size: 1.1rem;
-  padding: 10px 0px;
+  font-size: 0.9rem;
+  padding: 0.6rem 0;
   position: absolute;
-  bottom: 10px;
+  bottom: 0.75rem;
   width: 100%;
-  left: 0px;
+  left: 0;
+
   a {
     cursor: pointer;
-    color: $alWhite;
+    color: var(--accent);
     text-decoration: none;
+    font-weight: 700;
+    &:hover { text-decoration: underline; }
   }
 }
 </style>
@@ -74,17 +63,11 @@
 <template>
   <div class="card">
     <div class="cardTypeContainer">
-      <span class="arrow"></span>
-      <select class="cardType" @change="handleChange">
-        <option
-          v-for="format in formats"
-          :key="format.name"
-          :value="format.name"
-          :selected="format.name === selectedFormat"
-        >
-          {{ format.name }}
-        </option>
-      </select>
+      <searchable-select
+        :options="formatOptions"
+        :model-value="selectedFormat"
+        @change="onSelectChange"
+      />
     </div>
     <h2 class="cardName"><slot name="header"></slot></h2>
     <p class="cardDescription"><slot name="description"></slot></p>
@@ -95,8 +78,10 @@
 </template>
 
 <script>
+import SearchableSelect from "@/components/searchable-select.vue";
 export default {
   name: "card",
+  components: { SearchableSelect },
   props: {
     path: String,
     formats: {
@@ -110,6 +95,19 @@ export default {
     handleChange: {
       type: Function,
       required: true,
+    },
+  },
+  computed: {
+    formatOptions() {
+      return this.formats.map((f) => ({
+        value: f.name,
+        label: f.name.toUpperCase(),
+      }));
+    },
+  },
+  methods: {
+    onSelectChange(value) {
+      this.handleChange({ target: { value } });
     },
   },
 };

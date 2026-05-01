@@ -7,12 +7,14 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 0;
-  margin-bottom: 50px;
+  margin-bottom: 2rem;
+  gap: 0.5rem;
 }
+
 .selector {
   position: relative;
-  margin: 0 0.25rem 0.5rem 0.25rem;
+  margin: 0 0.2rem 0.4rem 0.2rem;
+
   input {
     position: absolute;
     z-index: -1;
@@ -22,36 +24,37 @@
     display: block;
     margin: 0;
     padding: 0;
-    // visibility: hidden;
   }
   input:checked + .select {
     font-weight: 900;
-    background-color: lighten($alBlack, 5);
+    background-color: var(--accent);
+    color: var(--accent-text);
     cursor: default;
-    > p {
-      transform: scale(1.2);
-    }
+    > p { transform: scale(1.05); }
   }
   input:focus + .select {
     transition: all 0.6s ease, box-shadow 0.1s ease;
-    box-shadow: 0 0 0 2px $blue;
-    &:hover {
-      transition: 0.1s ease;
-    }
+    box-shadow: 0 0 0 2px var(--border-focus);
+    &:hover { transition: 0.1s ease; }
   }
   .select {
-    padding: 0.5rem 1rem;
-    background-color: lighten($alBlack, 10);
+    padding: 0.4rem 0.9rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: $default-radius;
-    transition: 0.6s ease, padding 0.1s ease;
+    transition: 0.15s ease;
     display: inline-block;
     text-decoration: none;
-    color: $alWhite;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+
     &:hover {
-      transition: 0.1s ease;
-      transform: scale(1.1);
-      opacity: 1;
-      cursor: pointer;
+      background-color: var(--bg-surface-hover);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
     }
     > p {
       transition: 0.1s ease;
@@ -59,19 +62,44 @@
     }
   }
 }
+
+.search-wrapper {
+  @include mid-width;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  gap: 0.75rem;
+}
+
 .desc {
   @include mid-width;
   text-align: center;
   margin-top: 0;
   margin-bottom: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
 }
+
 @media only screen and (max-width: 55rem) {
   .selectorCon {
-    margin-bottom: 10px;
+    margin-bottom: 0.75rem;
+  }
+  .search-wrapper {
+    flex-direction: column;
+    padding: 0 1.25rem;
   }
 }
 </style>
 <template>
+  <div class="search-wrapper">
+    <searchable-select
+      :options="formatOptions"
+      :model-value="selectedFormat || ''"
+      placeholder="Search & select format…"
+      @change="onFormatChange"
+    />
+  </div>
   <div class="selectorCon">
     <div class="selector" v-for="format in formats" :key="format.name">
       <a class="select" :href="'/' + path + '/' + format.name">
@@ -84,8 +112,10 @@
 </template>
 
 <script>
+import SearchableSelect from "@/components/searchable-select.vue";
 export default {
   name: "formatSelector",
+  components: { SearchableSelect },
   props: {
     isFrom: Boolean,
     path: String,
@@ -94,24 +124,18 @@ export default {
   },
   computed: {
     formats() {
-      var paths = ["/"];
-      this.$store.state.formats
-        .filter((format) => {
-          return !format.isConvertToOnly;
-        })
-        .forEach((from) => {
-          paths.push("/image/" + from.name);
-          this.$store.state.formats.forEach((to) => {
-            paths.push("/image/" + from.name + "/" + to.name);
-          });
-        });
       if (this.isFrom) {
-        return this.$store.state.formats.filter((format) => {
-          return !format.isConvertToOnly;
-        });
-      } else {
-        return this.$store.state.formats;
+        return this.$store.state.formats.filter((f) => !f.isConvertToOnly);
       }
+      return this.$store.state.formats;
+    },
+    formatOptions() {
+      return this.formats.map((f) => ({ value: f.name, label: f.name.toUpperCase() }));
+    },
+  },
+  methods: {
+    onFormatChange(value) {
+      window.location.href = "/" + this.path + "/" + value;
     },
   },
 };
