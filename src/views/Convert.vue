@@ -144,6 +144,24 @@
   color: var(--text-primary);
 }
 
+.supportedConversionsSearch {
+  display: block;
+  width: min(28rem, 100%);
+  margin: 0 auto 0.85rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: $default-radius;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.supportedConversionsSearch:focus {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+
 .supportedConversionsListContainter {
   display: flex;
   justify-content: stretch;
@@ -278,6 +296,13 @@
   <div class="infomationContainer">
     <div>
       <h3 class="supportedConversionsTitle">Supported Conversions</h3>
+      <input
+        v-model="conversionSearch"
+        class="supportedConversionsSearch"
+        type="search"
+        placeholder="Filter conversions (example: jpg, png, ai)"
+        aria-label="Filter supported conversions"
+      />
       <div class="supportedConversionsListContainter">
         <list :listOptions="formatList1" />
         <list :listOptions="formatList2" />
@@ -382,6 +407,7 @@ export default {
       fileInDropZone: 0,
       format: this.$route.params.format,
       format2: this.$route.params.format2,
+      conversionSearch: "",
     };
   },
   computed: {
@@ -407,9 +433,13 @@ export default {
       });
     },
     formatList1() {
+      const query = this.conversionSearch.trim().toLowerCase();
       return this.$store.state.formats
         .filter((format) => {
-          return format.name != this.$route.params.format;
+          if (format.name == this.$route.params.format) return false;
+          if (!query) return true;
+          const itemText = `${this.format} ${format.name}`.toLowerCase();
+          return itemText.includes(query);
         })
         .map((formatList, index) => {
           return `<a href="/image/${this.format}/${formatList.name}">${
@@ -418,11 +448,15 @@ export default {
         });
     },
     formatList2() {
+      const query = this.conversionSearch.trim().toLowerCase();
       return this.$store.state.formats
         .filter((format) => {
-          return (
-            !format.isConvertToOnly && format.name != this.$route.params.format2
-          );
+          if (format.isConvertToOnly || format.name == this.$route.params.format2) {
+            return false;
+          }
+          if (!query) return true;
+          const itemText = `${format.name} ${this.format2}`.toLowerCase();
+          return itemText.includes(query);
         })
         .map((formatList, index) => {
           return `<a  href="/image/${formatList.name}/${this.format2}">${

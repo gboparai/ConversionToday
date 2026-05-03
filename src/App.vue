@@ -1,12 +1,15 @@
 <template>
   <nav id="nav">
-    <div class="nav__left">
-      <router-link to="/" class="nav__brand">Conversion Today</router-link>
-    </div>
     <div class="nav__links">
       <router-link to="/">Home</router-link>
       <router-link to="/About">About</router-link>
       <router-link to="/FAQ">FAQ</router-link>
+      <a
+        :href="resolvedGithubUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub Repository"
+      >GitHub</a>
     </div>
     <button
       class="theme-toggle"
@@ -27,15 +30,17 @@
     width="350"
     class="logo"
     alt="conversion today logo"
-    src="/img/logo-conversion-today-3.webp"
+    :src="logoSrc"
   />
 
   <router-view />
   <!-- GitHub Corner -->
   <github-corners
     fixed
-    target="__blank"
-    :href="githubUrl"
+    bottom
+    :zIndex="2000"
+    target="_blank"
+    :href="resolvedGithubUrl"
     :bgColor="cornerBgColor"
     :color="cornerColor"
     :position="cornerPosition"
@@ -78,7 +83,8 @@ a {
 #nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 1rem;
   padding: 0 2rem;
   height: 3.5rem;
   background-color: var(--nav-bg);
@@ -88,17 +94,10 @@ a {
   position: sticky;
   top: 0;
   z-index: 100;
-
-  .nav__brand {
-    font-size: 1.1rem;
-    font-weight: 900;
-    color: var(--accent);
-    letter-spacing: 0.02em;
-  }
-
   .nav__links {
     display: flex;
     gap: 1.5rem;
+    margin-right: auto;
 
     a {
       color: var(--text-secondary);
@@ -218,9 +217,9 @@ export default {
   data() {
     return {
       githubUrl: process.env.VUE_APP_GITHUB_URL,
-      cornerBgColor: "var(--bg-surface)",
-      cornerColor: "var(--text-primary)",
-      cornerPosition: "left",
+      cornerBgColor: "#1f2937",
+      cornerColor: "#ffffff",
+      cornerPosition: "right",
       isDark: true,
     };
   },
@@ -249,6 +248,16 @@ export default {
         "data-theme",
         prefersDark ? "dark" : "light"
       );
+    },
+  },
+  computed: {
+    resolvedGithubUrl() {
+      return this.githubUrl || "https://github.com";
+    },
+    logoSrc() {
+      return this.isDark
+        ? "/img/logo-conversion-today-3.webp"
+        : "/img/logo-conversion-today-3-dark.png";
     },
   },
   mounted() {

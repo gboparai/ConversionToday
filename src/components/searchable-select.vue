@@ -3,8 +3,11 @@
 
 .ss-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
   min-width: 160px;
+  margin: 0 auto;
   user-select: none;
 }
 
@@ -54,11 +57,12 @@
 .ss-dropdown {
   position: absolute;
   top: calc(100% + 4px);
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 200;
   min-width: 100%;
   width: max-content;
-  max-width: 280px;
+  max-width: min(90vw, 320px);
   background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: $default-radius;
@@ -68,8 +72,8 @@
 }
 
 @keyframes ss-fade-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .ss-search {

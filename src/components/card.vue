@@ -72,7 +72,7 @@
     <h2 class="cardName"><slot name="header"></slot></h2>
     <p class="cardDescription"><slot name="description"></slot></p>
     <div class="cardLink">
-      <a :href="path"> change </a>
+      <a :href="path"> Change </a>
     </div>
   </div>
 </template>
