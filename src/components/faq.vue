@@ -1,49 +1,66 @@
 <style scoped lang="scss">
 @import "src/styles/_utilities";
+
 .faq {
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 640px;
+  margin: 0 auto 1.5rem;
 }
 
 .faqItem {
-  margin-bottom: 20px;
+  margin-bottom: 0.75rem;
+  border-radius: $default-radius;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .faqQuestion {
   cursor: pointer;
-  font-weight: bold;
-  padding: 10px;
-  background-color: lighten($alBlack, 10);
-  border-radius: 5px;
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background-color 0.15s;
+  font-size: 0.95rem;
+
+  &:hover {
+    background-color: var(--bg-surface-hover);
+  }
 }
 
 .arrow {
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: 5px 5px 0 5px;
-  margin-right: 10px;
+  flex-shrink: 0;
+  margin-left: 0.75rem;
+  transition: transform 0.2s;
 }
 
 .arrowDown {
-  border-color: #ddd transparent transparent transparent;
+  border-width: 5px 4px 0 4px;
+  border-color: var(--text-secondary) transparent transparent transparent;
+  transform: rotate(180deg);
 }
 
 .arrowUp {
-  border-width: 0 5px 5px 5px;
-  border-color: transparent transparent #ddd transparent;
+  border-width: 5px 4px 0 4px;
+  border-color: var(--text-secondary) transparent transparent transparent;
 }
 
 .faqAnswer {
-  padding: 10px;
-  border: 1px solid $alWhite;
-  border-radius: 5px;
-  background-color: lighten($alBlack, 10);
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  border-top: 1px solid var(--border);
 }
 </style>
+
 <template>
   <div class="faq">
     <div v-for="(faq, index) in faqs" :key="index" class="faqItem">
@@ -74,5 +91,4 @@ export default {
   },
 };
 </script>
-
 

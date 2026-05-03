@@ -3,12 +3,21 @@
 
 .toTitle {
   text-align: center;
-  margin-top: 0px;
+  margin-top: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
 }
+
 .FAQTitle {
   text-align: center;
-  font-size: 2rem;
+  font-size: 1.75rem;
   margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
 }
 </style>
 

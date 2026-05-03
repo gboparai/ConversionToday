@@ -4,33 +4,34 @@
 .fileInput {
   @include mid-width;
   display: block;
-  height: 10rem;
-  background-color: rgba($alWhite, 0.5);
-  margin-bottom: 1rem;
+  height: 9rem;
+  margin-bottom: 1.25rem;
   position: relative;
-  color: $alBlack;
-  font-size: 1rem;
-  font-weight: 900;
-  box-shadow: 0 0px 0 0 rgba($alWhite, 0.5);
-  border-radius: $default-radius;
-  margin-bottom: 50px;
   cursor: pointer;
+  border-radius: $default-radius;
+  box-shadow: var(--shadow-sm);
+
   > .file {
-    transition: 0.6s ease;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
     border-radius: $default-radius;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: $alWhite;
+    background-color: var(--bg-surface);
+    border: 2px dashed var(--border);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 700;
   }
   &:hover > .file {
-    transform: translateY(-4px);
-    transition: 0.1s ease;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+    color: var(--text-primary);
   }
   &:active > .file {
-    transform: translateY(0px);
-    transition: 0.1s ease;
+    transform: translateY(0);
   }
   > input {
     position: absolute;
@@ -41,9 +42,10 @@
   }
   > input:focus + .file {
     transition: 0.1s ease;
-    box-shadow: 0 0 0 2px $blue;
+    box-shadow: 0 0 0 2px var(--border-focus);
   }
 }
+
 .files {
   @include mid-width;
   display: flex;
@@ -51,43 +53,52 @@
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
+
 .batchBar {
   @include mid-width;
   display: flex;
   flex-wrap: wrap;
-  text-align: center;
-  position: relative;
-  margin-bottom: 1rem;
-  > * {
-    display: inline-block;
-    &:not(:last-child) {
-      margin-right: 1rem;
-    }
-  }
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+
   &__button {
     flex: 1;
+    min-width: 120px;
     border: none;
-    background-color: rgba($alWhite, 0.5);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: $default-radius;
-    color: $alBlack;
-    font-size: 1rem;
-    font-weight: 900;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
     padding: 0;
-
     cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    box-shadow: var(--shadow-sm);
+
     > div {
-      background-color: $alWhite;
-      padding: 0.5rem 1rem;
+      background-color: var(--bg-secondary);
+      padding: 0.55rem 1rem;
       border-radius: $default-radius;
       height: 100%;
+      transition: background-color 0.15s, transform 0.15s;
     }
+
     &[disabled] {
       cursor: not-allowed;
-      opacity: 0.5;
+      opacity: 0.4;
     }
-    &:not([disabled]):hover > div {
-      transition: 0.1s ease;
-      transform: translateY(-4px);
+    &:not([disabled]):hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      > div {
+        background-color: var(--bg-surface-hover);
+        transform: translateY(-2px);
+      }
+    }
+    &:not([disabled]):active > div {
+      transform: translateY(0);
     }
   }
 }
@@ -97,16 +108,18 @@
   position: fixed;
   z-index: 100;
   margin: 0;
-  background-color: rgba($alBlack, 0.75);
-  box-shadow: inset 0 0 200px $alWhite;
+  background-color: rgba(15, 17, 23, 0.85);
+  backdrop-filter: blur(6px);
+  border: 3px solid var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 7rem;
+  font-size: 5rem;
   font-weight: 900;
   pointer-events: none;
   overflow: hidden;
   text-align: center;
+  color: var(--text-primary);
 }
 
 .listItem {
@@ -122,11 +135,33 @@
 .listLeaveActive {
   position: absolute;
 }
+
 .supportedConversionsTitle {
   text-align: center;
-  font-size: 2rem;
-  margin-top: 2rem;
+  font-size: 1.75rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
 }
+
+.supportedConversionsSearch {
+  display: block;
+  width: min(28rem, 100%);
+  margin: 0 auto 0.85rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: $default-radius;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.supportedConversionsSearch:focus {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+
 .supportedConversionsListContainter {
   display: flex;
   justify-content: stretch;
@@ -134,6 +169,7 @@
   flex-direction: row;
 }
 </style>
+
 
 <template>
   <descriptor>
@@ -260,6 +296,13 @@
   <div class="infomationContainer">
     <div>
       <h3 class="supportedConversionsTitle">Supported Conversions</h3>
+      <input
+        v-model="conversionSearch"
+        class="supportedConversionsSearch"
+        type="search"
+        placeholder="Filter conversions (example: jpg, png, ai)"
+        aria-label="Filter supported conversions"
+      />
       <div class="supportedConversionsListContainter">
         <list :listOptions="formatList1" />
         <list :listOptions="formatList2" />
@@ -364,6 +407,7 @@ export default {
       fileInDropZone: 0,
       format: this.$route.params.format,
       format2: this.$route.params.format2,
+      conversionSearch: "",
     };
   },
   computed: {
@@ -389,9 +433,13 @@ export default {
       });
     },
     formatList1() {
+      const query = this.conversionSearch.trim().toLowerCase();
       return this.$store.state.formats
         .filter((format) => {
-          return format.name != this.$route.params.format;
+          if (format.name == this.$route.params.format) return false;
+          if (!query) return true;
+          const itemText = `${this.format} ${format.name}`.toLowerCase();
+          return itemText.includes(query);
         })
         .map((formatList, index) => {
           return `<a href="/image/${this.format}/${formatList.name}">${
@@ -400,11 +448,15 @@ export default {
         });
     },
     formatList2() {
+      const query = this.conversionSearch.trim().toLowerCase();
       return this.$store.state.formats
         .filter((format) => {
-          return (
-            !format.isConvertToOnly && format.name != this.$route.params.format2
-          );
+          if (format.isConvertToOnly || format.name == this.$route.params.format2) {
+            return false;
+          }
+          if (!query) return true;
+          const itemText = `${format.name} ${this.format2}`.toLowerCase();
+          return itemText.includes(query);
         })
         .map((formatList, index) => {
           return `<a  href="/image/${formatList.name}/${this.format2}">${

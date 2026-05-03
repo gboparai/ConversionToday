@@ -10,7 +10,55 @@ $blue: #03a9f4;
 $tablet-break: 56rem;
 $mobile-break: 35rem;
 
-$default-radius: 0.5rem;
+$default-radius: 0.625rem;
+
+// ── CSS custom properties for theming ────────────────────────────────────────
+:root {
+  // dark mode (default)
+  --bg-primary:    #0f1117;
+  --bg-secondary:  #1a1d27;
+  --bg-surface:    #242736;
+  --bg-surface-hover: #2c3045;
+  --text-primary:  #e4e6f0;
+  --text-secondary: #9399b2;
+  --accent:        #03a9f4;
+  --accent-hover:  #0288d1;
+  --accent-text:   #000;
+  --border:        rgba(255, 255, 255, 0.08);
+  --border-focus:  #03a9f4;
+  --border-accent: rgba(3, 169, 244, 0.25);
+  --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md:     0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-focus:  0 0 0 2px rgba(3, 169, 244, 0.3);
+  --negative:      #ef5350;
+  --positive:      #66bb6a;
+  --positive-text: #000;
+  --nav-bg:        rgba(15, 17, 23, 0.85);
+  --toggle-icon:   "☀️";
+}
+
+[data-theme="light"] {
+  --bg-primary:    #f0f4f9;
+  --bg-secondary:  #ffffff;
+  --bg-surface:    #e8edf5;
+  --bg-surface-hover: #dde4ef;
+  --text-primary:  #1a1d27;
+  --text-secondary: #5a647a;
+  --accent:        #0277bd;
+  --accent-hover:  #01579b;
+  --accent-text:   #fff;
+  --border:        rgba(0, 0, 0, 0.1);
+  --border-focus:  #0277bd;
+  --border-accent: rgba(2, 119, 189, 0.25);
+  --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md:     0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-focus:  0 0 0 2px rgba(2, 119, 189, 0.3);
+  --negative:      #c62828;
+  --positive:      #2e7d32;
+  --positive-text: #fff;
+  --nav-bg:        rgba(240, 244, 249, 0.9);
+  --toggle-icon:   "🌙";
+}
 
 @mixin mid-width {
     width: 55rem;

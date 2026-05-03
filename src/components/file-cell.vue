@@ -8,7 +8,8 @@
   justify-content: center;
   gap: 0.75rem;
   padding: 0.6rem 1rem;
-  background-color: lighten($alBlack, 10);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: $default-radius;
   overflow: hidden;
   position: relative;
@@ -22,11 +23,11 @@
     z-index: 0;
     background: linear-gradient(
       90deg,
-      rgba($alBlack, 0) 0%,
-      rgba($alBlack, 0.6) 25%,
-      rgba($alBlack, 0) 50%,
-      rgba($alBlack, 0.6) 75%,
-      rgba($alBlack, 0) 100%
+      rgba(3, 169, 244, 0) 0%,
+      rgba(3, 169, 244, 0.15) 25%,
+      rgba(3, 169, 244, 0) 50%,
+      rgba(3, 169, 244, 0.15) 75%,
+      rgba(3, 169, 244, 0) 100%
     );
     animation-name: scan;
     animation-duration: 1s;
@@ -40,26 +41,27 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     position: relative;
     z-index: 1;
+    color: var(--text-primary);
   }
 
   .status-badge {
     flex-shrink: 0;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     padding: 0.2rem 0.55rem;
     border-radius: 0.9rem;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
     position: relative;
     z-index: 1;
 
-    &--waiting    { background-color: rgba($alWhite, 0.25); color: $white; }
-    &--converting { background-color: $blue;                color: $black; }
-    &--failed     { background-color: $negative;            color: $white; }
-    &--successful { background-color: $positive;            color: $white; }
+    &--waiting    { background-color: var(--bg-surface-hover); color: var(--text-secondary); }
+    &--converting { background-color: var(--accent);           color: var(--accent-text); }
+    &--failed     { background-color: var(--negative);         color: #fff; }
+    &--successful { background-color: var(--positive);         color: var(--positive-text); }
   }
 
   .remove-btn {
@@ -97,11 +99,17 @@
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.25);
-    color: $white;
+    background-color: var(--positive);
+    color: var(--positive-text);
     text-decoration: none;
     position: relative;
     z-index: 1;
+    transition: transform 0.15s, box-shadow 0.15s;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
 
     svg {
       width: 1.25rem;
@@ -121,6 +129,7 @@
   100% { transform: translateX(0%); }
 }
 </style>
+
 <template>
   <div class="file-row">
     <transition name="fade">

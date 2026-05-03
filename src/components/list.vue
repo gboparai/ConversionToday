@@ -5,10 +5,19 @@
   width: 100%;
   padding: 0;
   list-style: none;
+  margin: 0;
 }
 .listItem {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid $alWhite;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+
+  :deep(a) {
+    color: var(--accent);
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
 }
 </style>
 <template>
