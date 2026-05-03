@@ -498,6 +498,9 @@ export default createStore({
             let file = state.files.find(file => file.id === id);
             file.status = status;
         },
+        removeFile(state, id) {
+            state.files = state.files.filter(file => file.id !== id);
+        },
 
 
         // others

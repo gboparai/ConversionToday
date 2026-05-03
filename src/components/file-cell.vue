@@ -5,6 +5,7 @@
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   padding: 0.6rem 1rem;
   background-color: lighten($alBlack, 10);
@@ -61,6 +62,33 @@
     &--successful { background-color: $positive;            color: $white; }
   }
 
+  .remove-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: $negative;
+    color: $white;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      fill: currentColor;
+    }
+
+    &:hover {
+      background-color: darken($negative, 10%);
+      color: $white;
+    }
+  }
+
   .download-btn {
     flex-shrink: 0;
     display: flex;
@@ -69,15 +97,15 @@
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
-    background-color: $positive;
+    background-color: rgba(255, 255, 255, 0.25);
     color: $white;
     text-decoration: none;
     position: relative;
     z-index: 1;
 
     svg {
-      width: 1rem;
-      height: 1rem;
+      width: 1.25rem;
+      height: 1.25rem;
       fill: currentColor;
     }
 
@@ -103,7 +131,19 @@
 
     <span :class="['status-badge', statusClass]">{{ statusLabel }}</span>
 
+    <button
+      v-if="file.status === FILE_STATUS.waiting || file.status === FILE_STATUS.initialized"
+      class="remove-btn"
+      @click="$store.commit('removeFile', file.id)"
+      title="Remove"
+      aria-label="Remove file"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/>
+      </svg>
+    </button>
     <a
+      v-else
       :class="['download-btn', newFileName === null ? 'download-btn--hidden' : '']"
       :href="blobURL"
       :download="newFileName"
