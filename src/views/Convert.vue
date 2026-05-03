@@ -185,7 +185,7 @@
     </card>
   </div>
   <label class="fileInput">
-    <input @change="input" type="file" name="thing" id="" multiple />
+    <input @change="input" type="file" name="thing" id="" multiple accept="image/*" />
     <div class="file">
       <p>Add Images Here</p>
     </div>

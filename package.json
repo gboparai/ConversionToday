@@ -4,8 +4,8 @@
   "private": true,
   "license": "CC BY-NC-SA 4.0 DEED",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "lint": "vue-cli-service lint",
     "publish": "git subtree push --prefix dist origin gh-pages"
   },
