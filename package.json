@@ -10,10 +10,13 @@
     "publish": "git subtree push --prefix dist origin gh-pages"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "@imagemagick/magick-wasm": "^0.0.4",
     "@uivjs/vue-github-corners": "^1.0.1",
     "core-js": "^3.6.5",
     "jszip": "^3.10.1",
+    "mediabunny": "^1.44.0",
     "register-service-worker": "^1.7.1",
     "vue": "^3.0.0",
     "vue-gtag": "^2.0.1",

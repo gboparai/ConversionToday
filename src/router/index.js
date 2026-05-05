@@ -4,6 +4,8 @@ const Type  = () => import('../views/Type.vue')
 const Convert  = () => import('../views/Convert.vue')
 const FAQ  = () => import('../views/FAQ.vue')
 const About  = () => import('../views/About.vue')
+const AudioHome = () => import('../views/AudioHome.vue')
+const VideoHome = () => import('../views/VideoHome.vue')
 
 const routes = [
   {
@@ -12,6 +14,7 @@ const routes = [
     component: Home,
     
   },
+  // ── Image routes ────────────────────────────────────────────────────────
   {
     path: '/image/:format',
     name: 'ImageFormat',
@@ -20,6 +23,38 @@ const routes = [
   {
     path: '/image/:format/:format2',
     name: 'ImageConversion',
+    component: Convert
+  },
+  // ── Audio routes ────────────────────────────────────────────────────────
+  {
+    path: '/audio',
+    name: 'AudioHome',
+    component: AudioHome
+  },
+  {
+    path: '/audio/:format',
+    name: 'AudioFormat',
+    component: Type
+  },
+  {
+    path: '/audio/:format/:format2',
+    name: 'AudioConversion',
+    component: Convert
+  },
+  // ── Video routes ────────────────────────────────────────────────────────
+  {
+    path: '/video',
+    name: 'VideoHome',
+    component: VideoHome
+  },
+  {
+    path: '/video/:format',
+    name: 'VideoFormat',
+    component: Type
+  },
+  {
+    path: '/video/:format/:format2',
+    name: 'VideoConversion',
     component: Convert
   },
   {

@@ -121,13 +121,23 @@ export default {
     path: String,
     name: String,
     selectedFormat: String,
+    mediaType: {
+      type: String,
+      default: 'image',
+    },
   },
   computed: {
     formats() {
+      const list = this.$store.state[this.formatsKey];
       if (this.isFrom) {
-        return this.$store.state.formats.filter((f) => !f.isConvertToOnly);
+        return list.filter((f) => !f.isConvertToOnly);
       }
-      return this.$store.state.formats;
+      return list;
+    },
+    formatsKey() {
+      if (this.mediaType === 'audio') return 'audioFormats';
+      if (this.mediaType === 'video') return 'videoFormats';
+      return 'formats';
     },
     formatOptions() {
       return this.formats.map((f) => ({ value: f.name, label: f.name.toUpperCase() }));

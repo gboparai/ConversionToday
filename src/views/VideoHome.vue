@@ -1,68 +1,65 @@
-
 <template>
   <descriptor>
-    <template #header>Free File Converter</template>
+    <template #header>Video Converter</template>
     <template #description>
-      Conversion Today allows you to convert unlimited files online for free —
-      images, audio and video. All processing happens locally in your browser.
+      Convert unlimited video files online for free. Supports MP4, WebM, MKV,
+      MOV, AVI and more — all processed locally in your browser.
     </template>
   </descriptor>
 
   <div class="mediaTypeNav">
-    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/">🖼️ Image</a>
+    <a class="mediaTypeNav__card" href="/">🖼️ Image</a>
     <a class="mediaTypeNav__card" href="/audio">🎵 Audio</a>
-    <a class="mediaTypeNav__card" href="/video">🎬 Video</a>
+    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/video">🎬 Video</a>
   </div>
 
-  <format-selector :isFrom="true" path="image" name="from"></format-selector>
+  <format-selector :isFrom="true" path="video" name="from" mediaType="video"></format-selector>
   <div class="infomationContainer">
     <information>
-      <template #header>2500+ Conversion Pairs</template>
+      <template #header>Wide Format Support</template>
       <template #description>
-        Conversion Today supports 2500+ different conversion pairs and 50+
-        different file formats.
+        Convert between MP4, WebM, MKV, MOV, AVI, WMV, FLV, 3GP, MPEG and
+        more. Powered by Mediabunny and FFmpeg.
       </template>
     </information>
     <information>
-      <template #header>Fast and easy </template>
+      <template #header>Fast and Easy</template>
       <template #description>
-        Just choose the input and output formats, drop the files and click
-        "Convert" button. Wait a little for the process to complete. Finally
-        download.
+        Drop your video files, choose an output format and click "Process All".
+        Conversion is handled locally — no uploads, no waiting.
       </template>
     </information>
     <information>
       <template #header>Truly Unlimited</template>
       <template #description>
-        We provide unlimited number of conversions per day and place no
-        ristrictions on the size of the files. All for free.
+        No limits on the number of files or file size. All conversions are
+        completely free.
       </template>
     </information>
   </div>
   <div class="infomationContainer">
     <information>
-      <template #header>Browser-based </template>
+      <template #header>Browser-based</template>
       <template #description>
-        Conversion Today is browser-based and works for all platforms. There is
-        no need to download and install any software.
+        All video processing happens directly in your browser using
+        Mediabunny (WebCodecs) with an FFmpeg fallback for legacy formats.
+        Your files never leave your device.
       </template>
     </information>
     <information>
-      <template #header>Speed</template>
+      <template #header>Hardware-accelerated</template>
       <template #description>
-        We can convert 100's of files at once within 10 minutes or less.
+        Mediabunny uses the WebCodecs API for hardware-accelerated encoding and
+        decoding, making video conversion fast even for large files.
       </template>
     </information>
-
     <information>
       <template #header>Secure</template>
       <template #description>
-        All files remain in your browser and any converted files are removed as
-        soon as you close the page.
+        All files remain in your browser. No data is ever sent to a server.
       </template>
     </information>
   </div>
-  <!-- <resize-config></resize-config> -->
 </template>
 
 <script>
@@ -71,35 +68,33 @@ import Descriptor from "@/components/descriptor.vue";
 import Information from "@/components/information.vue";
 import { useMeta } from "vue-meta";
 export default {
-  name: "Home",
+  name: "VideoHome",
   setup() {
     useMeta({
-      title: "Free Unlimted File Converter - Conversion Today",
+      title: "Free Online Video Converter - Conversion Today",
       meta: [
         {
           name: "description",
           content:
-            "Convert files on online for free without reservation or limit. No file size limit. No limit on the number of files. 100% free, fast and easy to use.",
+            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more. Powered by Mediabunny and FFmpeg.",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free Unlimted File Converter - Conversion Today",
+          content: "Free Online Video Converter - Conversion Today",
         },
         {
           name: "twitter:description",
           content:
-            "Convert files on online for free without reservation or limit. No file size limit. No limit on the number of files. 100% free, fast and easy to use.",
+            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more.",
         },
-        // image must be an absolute path
         {
           name: "twitter:image",
           content: "https://conversiontoday.com/img/logo-conversion-today.png",
         },
-        // Facebook OpenGraph
         {
           property: "og:title",
-          content: "Free Unlimted File Converter - Conversion Today",
+          content: "Free Online Video Converter - Conversion Today",
         },
         { property: "og:site_name", content: "Conversion Today" },
         { property: "og:type", content: "website" },
@@ -110,19 +105,13 @@ export default {
         {
           property: "og:description",
           content:
-            "Convert files on online for free without reservation or limit. No file size limit. No limit on the number of files. 100% free, fast and easy to use.",
+            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more.",
         },
       ],
-      link: [
-        {
-          rel: "canonical",
-          href: "https://conversiontoday.com",
-        },
-      ],
+      link: [{ rel: "canonical", href: "https://conversiontoday.com/video" }],
       htmlAttrs: { lang: "en", amp: true },
     });
   },
-
   components: {
     FormatSelector,
     Descriptor,

@@ -5,6 +5,13 @@ const path = require('path');
 module.exports = {
     publicPath: '/',
 
+    // Transpile mediabunny and @ffmpeg packages through Babel (they use modern JS syntax)
+    transpileDependencies: [
+        'mediabunny',
+        '@ffmpeg/ffmpeg',
+        '@ffmpeg/util',
+    ],
+
     pwa: {
         name: 'Conversion Today',
         themeColor: '#545454',
@@ -434,7 +441,24 @@ module.exports = {
                         "/image/xv/pam", "/image/xv/pbm", "/image/xv/pcd", "/image/xv/pcds", "/image/xv/pcl", "/image/xv/pcx",
                         "/image/xv/pfa", "/image/xv/pgm", "/image/xv/psb", "/image/xv/ptif", "/image/xv/p7",
                         "/image/xv/ras", "/image/xv/sgi", "/image/xv/sun", "/image/xv/tga", "/image/xv/vda",
-                        "/image/xv/vicar", "/image/xv/viff", "/image/xv/vips", "/image/xv/xbm", "/image/xv/xpm", "/image/xv/xv", "/about", "/FAQ"],
+                        "/image/xv/vicar", "/image/xv/viff", "/image/xv/vips", "/image/xv/xbm", "/image/xv/xpm", "/image/xv/xv",
+                        // Audio routes
+                        "/audio",
+                        "/audio/mp3", "/audio/mp3/wav", "/audio/mp3/ogg", "/audio/mp3/flac", "/audio/mp3/aac", "/audio/mp3/m4a", "/audio/mp3/opus", "/audio/mp3/webm", "/audio/mp3/wma",
+                        "/audio/wav", "/audio/wav/mp3", "/audio/wav/ogg", "/audio/wav/flac", "/audio/wav/aac", "/audio/wav/m4a", "/audio/wav/opus", "/audio/wav/webm", "/audio/wav/wma",
+                        "/audio/ogg", "/audio/ogg/mp3", "/audio/ogg/wav", "/audio/ogg/flac", "/audio/ogg/aac", "/audio/ogg/m4a", "/audio/ogg/opus", "/audio/ogg/webm", "/audio/ogg/wma",
+                        "/audio/flac", "/audio/flac/mp3", "/audio/flac/wav", "/audio/flac/ogg", "/audio/flac/aac", "/audio/flac/m4a", "/audio/flac/opus", "/audio/flac/webm", "/audio/flac/wma",
+                        "/audio/aac", "/audio/aac/mp3", "/audio/aac/wav", "/audio/aac/ogg", "/audio/aac/flac", "/audio/aac/m4a", "/audio/aac/opus", "/audio/aac/webm", "/audio/aac/wma",
+                        "/audio/m4a", "/audio/m4a/mp3", "/audio/m4a/wav", "/audio/m4a/ogg", "/audio/m4a/flac", "/audio/m4a/aac", "/audio/m4a/opus", "/audio/m4a/webm", "/audio/m4a/wma",
+                        "/audio/wma", "/audio/wma/mp3", "/audio/wma/wav", "/audio/wma/ogg", "/audio/wma/flac", "/audio/wma/aac", "/audio/wma/m4a", "/audio/wma/opus", "/audio/wma/webm",
+                        // Video routes
+                        "/video",
+                        "/video/mp4", "/video/mp4/webm", "/video/mp4/mkv", "/video/mp4/mov", "/video/mp4/avi", "/video/mp4/wmv", "/video/mp4/flv", "/video/mp4/3gp", "/video/mp4/mpeg",
+                        "/video/webm", "/video/webm/mp4", "/video/webm/mkv", "/video/webm/mov", "/video/webm/avi", "/video/webm/wmv", "/video/webm/flv", "/video/webm/3gp", "/video/webm/mpeg",
+                        "/video/mkv", "/video/mkv/mp4", "/video/mkv/webm", "/video/mkv/mov", "/video/mkv/avi", "/video/mkv/wmv", "/video/mkv/flv", "/video/mkv/3gp", "/video/mkv/mpeg",
+                        "/video/mov", "/video/mov/mp4", "/video/mov/webm", "/video/mov/mkv", "/video/mov/avi", "/video/mov/wmv", "/video/mov/flv", "/video/mov/3gp", "/video/mov/mpeg",
+                        "/video/avi", "/video/avi/mp4", "/video/avi/webm", "/video/avi/mkv", "/video/avi/mov", "/video/avi/wmv", "/video/avi/flv", "/video/avi/3gp", "/video/avi/mpeg",
+                        "/about", "/FAQ"],
                     // You have to configure or you won't precompile
                     ignoreHTTPSErrors: true,
 

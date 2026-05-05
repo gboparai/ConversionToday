@@ -143,7 +143,7 @@
     <button
       v-if="file.status === FILE_STATUS.waiting || file.status === FILE_STATUS.initialized"
       class="remove-btn"
-      @click="$store.commit('removeFile', file.id)"
+      @click="removeFile"
       title="Remove"
       aria-label="Remove file"
     >
@@ -172,6 +172,10 @@ export default {
   name: "fileCell",
   props: {
     file: Object,
+    mediaType: {
+      type: String,
+      default: 'image',
+    },
   },
   computed: {
     FILE_STATUS() {
@@ -185,7 +189,10 @@ export default {
       ) {
         url = URL.createObjectURL(this.file.output.blob);
       }
-      this.$store.commit("setUrl", { id: this.file.id, url: url });
+      const mutation = this.mediaType === 'audio' ? 'setAudioUrl'
+                     : this.mediaType === 'video' ? 'setVideoUrl'
+                     : 'setUrl';
+      this.$store.commit(mutation, { id: this.file.id, url: url });
       return url;
     },
     newFileName() {
@@ -196,7 +203,10 @@ export default {
           "." +
           this.file.output.config.format.extension;
       }
-      this.$store.commit("setName", { id: this.file.id, name: name });
+      const mutation = this.mediaType === 'audio' ? 'setAudioName'
+                     : this.mediaType === 'video' ? 'setVideoName'
+                     : 'setName';
+      this.$store.commit(mutation, { id: this.file.id, name: name });
       return name;
     },
     statusLabel() {
@@ -216,6 +226,14 @@ export default {
         case FILE_STATUS.processed:  return "status-badge--successful";
         default:                     return "status-badge--waiting";
       }
+    },
+  },
+  methods: {
+    removeFile() {
+      const mutation = this.mediaType === 'audio' ? 'removeAudioFile'
+                     : this.mediaType === 'video' ? 'removeVideoFile'
+                     : 'removeFile';
+      this.$store.commit(mutation, this.file.id);
     },
   },
 };
