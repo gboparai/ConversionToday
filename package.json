@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@ffmpeg/core": "^0.12.10",
-    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/ffmpeg": "^0.12.10",
     "@imagemagick/magick-wasm": "^0.0.4",
     "@uivjs/vue-github-corners": "^1.0.1",
     "core-js": "^3.6.5",

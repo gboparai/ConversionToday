@@ -904,7 +904,9 @@ export default createStore({
             const running = context.state.audioFiles.filter(
                 f => f.status === FILE_STATUS.processing
             ).length;
-            for (let i = 0; i < navigator.hardwareConcurrency - running; i++) {
+            const concurrency = navigator.hardwareConcurrency || 1;
+            const maxInFlight = Math.min(1, concurrency);
+            for (let i = 0; i < maxInFlight - running; i++) {
                 const waiting = context.state.audioFiles.find(f => f.status === FILE_STATUS.waiting);
                 if (!waiting) break;
                 context.dispatch('processAudioFile', waiting.id);
@@ -984,7 +986,9 @@ export default createStore({
             const running = context.state.videoFiles.filter(
                 f => f.status === FILE_STATUS.processing
             ).length;
-            for (let i = 0; i < navigator.hardwareConcurrency - running; i++) {
+            const concurrency = navigator.hardwareConcurrency || 1;
+            const maxInFlight = Math.min(1, concurrency);
+            for (let i = 0; i < maxInFlight - running; i++) {
                 const waiting = context.state.videoFiles.find(f => f.status === FILE_STATUS.waiting);
                 if (!waiting) break;
                 context.dispatch('processVideoFile', waiting.id);

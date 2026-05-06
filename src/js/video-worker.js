@@ -23,9 +23,22 @@ const FFMPEG_OUTPUT_EXTS = new Set([
     'mp4', 'webm', 'mkv', 'mov', 'avi', 'wmv', 'flv', '3gp', 'mpeg'
 ]);
 
+const MIME_TYPE_BY_EXT = {
+    mp4: 'video/mp4',
+    webm: 'video/webm',
+    mkv: 'video/x-matroska',
+    mov: 'video/quicktime',
+    avi: 'video/x-msvideo',
+    wmv: 'video/x-ms-wmv',
+    flv: 'video/x-flv',
+    '3gp': 'video/3gpp',
+    mpeg: 'video/mpeg',
+};
+
 let ffmpegInstance = null;
 let ffmpegScriptLoaded = false;
 let activeFfmpegTaskId = null;
+let processQueue = Promise.resolve();
 
 function supportsMediabunny() {
     return (
@@ -101,7 +114,13 @@ async function loadFfmpeg() {
     return ffmpegInstance;
 }
 
-async function convertWithFfmpeg(file, outputExtension, id) {
+function resolveVideoMimeType(config, outputExtension) {
+    return (config && config.format && config.format.mimeType) ||
+        MIME_TYPE_BY_EXT[outputExtension] ||
+        `video/${outputExtension}`;
+}
+
+async function convertWithFfmpeg(file, outputExtension, id, config) {
     if (!FFMPEG_OUTPUT_EXTS.has(outputExtension)) {
         throw new Error(`Unsupported video output format for ffmpeg: ${outputExtension}`);
     }
@@ -110,34 +129,26 @@ async function convertWithFfmpeg(file, outputExtension, id) {
     activeFfmpegTaskId = id;
     emitProgress(id, 0.05);
 
-    const inputName = `input.${(file.name.split('.').pop() || 'bin').toLowerCase()}`;
-    const outputName = `output.${outputExtension}`;
+    const inputExt = (file.name.split('.').pop() || 'bin').toLowerCase();
+    const unique = `${id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const inputName = `input-${unique}.${inputExt}`;
+    const outputName = `output-${unique}.${outputExtension}`;
 
-    await ff.writeFile(inputName, await fetchFile(file));
-    await ff.exec(['-i', inputName, '-y', outputName]);
-    emitProgress(id, 0.95);
+    try {
+        await ff.writeFile(inputName, await fetchFile(file));
+        await ff.exec(['-i', inputName, '-y', outputName]);
+        emitProgress(id, 0.95);
 
-    const data = await ff.readFile(outputName);
-    await ff.deleteFile(inputName);
-    await ff.deleteFile(outputName);
-
-    const mimeTypeByExt = {
-        mp4: 'video/mp4',
-        webm: 'video/webm',
-        mkv: 'video/x-matroska',
-        mov: 'video/quicktime',
-        avi: 'video/x-msvideo',
-        wmv: 'video/x-ms-wmv',
-        flv: 'video/x-flv',
-        '3gp': 'video/3gpp',
-        mpeg: 'video/mpeg',
-    };
-
-    return new Blob([data.buffer], { type: mimeTypeByExt[outputExtension] || `video/${outputExtension}` });
+        const data = await ff.readFile(outputName);
+        return new Blob([data.buffer], { type: resolveVideoMimeType(config, outputExtension) });
+    } finally {
+        try { await ff.deleteFile(inputName); } catch (e) { /* noop */ }
+        try { await ff.deleteFile(outputName); } catch (e) { /* noop */ }
+    }
 }
 
 // --- mediabunny conversion ---
-async function convertWithMediabunny(file, outputExtension) {
+async function convertWithMediabunny(file, outputExtension, config) {
     const formatFactory = MEDIABUNNY_OUTPUT_FORMATS[outputExtension];
     if (!formatFactory) throw new Error(`Unsupported mediabunny output format: ${outputExtension}`);
 
@@ -155,12 +166,12 @@ async function convertWithMediabunny(file, outputExtension) {
     const conversion = await Conversion.init({ input, output });
     await conversion.execute();
 
-    return new Blob([target.buffer], { type: `video/${outputExtension}` });
+    return new Blob([target.buffer], { type: resolveVideoMimeType(config, outputExtension) });
 }
 
 // --- message handler ---
-onmessage = async (e) => {
-    const { action, file, config, id } = e.data;
+async function handleMessage(data) {
+    const { action, file, config, id } = data;
 
     if (action === 'load') {
         postMessage({ status: 'loaded' });
@@ -179,14 +190,14 @@ onmessage = async (e) => {
             if (canUseMediabunny) {
                 emitProgress(id, 0.1);
                 try {
-                    blob = await convertWithMediabunny(file, outputExtension);
+                    blob = await convertWithMediabunny(file, outputExtension, config);
                     emitProgress(id, 0.95);
                 } catch (mediabunnyErr) {
                     console.warn('Video mediabunny conversion failed, using ffmpeg fallback:', mediabunnyErr);
-                    blob = await convertWithFfmpeg(file, outputExtension, id);
+                    blob = await convertWithFfmpeg(file, outputExtension, id, config);
                 }
             } else {
-                blob = await convertWithFfmpeg(file, outputExtension, id);
+                blob = await convertWithFfmpeg(file, outputExtension, id, config);
             }
 
             emitProgress(id, 1);
@@ -200,6 +211,16 @@ onmessage = async (e) => {
         } catch (err) {
             console.error('Video worker error:', err);
             postMessage({ status: 'failed', id });
+        } finally {
+            activeFfmpegTaskId = null;
         }
     }
+}
+
+onmessage = (e) => {
+    processQueue = processQueue
+        .then(() => handleMessage(e.data))
+        .catch((err) => {
+            console.error('Video worker queue error:', err);
+        });
 };
