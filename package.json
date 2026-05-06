@@ -9,9 +9,13 @@
     "serve:https:lan": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve --https --host 0.0.0.0",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "publish": "git subtree push --prefix dist origin gh-pages"
+    "publish": "git subtree push --prefix dist origin gh-pages",
+    "sync:ffmpeg-assets": "node scripts/sync-ffmpeg-assets.js",
+    "postinstall": "npm run sync:ffmpeg-assets"
   },
   "dependencies": {
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15",
     "@imagemagick/magick-wasm": "^0.0.4",
     "@uivjs/vue-github-corners": "^1.0.1",
     "core-js": "^3.6.5",
