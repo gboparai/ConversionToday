@@ -1,10 +1,11 @@
 <template>
   <nav id="nav">
     <div class="nav__links">
-      <router-link to="/">Image</router-link>
+      <router-link to="/" exact-active-class="router-link-active">Home</router-link>
+      <router-link to="/image">Image</router-link>
       <router-link to="/audio">Audio</router-link>
       <router-link to="/video">Video</router-link>
-      <router-link to="/About">About</router-link>
+      <router-link to="/about">About</router-link>
       <router-link to="/FAQ">FAQ</router-link>
       <a
         :href="resolvedGithubUrl"

@@ -1,15 +1,16 @@
 
 <template>
   <descriptor>
-    <template #header>Free File Converter</template>
+    <template #header>Image Converter</template>
     <template #description>
-      Conversion Today allows you to convert unlimited files online for free —
-      images, audio and video. All processing happens locally in your browser.
+      Convert unlimited image files online for free. Supports JPG, PNG, GIF,
+      WEBP, TIFF, SVG and many more formats, all processed locally in your
+      browser.
     </template>
   </descriptor>
 
   <div class="mediaTypeNav">
-    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/">🖼️ Image</a>
+    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/image">🖼️ Image</a>
     <a class="mediaTypeNav__card" href="/audio">🎵 Audio</a>
     <a class="mediaTypeNav__card" href="/video">🎬 Video</a>
   </div>
@@ -74,22 +75,22 @@ export default {
   name: "Home",
   setup() {
     useMeta({
-      title: "Free Unlimted File Converter - Conversion Today",
+      title: "Free Online Image Converter - Conversion Today",
       meta: [
         {
           name: "description",
           content:
-            "Convert files on online for free without reservation or limit. No file size limit. No limit on the number of files. 100% free, fast and easy to use.",
+            "Convert image files online for free without limits. Supports JPG, PNG, GIF, WEBP, TIFF, SVG and more with browser-based local processing.",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free Unlimted File Converter - Conversion Today",
+          content: "Free Online Image Converter - Conversion Today",
         },
         {
           name: "twitter:description",
           content:
-            "Convert files on online for free without reservation or limit. No file size limit. No limit on the number of files. 100% free, fast and easy to use.",
+            "Convert image files online for free without limits. Supports JPG, PNG, GIF, WEBP, TIFF, SVG and more with browser-based local processing.",
         },
         // image must be an absolute path
         {
@@ -99,7 +100,7 @@ export default {
         // Facebook OpenGraph
         {
           property: "og:title",
-          content: "Free Unlimted File Converter - Conversion Today",
+          content: "Free Online Image Converter - Conversion Today",
         },
         { property: "og:site_name", content: "Conversion Today" },
         { property: "og:type", content: "website" },
@@ -110,13 +111,13 @@ export default {
         {
           property: "og:description",
           content:
-            "Convert files on online for free without reservation or limit. No file size limit. No limit on the number of files. 100% free, fast and easy to use.",
+            "Convert image files online for free without limits. Supports JPG, PNG, GIF, WEBP, TIFF, SVG and more with browser-based local processing.",
         },
       ],
       link: [
         {
           rel: "canonical",
-          href: "https://conversiontoday.com",
+          href: "https://conversiontoday.com/image",
         },
       ],
       htmlAttrs: { lang: "en", amp: true },

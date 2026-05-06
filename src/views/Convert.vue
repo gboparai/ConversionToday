@@ -184,7 +184,7 @@
   </descriptor>
   <div class="informationBar">
     <card
-      :path="'/'"
+      :path="mediaHomePath"
       :formats="formats1"
       :selectedFormat="formatInofo.name"
       :handleChange="handleChangeFormat1"
@@ -414,6 +414,9 @@ export default {
       if (path.startsWith('/audio')) return 'audio';
       if (path.startsWith('/video')) return 'video';
       return 'image';
+    },
+    mediaHomePath() {
+      return `/${this.mediaType}`;
     },
     mediaTypeLabel() {
       if (this.mediaType === 'audio') return 'Audio Files';

@@ -34,7 +34,7 @@
   </descriptor>
   <div class="informationBar">
     <card
-      :path="'/'"
+      :path="mediaHomePath"
       :formats="formats"
       :selectedFormat="formatInofo.name"
       :handleChange="handleChange"
@@ -210,6 +210,9 @@ export default {
       if (path.startsWith('/audio')) return 'audio';
       if (path.startsWith('/video')) return 'video';
       return 'image';
+    },
+    mediaHomePath() {
+      return `/${this.mediaType}`;
     },
     formatsKey() {
       if (this.mediaType === 'audio') return 'audioFormats';

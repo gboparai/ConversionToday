@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+const LandingHome  = () => import('../views/LandingHome.vue')
 const Home  = () => import('../views/Home.vue')
 const Type  = () => import('../views/Type.vue')
 const Convert  = () => import('../views/Convert.vue')
@@ -11,6 +12,12 @@ const routes = [
   {
     path: '/',
     name: 'Home',
+    component: LandingHome,
+    
+  },
+  {
+    path: '/image',
+    name: 'ImageHome',
     component: Home,
     
   },

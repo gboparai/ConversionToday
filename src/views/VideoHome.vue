@@ -8,7 +8,7 @@
   </descriptor>
 
   <div class="mediaTypeNav">
-    <a class="mediaTypeNav__card" href="/">🖼️ Image</a>
+    <a class="mediaTypeNav__card" href="/image">🖼️ Image</a>
     <a class="mediaTypeNav__card" href="/audio">🎵 Audio</a>
     <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/video">🎬 Video</a>
   </div>

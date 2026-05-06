@@ -25,7 +25,7 @@ module.exports = {
                     // This directory can only have one level, if the directory level is higher than one level, there will be no error prompt when it is generated, and it will only stick when it is pre-rendered.
                     staticDir: path.join(__dirname, 'dist'),
                     // If you have parameters for your own routing file, such as about, you need to write / about/param1.
-                    routes: ["/", "/image/jpg", "/image/jpg/jpg", "/image/jpg/jpeg", "/image/jpg/png", "/image/jpg/tiff",
+                    routes: ["/", "/image", "/image/jpg", "/image/jpg/jpg", "/image/jpg/jpeg", "/image/jpg/png", "/image/jpg/tiff",
                         "/image/jpg/webp", "/image/jpg/gif", "/image/jpg/bmp", "/image/jpg/svg",
                         "/image/jpg/psd", "/image/jpg/ai", "/image/jpg/eps", "/image/jpg/svgz",
                         "/image/jpg/dcx", "/image/jpg/dds", "/image/jpg/dpx", "/image/jpg/exr",
