@@ -5,13 +5,13 @@
   "license": "CC BY-NC-SA 4.0 DEED",
   "scripts": {
     "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+    "serve:https": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve --https",
+    "serve:https:lan": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve --https --host 0.0.0.0",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "lint": "vue-cli-service lint",
     "publish": "git subtree push --prefix dist origin gh-pages"
   },
   "dependencies": {
-    "@ffmpeg/ffmpeg": "^0.12.15",
-    "@ffmpeg/util": "^0.12.2",
     "@imagemagick/magick-wasm": "^0.0.4",
     "@uivjs/vue-github-corners": "^1.0.1",
     "core-js": "^3.6.5",

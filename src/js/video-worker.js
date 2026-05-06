@@ -9,7 +9,6 @@ import {
     MovOutputFormat,
     WebMOutputFormat,
     MkvOutputFormat,
-    MpegTsOutputFormat,
 } from 'mediabunny';
 
 // Map format names to mediabunny OutputFormat constructors
@@ -18,13 +17,7 @@ const MEDIABUNNY_OUTPUT_FORMATS = {
     mov: () => new MovOutputFormat(),
     webm: () => new WebMOutputFormat(),
     mkv: () => new MkvOutputFormat(),
-    ts: () => new MpegTsOutputFormat(),
 };
-
-// Formats mediabunny can read
-const MEDIABUNNY_INPUT_EXTS = new Set([
-    'mp4', 'mov', 'webm', 'mkv', 'ts', 'm3u8',
-]);
 
 function supportsMediabunny() {
     return (
@@ -35,42 +28,14 @@ function supportsMediabunny() {
     );
 }
 
-// --- ffmpeg.wasm fallback ---
-let ffmpegInstance = null;
-
-async function loadFfmpeg() {
-    if (ffmpegInstance) return ffmpegInstance;
-
-    const { FFmpeg } = await import('@ffmpeg/ffmpeg');
-    const { fetchFile, toBlobURL } = await import('@ffmpeg/util');
-
-    const ff = new FFmpeg();
-    const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
-
-    await ff.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+function emitProgress(id, fraction) {
+    if (id === null || id === undefined) return;
+    const safe = Math.max(0, Math.min(1, Number(fraction) || 0));
+    postMessage({
+        status: 'progress',
+        id,
+        progress: Math.round(safe * 100),
     });
-
-    ffmpegInstance = { ff, fetchFile };
-    return ffmpegInstance;
-}
-
-async function convertWithFfmpeg(file, outputExtension) {
-    const { ff, fetchFile } = await loadFfmpeg();
-
-    const inputName = `input.${file.name.split('.').pop() || 'bin'}`;
-    const outputName = `output.${outputExtension}`;
-
-    await ff.writeFile(inputName, await fetchFile(file));
-    await ff.exec(['-i', inputName, '-y', outputName]);
-
-    const data = await ff.readFile(outputName);
-
-    await ff.deleteFile(inputName);
-    await ff.deleteFile(outputName);
-
-    return new Blob([data.buffer], { type: `video/${outputExtension}` });
 }
 
 // --- mediabunny conversion ---
@@ -106,20 +71,22 @@ onmessage = async (e) => {
 
     if (action === 'process') {
         const outputExtension = config.format.extension;
-        const inputExtension = (file.name.split('.').pop() || '').toLowerCase();
 
         try {
-            let blob;
-            const canUseMediabunny =
-                supportsMediabunny() &&
-                MEDIABUNNY_INPUT_EXTS.has(inputExtension) &&
-                MEDIABUNNY_OUTPUT_FORMATS[outputExtension];
-
-            if (canUseMediabunny) {
-                blob = await convertWithMediabunny(file, outputExtension);
-            } else {
-                blob = await convertWithFfmpeg(file, outputExtension);
+            if (!supportsMediabunny()) {
+                throw new Error('Mediabunny requires WebCodecs support in this browser');
             }
+
+            const formatFactory = MEDIABUNNY_OUTPUT_FORMATS[outputExtension];
+            if (!formatFactory) {
+                throw new Error(`Unsupported video output format for mediabunny: ${outputExtension}`);
+            }
+
+            emitProgress(id, 0.1);
+            const blob = await convertWithMediabunny(file, outputExtension);
+            emitProgress(id, 0.95);
+
+            emitProgress(id, 1);
 
             postMessage({
                 status: 'processed',
@@ -129,19 +96,7 @@ onmessage = async (e) => {
             });
         } catch (err) {
             console.error('Video worker error:', err);
-            // Try ffmpeg fallback if mediabunny failed
-            try {
-                const blob = await convertWithFfmpeg(file, outputExtension);
-                postMessage({
-                    status: 'processed',
-                    output: blob,
-                    config,
-                    id,
-                });
-            } catch (fallbackErr) {
-                console.error('Video worker fallback error:', fallbackErr);
-                postMessage({ status: 'failed', id });
-            }
+            postMessage({ status: 'failed', id });
         }
     }
 };

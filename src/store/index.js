@@ -540,14 +540,6 @@ export default createStore({
                 isConvertToOnly: false,
                 mimeType: 'audio/webm',
             },
-            {
-                name: 'wma',
-                extension: 'wma',
-                title: 'Windows Media Audio',
-                description: 'WMA is a lossy audio format developed by Microsoft. It is commonly used on Windows systems and older media players. Conversion from WMA requires the ffmpeg fallback engine.',
-                isConvertToOnly: false,
-                mimeType: 'audio/x-ms-wma',
-            },
         ],
 
         // ── Video ────────────────────────────────────────────────────────────
@@ -587,46 +579,6 @@ export default createStore({
                 description: 'MOV is a video container developed by Apple for QuickTime. It supports high-quality video and is commonly used for video editing and professional workflows on macOS.',
                 isConvertToOnly: false,
                 mimeType: 'video/quicktime',
-            },
-            {
-                name: 'avi',
-                extension: 'avi',
-                title: 'Audio Video Interleave',
-                description: 'AVI is a classic video container developed by Microsoft. While it lacks modern features, it remains widely used and is supported by almost all media players.',
-                isConvertToOnly: false,
-                mimeType: 'video/x-msvideo',
-            },
-            {
-                name: 'wmv',
-                extension: 'wmv',
-                title: 'Windows Media Video',
-                description: 'WMV is a video format developed by Microsoft. It is common on Windows systems and older media players. Conversion from WMV uses the ffmpeg fallback engine.',
-                isConvertToOnly: false,
-                mimeType: 'video/x-ms-wmv',
-            },
-            {
-                name: 'flv',
-                extension: 'flv',
-                title: 'Flash Video',
-                description: 'FLV was the standard format for web video during the Flash era. It is still encountered in legacy content and can be converted to modern formats using the ffmpeg fallback engine.',
-                isConvertToOnly: false,
-                mimeType: 'video/x-flv',
-            },
-            {
-                name: '3gp',
-                extension: '3gp',
-                title: '3GPP Multimedia File',
-                description: '3GP is a multimedia container format used on mobile phones. It is defined by the Third Generation Partnership Project and supports both audio and video.',
-                isConvertToOnly: false,
-                mimeType: 'video/3gpp',
-            },
-            {
-                name: 'mpeg',
-                extension: 'mpeg',
-                title: 'MPEG Video',
-                description: 'MPEG is one of the earliest digital video standards. MPEG-1 and MPEG-2 files are still encountered in legacy media and can be converted to modern formats.',
-                isConvertToOnly: false,
-                mimeType: 'video/mpeg',
             },
         ],
     },
@@ -698,6 +650,11 @@ export default createStore({
             let file = state.audioFiles.find(f => f.id === id);
             file.status = status;
         },
+        setAudioProgress(state, { id, progress }) {
+            let file = state.audioFiles.find(f => f.id === id);
+            if (!file) return;
+            file.progress = Math.max(0, Math.min(100, progress));
+        },
         removeAudioFile(state, id) {
             state.audioFiles = state.audioFiles.filter(f => f.id !== id);
         },
@@ -732,6 +689,11 @@ export default createStore({
         setVideoStatus(state, { id, status }) {
             let file = state.videoFiles.find(f => f.id === id);
             file.status = status;
+        },
+        setVideoProgress(state, { id, progress }) {
+            let file = state.videoFiles.find(f => f.id === id);
+            if (!file) return;
+            file.progress = Math.max(0, Math.min(100, progress));
         },
         removeVideoFile(state, id) {
             state.videoFiles = state.videoFiles.filter(f => f.id !== id);
@@ -842,7 +804,10 @@ export default createStore({
             worker.onmessage = (e) => {
                 const { status, id } = e.data;
                 let processMore = false;
-                if (status === 'processed') {
+                if (status === 'progress') {
+                    context.commit('setAudioProgress', { id, progress: e.data.progress });
+                } else if (status === 'processed') {
+                    context.commit('setAudioProgress', { id, progress: 100 });
                     context.commit('setAudioStatus', { id, status: FILE_STATUS.processed });
                     context.commit('setAudioData', { id, data: e.data });
                     processMore = true;
@@ -865,6 +830,7 @@ export default createStore({
                 ogFile: file,
                 name: file.name,
                 status: FILE_STATUS.initialized,
+                progress: 0,
                 output: { blob: null, name: null, url: null, config: null },
                 process: [],
             };
@@ -905,6 +871,7 @@ export default createStore({
                 id: file.id,
                 config,
             });
+            context.commit('setAudioProgress', { id, progress: 0 });
             context.commit('setAudioStatus', { id, status: FILE_STATUS.processing });
         },
 
@@ -917,7 +884,10 @@ export default createStore({
             worker.onmessage = (e) => {
                 const { status, id } = e.data;
                 let processMore = false;
-                if (status === 'processed') {
+                if (status === 'progress') {
+                    context.commit('setVideoProgress', { id, progress: e.data.progress });
+                } else if (status === 'processed') {
+                    context.commit('setVideoProgress', { id, progress: 100 });
                     context.commit('setVideoStatus', { id, status: FILE_STATUS.processed });
                     context.commit('setVideoData', { id, data: e.data });
                     processMore = true;
@@ -940,6 +910,7 @@ export default createStore({
                 ogFile: file,
                 name: file.name,
                 status: FILE_STATUS.initialized,
+                progress: 0,
                 output: { blob: null, name: null, url: null, config: null },
                 process: [],
             };
@@ -980,6 +951,7 @@ export default createStore({
                 id: file.id,
                 config,
             });
+            context.commit('setVideoProgress', { id, progress: 0 });
             context.commit('setVideoStatus', { id, status: FILE_STATUS.processing });
         },
     },

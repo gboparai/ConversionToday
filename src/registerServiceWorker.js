@@ -3,6 +3,13 @@
 import { register } from 'register-service-worker'
 
 if (process.env.NODE_ENV === 'production') {
+  const reloadForUpdate = () => {
+    // Prevent repeated reload loops if the update event fires multiple times.
+    if (window.sessionStorage.getItem('sw-update-reloaded')) return
+    window.sessionStorage.setItem('sw-update-reloaded', '1')
+    window.location.reload()
+  }
+
   register(`${process.env.BASE_URL}service-worker.js`, {
     ready () {
       console.log(
@@ -19,8 +26,12 @@ if (process.env.NODE_ENV === 'production') {
     updatefound () {
       console.log('New content is downloading.')
     },
-    updated () {
-      console.log('New content is available; please refresh.')
+    updated (registration) {
+      console.log('New content is available; refreshing to load latest assets.')
+      if (registration && registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+      }
+      reloadForUpdate()
     },
     offline () {
       console.log('No internet connection found. App is running in offline mode.')
