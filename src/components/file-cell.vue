@@ -186,6 +186,7 @@ export default {
       }
       const mutation = this.mediaType === 'audio' ? 'setAudioUrl'
                      : this.mediaType === 'video' ? 'setVideoUrl'
+                     : this.mediaType === 'document' ? 'setDocumentUrl'
                      : 'setUrl';
       this.$store.commit(mutation, { id: this.file.id, url: url });
       return url;
@@ -200,6 +201,7 @@ export default {
       }
       const mutation = this.mediaType === 'audio' ? 'setAudioName'
                      : this.mediaType === 'video' ? 'setVideoName'
+                     : this.mediaType === 'document' ? 'setDocumentName'
                      : 'setName';
       this.$store.commit(mutation, { id: this.file.id, name: name });
       return name;
@@ -230,6 +232,7 @@ export default {
     removeFile() {
       const mutation = this.mediaType === 'audio' ? 'removeAudioFile'
                      : this.mediaType === 'video' ? 'removeVideoFile'
+                     : this.mediaType === 'document' ? 'removeDocumentFile'
                      : 'removeFile';
       this.$store.commit(mutation, this.file.id);
     },

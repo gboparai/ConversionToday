@@ -1,33 +1,35 @@
 <template>
   <descriptor>
-    <template #header>Video Converter</template>
+    <template #header>Document Converter</template>
     <template #description>
-      Convert unlimited video files online for free. Supports MP4, WebM, MKV,
-      MOV, AVI and more — all processed locally in your browser.
+      Convert unlimited documents online for free. Supports Markdown, HTML,
+      DOCX, ODT, LaTeX, EPUB, RST, Org-mode and many more — all processed
+      locally in your browser via Pandoc WebAssembly.
     </template>
   </descriptor>
 
   <div class="mediaTypeNav">
     <a class="mediaTypeNav__card" href="/image">🖼️ Image</a>
     <a class="mediaTypeNav__card" href="/audio">🎵 Audio</a>
-    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/video">🎬 Video</a>
-    <a class="mediaTypeNav__card" href="/document">📄 Document</a>
+    <a class="mediaTypeNav__card" href="/video">🎬 Video</a>
+    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/document">📄 Document</a>
   </div>
 
-  <format-selector :isFrom="true" path="video" name="from" mediaType="video"></format-selector>
+  <format-selector :isFrom="true" path="document" name="from" mediaType="document"></format-selector>
   <div class="infomationContainer">
     <information>
       <template #header>Wide Format Support</template>
       <template #description>
-        Convert between MP4, WebM, MKV, MOV, AVI, WMV, FLV, 3GP, MPEG and
-        more. Powered by Mediabunny and FFmpeg.
+        Convert between Markdown, HTML, DOCX, ODT, LaTeX, RST, Org-mode,
+        EPUB, and 30+ more document formats. Powered by Pandoc WebAssembly.
       </template>
     </information>
     <information>
       <template #header>Fast and Easy</template>
       <template #description>
-        Drop your video files, choose an output format and click "Process All".
-        Conversion is handled locally — no uploads, no waiting.
+        Drop your document files, choose an output format and click
+        "Process All". Conversion happens entirely in your browser — no
+        uploads needed.
       </template>
     </information>
     <information>
@@ -42,16 +44,16 @@
     <information>
       <template #header>Browser-based</template>
       <template #description>
-        All video processing happens directly in your browser using
-        Mediabunny (WebCodecs) with an FFmpeg fallback for legacy formats.
-        Your files never leave your device.
+        All document processing happens directly in your browser using the
+        official Pandoc WebAssembly binary. Your files never leave your
+        device.
       </template>
     </information>
     <information>
-      <template #header>Hardware-accelerated</template>
+      <template #header>Powered by Pandoc</template>
       <template #description>
-        Mediabunny uses the WebCodecs API for hardware-accelerated encoding and
-        decoding, making video conversion fast even for large files.
+        Pandoc is the universal document converter trusted by millions. The
+        same powerful conversion engine runs entirely in your browser.
       </template>
     </information>
     <information>
@@ -69,25 +71,25 @@ import Descriptor from "@/components/descriptor.vue";
 import Information from "@/components/information.vue";
 import { useMeta } from "vue-meta";
 export default {
-  name: "VideoHome",
+  name: "DocumentHome",
   setup() {
     useMeta({
-      title: "Free Online Video Converter - Conversion Today",
+      title: "Free Online Document Converter - Conversion Today",
       meta: [
         {
           name: "description",
           content:
-            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more. Powered by Mediabunny and FFmpeg.",
+            "Convert documents online for free. No limits, no uploads. Supports Markdown, HTML, DOCX, ODT, LaTeX, RST, Org-mode, EPUB and 30+ more. Powered by Pandoc WebAssembly.",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free Online Video Converter - Conversion Today",
+          content: "Free Online Document Converter - Conversion Today",
         },
         {
           name: "twitter:description",
           content:
-            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more.",
+            "Convert documents online for free. No limits, no uploads. Supports Markdown, HTML, DOCX, ODT, LaTeX and 30+ more formats.",
         },
         {
           name: "twitter:image",
@@ -95,7 +97,7 @@ export default {
         },
         {
           property: "og:title",
-          content: "Free Online Video Converter - Conversion Today",
+          content: "Free Online Document Converter - Conversion Today",
         },
         { property: "og:site_name", content: "Conversion Today" },
         { property: "og:type", content: "website" },
@@ -106,10 +108,10 @@ export default {
         {
           property: "og:description",
           content:
-            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more.",
+            "Convert documents online for free. No limits, no uploads. Supports Markdown, HTML, DOCX, ODT, LaTeX and 30+ more formats.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/video" }],
+      link: [{ rel: "canonical", href: "https://conversiontoday.com/document" }],
       htmlAttrs: { lang: "en", amp: true },
     });
   },
@@ -162,6 +164,7 @@ export default {
 @media only screen and (max-width: 55rem) {
   .mediaTypeNav {
     padding: 0 1.25rem;
+    flex-wrap: wrap;
   }
 }
 </style>

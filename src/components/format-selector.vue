@@ -137,6 +137,7 @@ export default {
     formatsKey() {
       if (this.mediaType === 'audio') return 'audioFormats';
       if (this.mediaType === 'video') return 'videoFormats';
+      if (this.mediaType === 'document') return 'documentFormats';
       return 'formats';
     },
     formatOptions() {

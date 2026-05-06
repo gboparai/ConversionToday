@@ -23,6 +23,11 @@
       <h2>Video Converter</h2>
       <p>Convert MP4, WebM, MOV, AVI, MKV and other common video formats.</p>
     </a>
+    <a class="mediaHub__card" href="/document">
+      <span class="mediaHub__icon">📄</span>
+      <h2>Document Converter</h2>
+      <p>Convert Markdown, HTML, DOCX, ODT, LaTeX, EPUB, RST, Org-mode and 30+ more document formats via Pandoc.</p>
+    </a>
   </div>
 
   <div class="infomationContainer">
@@ -118,7 +123,7 @@ export default {
 .mediaHub {
   @include mid-width;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 

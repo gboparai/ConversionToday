@@ -5,11 +5,13 @@ const path = require('path');
 module.exports = {
     publicPath: '/',
 
-    // Transpile mediabunny and @ffmpeg packages through Babel (they use modern JS syntax)
+    // Transpile mediabunny, @ffmpeg, and pandoc-wasm packages through Babel (they use modern JS syntax)
     transpileDependencies: [
         'mediabunny',
         '@ffmpeg/ffmpeg',
         '@ffmpeg/util',
+        'pandoc-wasm',
+        '@bjorn3/browser_wasi_shim',
     ],
 
     pwa: {
@@ -458,7 +460,34 @@ module.exports = {
                         "/video/mkv", "/video/mkv/mp4", "/video/mkv/webm", "/video/mkv/mov", "/video/mkv/avi", "/video/mkv/wmv", "/video/mkv/flv", "/video/mkv/3gp", "/video/mkv/mpeg",
                         "/video/mov", "/video/mov/mp4", "/video/mov/webm", "/video/mov/mkv", "/video/mov/avi", "/video/mov/wmv", "/video/mov/flv", "/video/mov/3gp", "/video/mov/mpeg",
                         "/video/avi", "/video/avi/mp4", "/video/avi/webm", "/video/avi/mkv", "/video/avi/mov", "/video/avi/wmv", "/video/avi/flv", "/video/avi/3gp", "/video/avi/mpeg",
-                        "/about", "/FAQ"],
+                        "/about", "/FAQ",
+                        // Document routes
+                        "/document",
+                        "/document/markdown", "/document/markdown/html", "/document/markdown/docx", "/document/markdown/odt",
+                        "/document/markdown/latex", "/document/markdown/rst", "/document/markdown/org", "/document/markdown/epub",
+                        "/document/markdown/rtf", "/document/markdown/plain", "/document/markdown/mediawiki", "/document/markdown/textile",
+                        "/document/markdown/asciidoc", "/document/markdown/typst", "/document/markdown/jira", "/document/markdown/docbook",
+                        "/document/gfm", "/document/gfm/html", "/document/gfm/docx", "/document/gfm/odt", "/document/gfm/markdown",
+                        "/document/gfm/latex", "/document/gfm/rst", "/document/gfm/org", "/document/gfm/epub", "/document/gfm/rtf",
+                        "/document/html", "/document/html/markdown", "/document/html/gfm", "/document/html/docx", "/document/html/odt",
+                        "/document/html/latex", "/document/html/rst", "/document/html/org", "/document/html/epub", "/document/html/rtf",
+                        "/document/docx", "/document/docx/markdown", "/document/docx/gfm", "/document/docx/html", "/document/docx/odt",
+                        "/document/docx/latex", "/document/docx/rst", "/document/docx/org", "/document/docx/epub", "/document/docx/rtf",
+                        "/document/odt", "/document/odt/markdown", "/document/odt/gfm", "/document/odt/html", "/document/odt/docx",
+                        "/document/odt/latex", "/document/odt/rst", "/document/odt/org", "/document/odt/epub", "/document/odt/rtf",
+                        "/document/rst", "/document/rst/markdown", "/document/rst/html", "/document/rst/docx", "/document/rst/odt",
+                        "/document/rst/latex", "/document/rst/org", "/document/rst/epub",
+                        "/document/latex", "/document/latex/markdown", "/document/latex/html", "/document/latex/docx", "/document/latex/odt",
+                        "/document/latex/rst", "/document/latex/org", "/document/latex/epub",
+                        "/document/org", "/document/org/markdown", "/document/org/html", "/document/org/docx", "/document/org/odt",
+                        "/document/org/latex", "/document/org/rst", "/document/org/epub",
+                        "/document/epub", "/document/epub/markdown", "/document/epub/html", "/document/epub/docx", "/document/epub/odt",
+                        "/document/epub/latex", "/document/epub/rst", "/document/epub/org",
+                        "/document/rtf", "/document/rtf/markdown", "/document/rtf/html", "/document/rtf/docx",
+                        "/document/ipynb", "/document/ipynb/markdown", "/document/ipynb/html", "/document/ipynb/rst",
+                        "/document/mediawiki", "/document/mediawiki/markdown", "/document/mediawiki/html",
+                        "/document/textile", "/document/textile/markdown", "/document/textile/html",
+                        "/document/asciidoc", "/document/asciidoc/markdown", "/document/asciidoc/html", "/document/asciidoc/docx"],
                     // You have to configure or you won't precompile
                     ignoreHTTPSErrors: true,
 

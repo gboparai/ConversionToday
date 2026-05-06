@@ -5,6 +5,7 @@
       <router-link to="/image">Image</router-link>
       <router-link to="/audio">Audio</router-link>
       <router-link to="/video">Video</router-link>
+      <router-link to="/document">Document</router-link>
       <router-link to="/about">About</router-link>
       <router-link to="/FAQ">FAQ</router-link>
       <a

@@ -2,6 +2,7 @@ import { createStore } from 'vuex';
 import Worker from 'worker-loader!@/js/img-worker';
 import AudioWorker from 'worker-loader!@/js/audio-worker';
 import VideoWorker from 'worker-loader!@/js/video-worker';
+import DocWorker from 'worker-loader!@/js/doc-worker';
 import { FILE_STATUS } from '@/js/constants';
 import { MagickFormat } from "@imagemagick/magick-wasm/magick-format";
 
@@ -629,6 +630,344 @@ export default createStore({
                 mimeType: 'video/mpeg',
             },
         ],
+
+        // ── Document ─────────────────────────────────────────────────────────
+        documentFiles: [],
+        documentNextIndex: 0,
+        documentWorker: null,
+        documentConfig: { format: null, inputFormat: null },
+        documentFormats: [
+            // ── Input + Output ───────────────────────────────────────────────
+            {
+                name: 'markdown',
+                extension: 'md',
+                title: 'Pandoc Markdown',
+                description: 'Pandoc\'s extended Markdown dialect with support for footnotes, tables, definition lists, and many other features.',
+                isConvertToOnly: false,
+                mimeType: 'text/markdown',
+            },
+            {
+                name: 'gfm',
+                extension: 'md',
+                title: 'GitHub Flavored Markdown',
+                description: 'GitHub Flavored Markdown (GFM) is the dialect of Markdown used on GitHub and many other platforms, supporting task lists, tables, and strikethrough.',
+                isConvertToOnly: false,
+                mimeType: 'text/markdown',
+            },
+            {
+                name: 'commonmark',
+                extension: 'md',
+                title: 'CommonMark',
+                description: 'A strongly specified, highly compatible implementation of Markdown designed to be unambiguous and consistent.',
+                isConvertToOnly: false,
+                mimeType: 'text/markdown',
+            },
+            {
+                name: 'html',
+                extension: 'html',
+                title: 'HTML',
+                description: 'HyperText Markup Language — the standard language for creating web pages. Pandoc can read and write full HTML5 documents.',
+                isConvertToOnly: false,
+                mimeType: 'text/html',
+            },
+            {
+                name: 'docx',
+                extension: 'docx',
+                title: 'Microsoft Word',
+                description: 'The modern Microsoft Word document format (.docx) based on the Open XML standard. Widely used in offices and businesses worldwide.',
+                isConvertToOnly: false,
+                mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            },
+            {
+                name: 'odt',
+                extension: 'odt',
+                title: 'OpenDocument Text',
+                description: 'The open standard document format used by LibreOffice, Apache OpenOffice, and other office suites.',
+                isConvertToOnly: false,
+                mimeType: 'application/vnd.oasis.opendocument.text',
+            },
+            {
+                name: 'rst',
+                extension: 'rst',
+                title: 'reStructuredText',
+                description: 'A lightweight markup language used extensively in the Python community and by Sphinx for documentation.',
+                isConvertToOnly: false,
+                mimeType: 'text/x-rst',
+            },
+            {
+                name: 'latex',
+                extension: 'tex',
+                title: 'LaTeX',
+                description: 'A high-quality typesetting system widely used for scientific and academic publications, especially in mathematics and physics.',
+                isConvertToOnly: false,
+                mimeType: 'application/x-latex',
+            },
+            {
+                name: 'org',
+                extension: 'org',
+                title: 'Emacs Org-mode',
+                description: 'A powerful plain-text format for notes, project planning, literate programming, and more in Emacs.',
+                isConvertToOnly: false,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'mediawiki',
+                extension: 'wiki',
+                title: 'MediaWiki Markup',
+                description: 'The wiki markup language used by Wikipedia and other MediaWiki-powered sites.',
+                isConvertToOnly: false,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'textile',
+                extension: 'textile',
+                title: 'Textile',
+                description: 'A lightweight markup language with a focus on readability used in many content management systems.',
+                isConvertToOnly: false,
+                mimeType: 'text/x-textile',
+            },
+            {
+                name: 'asciidoc',
+                extension: 'adoc',
+                title: 'AsciiDoc',
+                description: 'A human-readable document format semantically equivalent to DocBook XML, widely used for technical documentation.',
+                isConvertToOnly: false,
+                mimeType: 'text/x-asciidoc',
+            },
+            {
+                name: 'epub',
+                extension: 'epub',
+                title: 'EPUB',
+                description: 'The open standard e-book format supported by virtually all e-readers (except Kindle).',
+                isConvertToOnly: false,
+                mimeType: 'application/epub+zip',
+            },
+            {
+                name: 'rtf',
+                extension: 'rtf',
+                title: 'Rich Text Format',
+                description: 'A cross-platform document format developed by Microsoft, readable by most word processors.',
+                isConvertToOnly: false,
+                mimeType: 'application/rtf',
+            },
+            {
+                name: 'ipynb',
+                extension: 'ipynb',
+                title: 'Jupyter Notebook',
+                description: 'The native format of Jupyter/IPython notebooks containing code, markdown, and rich outputs.',
+                isConvertToOnly: false,
+                mimeType: 'application/x-ipynb+json',
+            },
+            {
+                name: 'jira',
+                extension: 'jira',
+                title: 'Jira / Confluence Markup',
+                description: 'The wiki markup language used in Atlassian\'s Jira and Confluence products.',
+                isConvertToOnly: false,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'json',
+                extension: 'json',
+                title: 'Pandoc JSON AST',
+                description: 'Pandoc\'s native JSON representation of the abstract syntax tree, useful for programmatic document processing.',
+                isConvertToOnly: false,
+                mimeType: 'application/json',
+            },
+            {
+                name: 'typst',
+                extension: 'typ',
+                title: 'Typst',
+                description: 'A modern typesetting system designed as a user-friendly alternative to LaTeX.',
+                isConvertToOnly: false,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'docbook',
+                extension: 'xml',
+                title: 'DocBook XML',
+                description: 'A semantic markup language for technical documentation, widely used for books, manuals, and reference documentation.',
+                isConvertToOnly: false,
+                mimeType: 'application/xml',
+            },
+            {
+                name: 'opml',
+                extension: 'opml',
+                title: 'OPML',
+                description: 'Outline Processor Markup Language — an XML format for outlines, commonly used for RSS feed lists and outliners.',
+                isConvertToOnly: false,
+                mimeType: 'text/x-opml',
+            },
+            {
+                name: 'fb2',
+                extension: 'fb2',
+                title: 'FictionBook2',
+                description: 'An XML-based e-book format popular in Russia and Eastern Europe, supported by many e-book readers.',
+                isConvertToOnly: false,
+                mimeType: 'application/x-fictionbook+xml',
+            },
+            {
+                name: 'muse',
+                extension: 'muse',
+                title: 'Muse',
+                description: 'Emacs Muse is a publishing environment for Emacs that uses a simple wiki-like markup language.',
+                isConvertToOnly: false,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'djot',
+                extension: 'dj',
+                title: 'Djot',
+                description: 'A modern lightweight markup language designed as a successor to CommonMark, with a precise specification.',
+                isConvertToOnly: false,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'native',
+                extension: 'hs',
+                title: 'Pandoc Native',
+                description: 'Pandoc\'s native Haskell representation of a document, useful for debugging and advanced processing.',
+                isConvertToOnly: false,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'man',
+                extension: 'man',
+                title: 'Unix Man Page',
+                description: 'The traditional Unix manual page format rendered by the man command.',
+                isConvertToOnly: false,
+                mimeType: 'text/troff',
+            },
+            {
+                name: 'bibtex',
+                extension: 'bib',
+                title: 'BibTeX',
+                description: 'A reference management software format commonly used with LaTeX for bibliographies and citations.',
+                isConvertToOnly: false,
+                mimeType: 'text/plain',
+            },
+            // ── Output-only ──────────────────────────────────────────────────
+            {
+                name: 'beamer',
+                extension: 'tex',
+                title: 'LaTeX Beamer Slides',
+                description: 'LaTeX presentations using the Beamer document class — the standard for academic slide decks.',
+                isConvertToOnly: true,
+                mimeType: 'application/x-latex',
+            },
+            {
+                name: 'revealjs',
+                extension: 'html',
+                title: 'Reveal.js HTML Slides',
+                description: 'Interactive HTML presentations powered by the popular Reveal.js JavaScript framework.',
+                isConvertToOnly: true,
+                mimeType: 'text/html',
+            },
+            {
+                name: 'slidy',
+                extension: 'html',
+                title: 'Slidy HTML Slides',
+                description: 'Simple HTML slideshows powered by W3C\'s Slidy framework, with no external dependencies.',
+                isConvertToOnly: true,
+                mimeType: 'text/html',
+            },
+            {
+                name: 'dzslides',
+                extension: 'html',
+                title: 'DZSlides',
+                description: 'Minimalist, self-contained HTML5 + CSS3 slide presentations.',
+                isConvertToOnly: true,
+                mimeType: 'text/html',
+            },
+            {
+                name: 's5',
+                extension: 'html',
+                title: 'S5 HTML Slides',
+                description: 'A Simple Standards-Based Slide Show System using XHTML and CSS.',
+                isConvertToOnly: true,
+                mimeType: 'text/html',
+            },
+            {
+                name: 'pptx',
+                extension: 'pptx',
+                title: 'PowerPoint',
+                description: 'Microsoft PowerPoint presentation format, widely used in business and academia.',
+                isConvertToOnly: true,
+                mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            },
+            {
+                name: 'plain',
+                extension: 'txt',
+                title: 'Plain Text',
+                description: 'Simple plain text output stripped of all formatting, useful for copy-pasting content.',
+                isConvertToOnly: true,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'texinfo',
+                extension: 'texi',
+                title: 'GNU Texinfo',
+                description: 'The official documentation format for GNU software, usable for both online help and printed manuals.',
+                isConvertToOnly: true,
+                mimeType: 'text/x-texinfo',
+            },
+            {
+                name: 'context',
+                extension: 'tex',
+                title: 'ConTeXt',
+                description: 'A TeX-based typesetting system designed to be consistent and easy to use for complex formatting.',
+                isConvertToOnly: true,
+                mimeType: 'application/x-latex',
+            },
+            {
+                name: 'icml',
+                extension: 'icml',
+                title: 'InDesign ICML',
+                description: 'Adobe InDesign\'s InCopy ICML format for importing structured text into InDesign layouts.',
+                isConvertToOnly: true,
+                mimeType: 'application/xml',
+            },
+            {
+                name: 'jats',
+                extension: 'xml',
+                title: 'JATS XML',
+                description: 'Journal Article Tag Suite XML — a standard used by publishers for archiving and exchanging journal content.',
+                isConvertToOnly: true,
+                mimeType: 'application/xml',
+            },
+            {
+                name: 'tei',
+                extension: 'xml',
+                title: 'TEI Simple XML',
+                description: 'Text Encoding Initiative Simple — a scholarly standard for encoding literary and linguistic texts.',
+                isConvertToOnly: true,
+                mimeType: 'application/xml',
+            },
+            {
+                name: 'ms',
+                extension: 'ms',
+                title: 'Roff MS',
+                description: 'The groff ms macro package for typesetting documents in the Unix roff tradition.',
+                isConvertToOnly: true,
+                mimeType: 'text/troff',
+            },
+            {
+                name: 'xwiki',
+                extension: 'txt',
+                title: 'XWiki Markup',
+                description: 'The markup language used by the XWiki enterprise wiki and collaboration platform.',
+                isConvertToOnly: true,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'zimwiki',
+                extension: 'txt',
+                title: 'ZimWiki Markup',
+                description: 'The wiki markup used by Zim, a graphical desktop wiki editor and note-taking application.',
+                isConvertToOnly: true,
+                mimeType: 'text/plain',
+            },
+        ],
     },
     mutations: {
 
@@ -751,6 +1090,49 @@ export default createStore({
         },
         setVideoFormat(state, format) {
             state.videoConfig.format = format;
+        },
+
+        // ── Document mutations ───────────────────────────────────────────────
+        addDocumentFile(state, fileObject) {
+            state.documentFiles.push(fileObject);
+        },
+        clearDocumentFiles(state) {
+            state.documentFiles = [];
+            state.documentNextIndex = 0;
+        },
+        setDocumentData(state, { id, data }) {
+            let file = state.documentFiles.find(f => f.id === id);
+            file.output.blob = data.output;
+            file.output.config = data.config;
+        },
+        setDocumentUrl(state, { id, url }) {
+            let file = state.documentFiles.find(f => f.id === id);
+            file.output.url = url;
+        },
+        setDocumentName(state, { id, name }) {
+            let file = state.documentFiles.find(f => f.id === id);
+            file.output.name = name;
+        },
+        setDocumentStatus(state, { id, status }) {
+            let file = state.documentFiles.find(f => f.id === id);
+            file.status = status;
+        },
+        setDocumentProgress(state, { id, progress }) {
+            let file = state.documentFiles.find(f => f.id === id);
+            if (!file) return;
+            file.progress = Math.max(0, Math.min(100, progress));
+        },
+        removeDocumentFile(state, id) {
+            state.documentFiles = state.documentFiles.filter(f => f.id !== id);
+        },
+        incrementDocumentId(state) {
+            state.documentNextIndex++;
+        },
+        setDocumentFormat(state, format) {
+            state.documentConfig.format = format;
+        },
+        setDocumentInputFormat(state, format) {
+            state.documentConfig.inputFormat = format;
         },
     },
     actions: {
@@ -1005,6 +1387,90 @@ export default createStore({
             });
             context.commit('setVideoProgress', { id, progress: 0 });
             context.commit('setVideoStatus', { id, status: FILE_STATUS.processing });
+        },
+
+        // ── Document actions ─────────────────────────────────────────────────
+        loadDocumentWorker(context) {
+            if (context.state.documentWorker) return;
+            const worker = new DocWorker();
+            context.state.documentWorker = worker;
+            worker.postMessage({ action: 'load' });
+            worker.onmessage = (e) => {
+                const { status, id } = e.data;
+                let processMore = false;
+                if (status === 'progress') {
+                    context.commit('setDocumentProgress', { id, progress: e.data.progress });
+                } else if (status === 'processed') {
+                    context.commit('setDocumentProgress', { id, progress: 100 });
+                    context.commit('setDocumentStatus', { id, status: FILE_STATUS.processed });
+                    context.commit('setDocumentData', { id, data: e.data });
+                    processMore = true;
+                } else if (status === 'failed') {
+                    context.commit('setDocumentStatus', { id, status: FILE_STATUS.failed });
+                    processMore = true;
+                }
+                if (processMore) context.dispatch('processAllWaitingDocument');
+            };
+        },
+        clearDocumentFiles(context) {
+            context.commit('clearDocumentFiles');
+        },
+        setDocumentFormat(context, format) {
+            context.commit('setDocumentFormat', format);
+        },
+        setDocumentInputFormat(context, format) {
+            context.commit('setDocumentInputFormat', format);
+        },
+        addDocumentFile(context, file) {
+            const fileObject = {
+                id: context.state.documentNextIndex,
+                ogFile: file,
+                name: file.name,
+                status: FILE_STATUS.initialized,
+                progress: 0,
+                output: { blob: null, name: null, url: null, config: null },
+                process: [],
+            };
+            context.commit('incrementDocumentId');
+            context.commit('addDocumentFile', fileObject);
+        },
+        async addDocumentFiles(context, files) {
+            for (let i = 0; i < files.length; i++) {
+                context.dispatch('addDocumentFile', files[i]);
+                await new Promise(r => setTimeout(r, 16));
+            }
+        },
+        processAllDocumentFiles(context) {
+            const notProcessed = context.state.documentFiles.filter(
+                f => f.status === FILE_STATUS.initialized
+            );
+            notProcessed.forEach(f => {
+                context.commit('setDocumentStatus', { id: f.id, status: FILE_STATUS.waiting });
+            });
+            context.dispatch('processAllWaitingDocument');
+        },
+        processAllWaitingDocument(context) {
+            const running = context.state.documentFiles.filter(
+                f => f.status === FILE_STATUS.processing
+            ).length;
+            const maxInFlight = 1; // pandoc WASM is single-threaded
+            for (let i = 0; i < maxInFlight - running; i++) {
+                const waiting = context.state.documentFiles.find(f => f.status === FILE_STATUS.waiting);
+                if (!waiting) break;
+                context.dispatch('processDocumentFile', waiting.id);
+            }
+        },
+        processDocumentFile(context, id) {
+            const file = context.state.documentFiles.find(f => f.id === id);
+            const config = clone(context.state.documentConfig);
+            context.state.documentWorker.postMessage({
+                action: 'process',
+                file: file.ogFile,
+                id: file.id,
+                config,
+            });
+            context.commit('setDocumentProgress', { id, progress: 0 });
+            context.commit('setDocumentStatus', { id, status: FILE_STATUS.processing });
         },
     },
     modules: {
