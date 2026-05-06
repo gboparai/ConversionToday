@@ -1,11 +1,5 @@
 import { createPandocInstance } from 'pandoc-wasm/src/core.js';
 
-// Formats whose output is a binary file rather than stdout text
-const BINARY_OUTPUT_FORMATS = new Set([
-    'docx', 'odt', 'epub', 'epub2', 'pptx', 'fb2',
-    'chunkedhtml', 'icml', 'opendocument',
-]);
-
 let pandocPromise = null;
 let processQueue = Promise.resolve();
 
