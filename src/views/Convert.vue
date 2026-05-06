@@ -184,7 +184,7 @@
   </descriptor>
   <div class="informationBar">
     <card
-      :path="'/'"
+      :path="mediaHomePath"
       :formats="formats1"
       :selectedFormat="formatInofo.name"
       :handleChange="handleChangeFormat1"
@@ -193,7 +193,7 @@
       <template #description>{{ formatInofo.description }}</template>
     </card>
     <card
-      :path="'/image/' + formatInofo.name"
+      :path="'/' + mediaType + '/' + formatInofo.name"
       :handleChange="handleChangeFormat2"
       :formats="formats2"
       :selectedFormat="formatInofo2.name"
@@ -203,9 +203,9 @@
     </card>
   </div>
   <label class="fileInput">
-    <input @change="input" type="file" name="thing" id="" multiple accept="image/*" />
+    <input @change="input" type="file" name="thing" id="" multiple :accept="acceptMimeTypes" />
     <div class="file">
-      <p>Add Images Here</p>
+      <p>Add {{ mediaTypeLabel }} Here</p>
     </div>
   </label>
 
@@ -247,6 +247,7 @@
         class="listItem"
         :key="file.id"
         :file="file"
+        :mediaType="mediaType"
       ></file-cell>
     </transition-group>
   </div>
@@ -396,10 +397,7 @@ export default {
         {
           rel: "canonical",
           href:
-            "https://conversiontoday.com/image/" +
-            this.$route.params.format +
-            "/" +
-            this.$route.params.format2,
+            "https://conversiontoday.com" + this.$route.path,
         },
       ],
     });
@@ -411,7 +409,33 @@ export default {
     };
   },
   computed: {
+    mediaType() {
+      const path = this.$route.path;
+      if (path.startsWith('/audio')) return 'audio';
+      if (path.startsWith('/video')) return 'video';
+      return 'image';
+    },
+    mediaHomePath() {
+      return `/${this.mediaType}`;
+    },
+    mediaTypeLabel() {
+      if (this.mediaType === 'audio') return 'Audio Files';
+      if (this.mediaType === 'video') return 'Video Files';
+      return 'Images';
+    },
+    acceptMimeTypes() {
+      if (this.mediaType === 'audio') return 'audio/*';
+      if (this.mediaType === 'video') return 'video/*';
+      return 'image/*';
+    },
+    formatsKey() {
+      if (this.mediaType === 'audio') return 'audioFormats';
+      if (this.mediaType === 'video') return 'videoFormats';
+      return 'formats';
+    },
     files() {
+      if (this.mediaType === 'audio') return this.$store.state.audioFiles;
+      if (this.mediaType === 'video') return this.$store.state.videoFiles;
       return this.$store.state.files;
     },
     nonProcessed() {
@@ -423,18 +447,18 @@ export default {
       return this.files.filter((file) => file.status === FILE_STATUS.processed);
     },
     formatInofo() {
-      return this.$store.state.formats.find((formatObj) => {
+      return this.$store.state[this.formatsKey].find((formatObj) => {
         if (formatObj.name == this.format) return formatObj;
       });
     },
     formatInofo2() {
-      return this.$store.state.formats.find((formatObj) => {
+      return this.$store.state[this.formatsKey].find((formatObj) => {
         if (formatObj.name == this.format2) return formatObj;
       });
     },
     formatList1() {
       const query = this.conversionSearch.trim().toLowerCase();
-      return this.$store.state.formats
+      return this.$store.state[this.formatsKey]
         .filter((format) => {
           if (format.name == this.$route.params.format) return false;
           if (!query) return true;
@@ -442,14 +466,14 @@ export default {
           return itemText.includes(query);
         })
         .map((formatList, index) => {
-          return `<a href="/image/${this.format}/${formatList.name}">${
+          return `<a href="/${this.mediaType}/${this.format}/${formatList.name}">${
             index + 1
           }. ${this.format.toUpperCase()} to ${formatList.name.toUpperCase()}</a>`;
         });
     },
     formatList2() {
       const query = this.conversionSearch.trim().toLowerCase();
-      return this.$store.state.formats
+      return this.$store.state[this.formatsKey]
         .filter((format) => {
           if (format.isConvertToOnly || format.name == this.$route.params.format2) {
             return false;
@@ -459,30 +483,41 @@ export default {
           return itemText.includes(query);
         })
         .map((formatList, index) => {
-          return `<a  href="/image/${formatList.name}/${this.format2}">${
+          return `<a href="/${this.mediaType}/${formatList.name}/${this.format2}">${
             index + 1
           }. ${formatList.name.toUpperCase()} to ${this.format2.toUpperCase()}</a>`;
         });
     },
     formats1() {
-      return this.$store.state.formats.filter((format) => {
+      return this.$store.state[this.formatsKey].filter((format) => {
         return (
           !format.isConvertToOnly && format.name != this.$route.params.format2
         );
       });
     },
     formats2() {
-      return this.$store.state.formats;
+      return this.$store.state[this.formatsKey];
     },
   },
   methods: {
     input(e) {
-      this.$store.dispatch("addFiles", e.target.files);
-      // e.target.value = "";
+      if (this.mediaType === 'audio') {
+        this.$store.dispatch("addAudioFiles", e.target.files);
+      } else if (this.mediaType === 'video') {
+        this.$store.dispatch("addVideoFiles", e.target.files);
+      } else {
+        this.$store.dispatch("addFiles", e.target.files);
+      }
     },
     fileDrop(e) {
       e.preventDefault();
-      this.$store.dispatch("addFiles", e.dataTransfer.files);
+      if (this.mediaType === 'audio') {
+        this.$store.dispatch("addAudioFiles", e.dataTransfer.files);
+      } else if (this.mediaType === 'video') {
+        this.$store.dispatch("addVideoFiles", e.dataTransfer.files);
+      } else {
+        this.$store.dispatch("addFiles", e.dataTransfer.files);
+      }
       this.fileInDropZone = false;
     },
     fileOver(e) {
@@ -500,9 +535,15 @@ export default {
       e.stopPropagation();
     },
     process() {
-      this.$store.dispatch("processAllFiles", {
-        format: this.selectedFormat,
-      });
+      if (this.mediaType === 'audio') {
+        this.$store.dispatch("processAllAudioFiles");
+      } else if (this.mediaType === 'video') {
+        this.$store.dispatch("processAllVideoFiles");
+      } else {
+        this.$store.dispatch("processAllFiles", {
+          format: this.selectedFormat,
+        });
+      }
     },
     downloadAll() {
       this.files.forEach((file) => {
@@ -542,13 +583,19 @@ export default {
       URL.revokeObjectURL(url);
     },
     clearAll() {
-      this.$store.dispatch("clearFiles");
+      if (this.mediaType === 'audio') {
+        this.$store.dispatch("clearAudioFiles");
+      } else if (this.mediaType === 'video') {
+        this.$store.dispatch("clearVideoFiles");
+      } else {
+        this.$store.dispatch("clearFiles");
+      }
     },
     handleChangeFormat1(event) {
-      window.location.href = `/image/${event.target.value}/${this.format2}`;
+      window.location.href = `/${this.mediaType}/${event.target.value}/${this.format2}`;
     },
     handleChangeFormat2(event) {
-      window.location.href = `/image/${this.format}/${event.target.value}`;
+      window.location.href = `/${this.mediaType}/${this.format}/${event.target.value}`;
     },
   },
   components: {
@@ -559,8 +606,16 @@ export default {
     List,
   },
   mounted() {
-    this.$store.dispatch("setFormat", this.formatInofo2);
-    this.$store.dispatch("loadWorker");
+    if (this.mediaType === 'audio') {
+      this.$store.dispatch("setAudioFormat", this.formatInofo2);
+      this.$store.dispatch("loadAudioWorker");
+    } else if (this.mediaType === 'video') {
+      this.$store.dispatch("setVideoFormat", this.formatInofo2);
+      this.$store.dispatch("loadVideoWorker");
+    } else {
+      this.$store.dispatch("setFormat", this.formatInofo2);
+      this.$store.dispatch("loadWorker");
+    }
 
     document.body.addEventListener("drop", this.fileDrop);
     document.body.addEventListener("dragover", this.fileOver);

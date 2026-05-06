@@ -1,13 +1,20 @@
 
-
 <template>
   <descriptor>
     <template #header>Image Converter</template>
     <template #description>
-      Conversion Today allows you to convert unlimited number of images any size
-      online. Amongst many others, we support PNG, JPG, GIF, WEBP and BPM.
+      Convert unlimited image files online for free. Supports JPG, PNG, GIF,
+      WEBP, TIFF, SVG and many more formats, all processed locally in your
+      browser.
     </template>
   </descriptor>
+
+  <div class="mediaTypeNav">
+    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/image">🖼️ Image</a>
+    <a class="mediaTypeNav__card" href="/audio">🎵 Audio</a>
+    <a class="mediaTypeNav__card" href="/video">🎬 Video</a>
+  </div>
+
   <format-selector :isFrom="true" path="image" name="from"></format-selector>
   <div class="infomationContainer">
     <information>
@@ -68,22 +75,22 @@ export default {
   name: "Home",
   setup() {
     useMeta({
-      title: "Free Unlimted File Converter - Conversion Today",
+      title: "Free Online Image Converter - Conversion Today",
       meta: [
         {
           name: "description",
           content:
-            "Convert files on online for free without reservation or limit. No file size limit. No limit on the number of files. 100% free, fast and easy to use.",
+            "Convert image files online for free without limits. Supports JPG, PNG, GIF, WEBP, TIFF, SVG and more with browser-based local processing.",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free Unlimted File Converter - Conversion Today",
+          content: "Free Online Image Converter - Conversion Today",
         },
         {
           name: "twitter:description",
           content:
-            "Convert files on online for free without reservation or limit. No file size limit. No limit on the number of files. 100% free, fast and easy to use.",
+            "Convert image files online for free without limits. Supports JPG, PNG, GIF, WEBP, TIFF, SVG and more with browser-based local processing.",
         },
         // image must be an absolute path
         {
@@ -93,7 +100,7 @@ export default {
         // Facebook OpenGraph
         {
           property: "og:title",
-          content: "Free Unlimted File Converter - Conversion Today",
+          content: "Free Online Image Converter - Conversion Today",
         },
         { property: "og:site_name", content: "Conversion Today" },
         { property: "og:type", content: "website" },
@@ -104,13 +111,13 @@ export default {
         {
           property: "og:description",
           content:
-            "Convert files on online for free without reservation or limit. No file size limit. No limit on the number of files. 100% free, fast and easy to use.",
+            "Convert image files online for free without limits. Supports JPG, PNG, GIF, WEBP, TIFF, SVG and more with browser-based local processing.",
         },
       ],
       link: [
         {
           rel: "canonical",
-          href: "https://conversiontoday.com",
+          href: "https://conversiontoday.com/image",
         },
       ],
       htmlAttrs: { lang: "en", amp: true },
@@ -124,3 +131,48 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="scss">
+@import "src/styles/_utilities";
+
+.mediaTypeNav {
+  @include mid-width;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+
+  &__card {
+    flex: 1;
+    max-width: 10rem;
+    text-align: center;
+    padding: 0.6rem 1rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: $default-radius;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    box-shadow: var(--shadow-sm);
+
+    &:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    &--active {
+      border-color: var(--accent);
+      font-weight: 900;
+    }
+  }
+}
+
+@media only screen and (max-width: 55rem) {
+  .mediaTypeNav {
+    padding: 0 1.25rem;
+  }
+}
+</style>

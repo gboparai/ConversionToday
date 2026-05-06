@@ -16,23 +16,20 @@
 
   .processing-bar {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
-    width: 200%;
-    height: 100%;
+    width: 100%;
+    height: 0.3rem;
     z-index: 0;
-    background: linear-gradient(
-      90deg,
-      rgba(3, 169, 244, 0) 0%,
-      rgba(3, 169, 244, 0.15) 25%,
-      rgba(3, 169, 244, 0) 50%,
-      rgba(3, 169, 244, 0.15) 75%,
-      rgba(3, 169, 244, 0) 100%
-    );
-    animation-name: scan;
-    animation-duration: 1s;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
+    background-color: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .processing-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e 0%, #06b6d4 100%);
+    transition: width 0.2s ease;
     pointer-events: none;
   }
 
@@ -124,16 +121,14 @@
   }
 }
 
-@keyframes scan {
-  0%   { transform: translateX(-50%); }
-  100% { transform: translateX(0%); }
-}
 </style>
 
 <template>
   <div class="file-row">
     <transition name="fade">
-      <div v-if="file.status === FILE_STATUS.processing" class="processing-bar"></div>
+      <div v-if="file.status === FILE_STATUS.processing" class="processing-bar">
+        <div class="processing-fill" :style="{ width: progressPercent + '%' }"></div>
+      </div>
     </transition>
 
     <span class="file-name">{{ file.name }}</span>
@@ -143,7 +138,7 @@
     <button
       v-if="file.status === FILE_STATUS.waiting || file.status === FILE_STATUS.initialized"
       class="remove-btn"
-      @click="$store.commit('removeFile', file.id)"
+      @click="removeFile"
       title="Remove"
       aria-label="Remove file"
     >
@@ -172,6 +167,10 @@ export default {
   name: "fileCell",
   props: {
     file: Object,
+    mediaType: {
+      type: String,
+      default: 'image',
+    },
   },
   computed: {
     FILE_STATUS() {
@@ -185,7 +184,10 @@ export default {
       ) {
         url = URL.createObjectURL(this.file.output.blob);
       }
-      this.$store.commit("setUrl", { id: this.file.id, url: url });
+      const mutation = this.mediaType === 'audio' ? 'setAudioUrl'
+                     : this.mediaType === 'video' ? 'setVideoUrl'
+                     : 'setUrl';
+      this.$store.commit(mutation, { id: this.file.id, url: url });
       return url;
     },
     newFileName() {
@@ -196,17 +198,23 @@ export default {
           "." +
           this.file.output.config.format.extension;
       }
-      this.$store.commit("setName", { id: this.file.id, name: name });
+      const mutation = this.mediaType === 'audio' ? 'setAudioName'
+                     : this.mediaType === 'video' ? 'setVideoName'
+                     : 'setName';
+      this.$store.commit(mutation, { id: this.file.id, name: name });
       return name;
     },
     statusLabel() {
       switch (this.file.status) {
         case FILE_STATUS.waiting:    return "Waiting";
-        case FILE_STATUS.processing: return "Converting";
+        case FILE_STATUS.processing: return `Converting ${this.progressPercent}%`;
         case FILE_STATUS.failed:     return "Failed";
         case FILE_STATUS.processed:  return "Successful";
         default:                     return "Waiting";
       }
+    },
+    progressPercent() {
+      return Math.max(0, Math.min(100, Number(this.file.progress) || 0));
     },
     statusClass() {
       switch (this.file.status) {
@@ -216,6 +224,14 @@ export default {
         case FILE_STATUS.processed:  return "status-badge--successful";
         default:                     return "status-badge--waiting";
       }
+    },
+  },
+  methods: {
+    removeFile() {
+      const mutation = this.mediaType === 'audio' ? 'removeAudioFile'
+                     : this.mediaType === 'video' ? 'removeVideoFile'
+                     : 'removeFile';
+      this.$store.commit(mutation, this.file.id);
     },
   },
 };

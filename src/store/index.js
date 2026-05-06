@@ -1,5 +1,7 @@
 import { createStore } from 'vuex';
 import Worker from 'worker-loader!@/js/img-worker';
+import AudioWorker from 'worker-loader!@/js/audio-worker';
+import VideoWorker from 'worker-loader!@/js/video-worker';
 import { FILE_STATUS } from '@/js/constants';
 import { MagickFormat } from "@imagemagick/magick-wasm/magick-format";
 
@@ -466,7 +468,167 @@ export default createStore({
 
         config: {
             format: null,
-        }
+        },
+
+        // ── Audio ────────────────────────────────────────────────────────────
+        audioFiles: [],
+        audioNextIndex: 0,
+        audioWorker: null,
+        audioConfig: { format: null },
+        audioFormats: [
+            {
+                name: 'mp3',
+                extension: 'mp3',
+                title: 'MPEG Audio Layer III',
+                description: 'MP3 is the most popular digital audio format. It uses lossy compression to reduce file size while maintaining acceptable quality. Supported by virtually every device and media player.',
+                isConvertToOnly: false,
+                mimeType: 'audio/mpeg',
+            },
+            {
+                name: 'wav',
+                extension: 'wav',
+                title: 'Waveform Audio File',
+                description: 'WAV is a lossless audio format developed by Microsoft and IBM. It stores uncompressed PCM audio, making it ideal for professional audio work where quality must be preserved.',
+                isConvertToOnly: false,
+                mimeType: 'audio/wav',
+            },
+            {
+                name: 'ogg',
+                extension: 'ogg',
+                title: 'Ogg Vorbis Audio',
+                description: 'OGG is a free, open-source container format typically used with the Vorbis audio codec. It provides good compression and quality and is widely supported by modern browsers and players.',
+                isConvertToOnly: false,
+                mimeType: 'audio/ogg',
+            },
+            {
+                name: 'flac',
+                extension: 'flac',
+                title: 'Free Lossless Audio Codec',
+                description: 'FLAC is a popular lossless audio format that compresses audio without any quality loss. It is often used for archiving music and high-fidelity listening.',
+                isConvertToOnly: false,
+                mimeType: 'audio/flac',
+            },
+            {
+                name: 'aac',
+                extension: 'aac',
+                title: 'Advanced Audio Coding',
+                description: 'AAC is a lossy audio format designed as the successor to MP3. It provides better sound quality at similar bit rates and is used by Apple, YouTube, and many streaming services.',
+                isConvertToOnly: false,
+                mimeType: 'audio/aac',
+            },
+            {
+                name: 'm4a',
+                extension: 'm4a',
+                title: 'MPEG-4 Audio',
+                description: 'M4A is an audio-only MPEG-4 container typically holding AAC audio. It is the standard audio format used by iTunes and Apple devices.',
+                isConvertToOnly: false,
+                mimeType: 'audio/mp4',
+            },
+            {
+                name: 'opus',
+                extension: 'opus',
+                title: 'Opus Audio',
+                description: 'Opus is a versatile open-source audio codec designed for interactive speech and music transmission. It offers excellent quality at low bit rates and is used in WebRTC and streaming.',
+                isConvertToOnly: false,
+                mimeType: 'audio/ogg; codecs=opus',
+            },
+            {
+                name: 'webm',
+                extension: 'webm',
+                title: 'WebM Audio',
+                description: 'WebM is an open, royalty-free media format developed for the web. As an audio container it typically holds Opus or Vorbis audio and is supported by all modern browsers.',
+                isConvertToOnly: false,
+                mimeType: 'audio/webm',
+            },
+            {
+                name: 'wma',
+                extension: 'wma',
+                title: 'Windows Media Audio',
+                description: 'WMA is a lossy audio format developed by Microsoft. It is commonly used on Windows systems and older media players.',
+                isConvertToOnly: false,
+                mimeType: 'audio/x-ms-wma',
+            },
+        ],
+
+        // ── Video ────────────────────────────────────────────────────────────
+        videoFiles: [],
+        videoNextIndex: 0,
+        videoWorker: null,
+        videoConfig: { format: null },
+        videoFormats: [
+            {
+                name: 'mp4',
+                extension: 'mp4',
+                title: 'MPEG-4 Video',
+                description: 'MP4 is the most widely used video container format. It supports H.264, H.265, and other modern codecs and is compatible with virtually every device and streaming platform.',
+                isConvertToOnly: false,
+                mimeType: 'video/mp4',
+            },
+            {
+                name: 'webm',
+                extension: 'webm',
+                title: 'WebM Video',
+                description: 'WebM is an open, royalty-free video format designed for web use. It supports VP8, VP9, and AV1 codecs with Vorbis or Opus audio, and plays natively in all modern browsers.',
+                isConvertToOnly: false,
+                mimeType: 'video/webm',
+            },
+            {
+                name: 'mkv',
+                extension: 'mkv',
+                title: 'Matroska Video',
+                description: 'MKV is a flexible open-standard multimedia container that can hold virtually any video and audio codec. It is popular for storing high-quality video and multiple audio/subtitle tracks.',
+                isConvertToOnly: false,
+                mimeType: 'video/x-matroska',
+            },
+            {
+                name: 'mov',
+                extension: 'mov',
+                title: 'Apple QuickTime Movie',
+                description: 'MOV is a video container developed by Apple for QuickTime. It supports high-quality video and is commonly used for video editing and professional workflows on macOS.',
+                isConvertToOnly: false,
+                mimeType: 'video/quicktime',
+            },
+            {
+                name: 'avi',
+                extension: 'avi',
+                title: 'Audio Video Interleave',
+                description: 'AVI is a classic video container developed by Microsoft. While it lacks modern features, it remains widely used and is supported by almost all media players.',
+                isConvertToOnly: false,
+                mimeType: 'video/x-msvideo',
+            },
+            {
+                name: 'wmv',
+                extension: 'wmv',
+                title: 'Windows Media Video',
+                description: 'WMV is a video format developed by Microsoft. It is common on Windows systems and older media players.',
+                isConvertToOnly: false,
+                mimeType: 'video/x-ms-wmv',
+            },
+            {
+                name: 'flv',
+                extension: 'flv',
+                title: 'Flash Video',
+                description: 'FLV was the standard format for web video during the Flash era and is still encountered in legacy content.',
+                isConvertToOnly: false,
+                mimeType: 'video/x-flv',
+            },
+            {
+                name: '3gp',
+                extension: '3gp',
+                title: '3GPP Multimedia File',
+                description: '3GP is a multimedia container format used on mobile phones. It is defined by the Third Generation Partnership Project and supports both audio and video.',
+                isConvertToOnly: false,
+                mimeType: 'video/3gpp',
+            },
+            {
+                name: 'mpeg',
+                extension: 'mpeg',
+                title: 'MPEG Video',
+                description: 'MPEG is one of the earliest digital video standards. MPEG-1 and MPEG-2 files are still encountered in legacy media and can be converted to modern formats.',
+                isConvertToOnly: false,
+                mimeType: 'video/mpeg',
+            },
+        ],
     },
     mutations: {
 
@@ -509,8 +671,87 @@ export default createStore({
         },
         addWorker(state, worker) {
             state.worker = worker;
-        }
-       
+        },
+
+        // ── Audio mutations ──────────────────────────────────────────────────
+        addAudioFile(state, fileObject) {
+            state.audioFiles.push(fileObject);
+        },
+        clearAudioFiles(state) {
+            state.audioFiles = [];
+            state.audioNextIndex = 0;
+        },
+        setAudioData(state, { id, data }) {
+            let file = state.audioFiles.find(f => f.id === id);
+            file.output.blob = data.output;
+            file.output.config = data.config;
+        },
+        setAudioUrl(state, { id, url }) {
+            let file = state.audioFiles.find(f => f.id === id);
+            file.output.url = url;
+        },
+        setAudioName(state, { id, name }) {
+            let file = state.audioFiles.find(f => f.id === id);
+            file.output.name = name;
+        },
+        setAudioStatus(state, { id, status }) {
+            let file = state.audioFiles.find(f => f.id === id);
+            file.status = status;
+        },
+        setAudioProgress(state, { id, progress }) {
+            let file = state.audioFiles.find(f => f.id === id);
+            if (!file) return;
+            file.progress = Math.max(0, Math.min(100, progress));
+        },
+        removeAudioFile(state, id) {
+            state.audioFiles = state.audioFiles.filter(f => f.id !== id);
+        },
+        incrementAudioId(state) {
+            state.audioNextIndex++;
+        },
+        setAudioFormat(state, format) {
+            state.audioConfig.format = format;
+        },
+
+        // ── Video mutations ──────────────────────────────────────────────────
+        addVideoFile(state, fileObject) {
+            state.videoFiles.push(fileObject);
+        },
+        clearVideoFiles(state) {
+            state.videoFiles = [];
+            state.videoNextIndex = 0;
+        },
+        setVideoData(state, { id, data }) {
+            let file = state.videoFiles.find(f => f.id === id);
+            file.output.blob = data.output;
+            file.output.config = data.config;
+        },
+        setVideoUrl(state, { id, url }) {
+            let file = state.videoFiles.find(f => f.id === id);
+            file.output.url = url;
+        },
+        setVideoName(state, { id, name }) {
+            let file = state.videoFiles.find(f => f.id === id);
+            file.output.name = name;
+        },
+        setVideoStatus(state, { id, status }) {
+            let file = state.videoFiles.find(f => f.id === id);
+            file.status = status;
+        },
+        setVideoProgress(state, { id, progress }) {
+            let file = state.videoFiles.find(f => f.id === id);
+            if (!file) return;
+            file.progress = Math.max(0, Math.min(100, progress));
+        },
+        removeVideoFile(state, id) {
+            state.videoFiles = state.videoFiles.filter(f => f.id !== id);
+        },
+        incrementVideoId(state) {
+            state.videoNextIndex++;
+        },
+        setVideoFormat(state, format) {
+            state.videoConfig.format = format;
+        },
     },
     actions: {
         
@@ -600,7 +841,171 @@ export default createStore({
                 config: config,
             });
             context.commit('setStatus', { id: id, status: FILE_STATUS.processing });
-        }
+        },
+
+        // ── Audio actions ────────────────────────────────────────────────────
+        loadAudioWorker(context) {
+            if (context.state.audioWorker) return;
+            const worker = new AudioWorker();
+            context.state.audioWorker = worker;
+            worker.postMessage({ action: 'load' });
+            worker.onmessage = (e) => {
+                const { status, id } = e.data;
+                let processMore = false;
+                if (status === 'progress') {
+                    context.commit('setAudioProgress', { id, progress: e.data.progress });
+                } else if (status === 'processed') {
+                    context.commit('setAudioProgress', { id, progress: 100 });
+                    context.commit('setAudioStatus', { id, status: FILE_STATUS.processed });
+                    context.commit('setAudioData', { id, data: e.data });
+                    processMore = true;
+                } else if (status === 'failed') {
+                    context.commit('setAudioStatus', { id, status: FILE_STATUS.failed });
+                    processMore = true;
+                }
+                if (processMore) context.dispatch('processAllWaitingAudio');
+            };
+        },
+        clearAudioFiles(context) {
+            context.commit('clearAudioFiles');
+        },
+        setAudioFormat(context, format) {
+            context.commit('setAudioFormat', format);
+        },
+        addAudioFile(context, file) {
+            const fileObject = {
+                id: context.state.audioNextIndex,
+                ogFile: file,
+                name: file.name,
+                status: FILE_STATUS.initialized,
+                progress: 0,
+                output: { blob: null, name: null, url: null, config: null },
+                process: [],
+            };
+            context.commit('incrementAudioId');
+            context.commit('addAudioFile', fileObject);
+        },
+        async addAudioFiles(context, files) {
+            for (let i = 0; i < files.length; i++) {
+                context.dispatch('addAudioFile', files[i]);
+                await new Promise(r => setTimeout(r, 16));
+            }
+        },
+        processAllAudioFiles(context) {
+            const notProcessed = context.state.audioFiles.filter(
+                f => f.status === FILE_STATUS.initialized
+            );
+            notProcessed.forEach(f => {
+                context.commit('setAudioStatus', { id: f.id, status: FILE_STATUS.waiting });
+            });
+            context.dispatch('processAllWaitingAudio');
+        },
+        processAllWaitingAudio(context) {
+            const running = context.state.audioFiles.filter(
+                f => f.status === FILE_STATUS.processing
+            ).length;
+            const concurrency = navigator.hardwareConcurrency || 1;
+            const maxInFlight = Math.min(1, concurrency);
+            for (let i = 0; i < maxInFlight - running; i++) {
+                const waiting = context.state.audioFiles.find(f => f.status === FILE_STATUS.waiting);
+                if (!waiting) break;
+                context.dispatch('processAudioFile', waiting.id);
+            }
+        },
+        processAudioFile(context, id) {
+            const file = context.state.audioFiles.find(f => f.id === id);
+            const config = clone(context.state.audioConfig);
+            context.state.audioWorker.postMessage({
+                action: 'process',
+                file: file.ogFile,
+                id: file.id,
+                config,
+            });
+            context.commit('setAudioProgress', { id, progress: 0 });
+            context.commit('setAudioStatus', { id, status: FILE_STATUS.processing });
+        },
+
+        // ── Video actions ────────────────────────────────────────────────────
+        loadVideoWorker(context) {
+            if (context.state.videoWorker) return;
+            const worker = new VideoWorker();
+            context.state.videoWorker = worker;
+            worker.postMessage({ action: 'load' });
+            worker.onmessage = (e) => {
+                const { status, id } = e.data;
+                let processMore = false;
+                if (status === 'progress') {
+                    context.commit('setVideoProgress', { id, progress: e.data.progress });
+                } else if (status === 'processed') {
+                    context.commit('setVideoProgress', { id, progress: 100 });
+                    context.commit('setVideoStatus', { id, status: FILE_STATUS.processed });
+                    context.commit('setVideoData', { id, data: e.data });
+                    processMore = true;
+                } else if (status === 'failed') {
+                    context.commit('setVideoStatus', { id, status: FILE_STATUS.failed });
+                    processMore = true;
+                }
+                if (processMore) context.dispatch('processAllWaitingVideo');
+            };
+        },
+        clearVideoFiles(context) {
+            context.commit('clearVideoFiles');
+        },
+        setVideoFormat(context, format) {
+            context.commit('setVideoFormat', format);
+        },
+        addVideoFile(context, file) {
+            const fileObject = {
+                id: context.state.videoNextIndex,
+                ogFile: file,
+                name: file.name,
+                status: FILE_STATUS.initialized,
+                progress: 0,
+                output: { blob: null, name: null, url: null, config: null },
+                process: [],
+            };
+            context.commit('incrementVideoId');
+            context.commit('addVideoFile', fileObject);
+        },
+        async addVideoFiles(context, files) {
+            for (let i = 0; i < files.length; i++) {
+                context.dispatch('addVideoFile', files[i]);
+                await new Promise(r => setTimeout(r, 16));
+            }
+        },
+        processAllVideoFiles(context) {
+            const notProcessed = context.state.videoFiles.filter(
+                f => f.status === FILE_STATUS.initialized
+            );
+            notProcessed.forEach(f => {
+                context.commit('setVideoStatus', { id: f.id, status: FILE_STATUS.waiting });
+            });
+            context.dispatch('processAllWaitingVideo');
+        },
+        processAllWaitingVideo(context) {
+            const running = context.state.videoFiles.filter(
+                f => f.status === FILE_STATUS.processing
+            ).length;
+            const concurrency = navigator.hardwareConcurrency || 1;
+            const maxInFlight = Math.min(1, concurrency);
+            for (let i = 0; i < maxInFlight - running; i++) {
+                const waiting = context.state.videoFiles.find(f => f.status === FILE_STATUS.waiting);
+                if (!waiting) break;
+                context.dispatch('processVideoFile', waiting.id);
+            }
+        },
+        processVideoFile(context, id) {
+            const file = context.state.videoFiles.find(f => f.id === id);
+            const config = clone(context.state.videoConfig);
+            context.state.videoWorker.postMessage({
+                action: 'process',
+                file: file.ogFile,
+                id: file.id,
+                config,
+            });
+            context.commit('setVideoProgress', { id, progress: 0 });
+            context.commit('setVideoStatus', { id, status: FILE_STATUS.processing });
+        },
     },
     modules: {
     }

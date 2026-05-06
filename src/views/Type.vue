@@ -34,7 +34,7 @@
   </descriptor>
   <div class="informationBar">
     <card
-      :path="'/'"
+      :path="mediaHomePath"
       :formats="formats"
       :selectedFormat="formatInofo.name"
       :handleChange="handleChange"
@@ -46,8 +46,9 @@
   <h2 class="toTitle">Convert {{ formatInofo.name }} to:</h2>
   <format-selector
     :isFrom="false"
-    :path="'image/' + format"
+    :path="mediaType + '/' + format"
     name="to"
+    :mediaType="mediaType"
   ></format-selector>
   <div class="infomationContainer">
     <information>
@@ -167,7 +168,7 @@ export default {
         {
           rel: "canonical",
           href:
-            "https://conversiontoday.com/image/" + this.$route.params.format,
+            "https://conversiontoday.com" + this.$route.path,
         },
       ],
       htmlAttrs: { lang: "en", amp: true },
@@ -200,17 +201,31 @@ export default {
       this.faqItems[index].open = !this.faqItems[index].open;
     },
     handleChange(event) {
-      window.location.href = `/image/${event.target.value}`;
+      window.location.href = `/${this.mediaType}/${event.target.value}`;
     },
   },
   computed: {
+    mediaType() {
+      const path = this.$route.path;
+      if (path.startsWith('/audio')) return 'audio';
+      if (path.startsWith('/video')) return 'video';
+      return 'image';
+    },
+    mediaHomePath() {
+      return `/${this.mediaType}`;
+    },
+    formatsKey() {
+      if (this.mediaType === 'audio') return 'audioFormats';
+      if (this.mediaType === 'video') return 'videoFormats';
+      return 'formats';
+    },
     formatInofo() {
-      return this.$store.state.formats.find((formatObj) => {
+      return this.$store.state[this.formatsKey].find((formatObj) => {
         if (formatObj.name == this.format) return formatObj;
       });
     },
     formats() {
-      return this.$store.state.formats.filter(
+      return this.$store.state[this.formatsKey].filter(
         (format) => !format.isConvertToOnly
       );
     },
