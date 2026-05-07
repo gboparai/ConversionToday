@@ -91,7 +91,12 @@ import Descriptor from "@/components/descriptor.vue";
 import { FILE_STATUS } from "@/js/constants";
 import { useMeta } from "vue-meta";
 
-const SUPPORTED = ["jpg", "jpeg", "png", "webp", "avif"];
+const SUPPORTED = ["jpg", "png", "webp", "avif"];
+const COMPRESSION_OPTIONS = {
+  jpg: { quality: 72, progressive: true, optimize_coding: true },
+  webp: { quality: 70, method: 6 },
+  avif: { quality: 45, speed: 6 },
+};
 
 export default {
   name: "Compression",
@@ -143,6 +148,7 @@ export default {
     },
     formatFromFile(file) {
       const ext = file.name.toLowerCase().split(".").pop() || "";
+      if (ext === "jpeg") return "jpg";
       if (SUPPORTED.includes(ext)) return ext;
       if (file.type === "image/jpeg") return "jpg";
       if (file.type === "image/png") return "png";
@@ -186,10 +192,7 @@ export default {
     },
     encodeOptions(format) {
       const key = this.normalizeFormat(format);
-      if (key === "jpg") return { quality: 72, progressive: true, optimize_coding: true };
-      if (key === "webp") return { quality: 70, method: 6 };
-      if (key === "avif") return { quality: 45, speed: 6 };
-      return {};
+      return COMPRESSION_OPTIONS[key] || {};
     },
     mimeType(format) {
       const key = this.normalizeFormat(format);
@@ -259,7 +262,7 @@ export default {
       return "Failed";
     },
     formatBytes(bytes) {
-      if (!bytes && bytes !== 0) return "0 B";
+      if (bytes == null) return "0 B";
       if (bytes < 1024) return `${bytes} B`;
       if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
       return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
@@ -458,6 +461,7 @@ export default {
 
 .previewPanel {
   width: min(900px, 95vw);
+  position: relative;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: $default-radius;
