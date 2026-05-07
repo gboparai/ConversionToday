@@ -4,9 +4,9 @@
  * 
  * Route patterns generated:
  * - /                     (home)
- * - /TYPE                 (e.g., /image, /audio, /video, /document)
- * - /TYPE/FORMAT          (e.g., /image/jpg, /audio/mp3)
- * - /TYPE/FORMAT/TARGET   (e.g., /image/jpg/png, /audio/mp3/wav)
+ * - /TYPE                 (e.g., /image, /audio, /video, /document, /archive)
+ * - /TYPE/FORMAT          (e.g., /image/jpg, /audio/mp3, /archive/zip)
+ * - /TYPE/FORMAT/TARGET   (e.g., /image/jpg/png, /audio/mp3/wav, /archive/zip/7z)
  */
 
 /**
@@ -37,6 +37,9 @@ const formatsByMediaType = {
     'dzslides', 's5', 'pptx', 'plain', 'texinfo', 'context', 'icml', 'jats',
     'tei', 'ms', 'xwiki', 'zimwiki', 'bbcode', 'slideous', 'ansi', 'vimdoc',
     'markua', 'odt-xml'
+  ],
+  archive: [
+    'zip', '7z', 'rar', 'tar', 'iso'
   ]
 };
 

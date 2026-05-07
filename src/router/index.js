@@ -8,6 +8,7 @@ const About  = () => import('../views/About.vue')
 const AudioHome = () => import('../views/AudioHome.vue')
 const VideoHome = () => import('../views/VideoHome.vue')
 const DocumentHome = () => import('../views/DocumentHome.vue')
+const ArchiveHome = () => import('../views/ArchiveHome.vue')
 
 const routes = [
   {
@@ -79,6 +80,22 @@ const routes = [
   {
     path: '/document/:format/:format2',
     name: 'DocumentConversion',
+    component: Convert
+  },
+  // ── Archive routes ────────────────────────────────────────────────────────
+  {
+    path: '/archive',
+    name: 'ArchiveHome',
+    component: ArchiveHome
+  },
+  {
+    path: '/archive/:format',
+    name: 'ArchiveFormat',
+    component: Type
+  },
+  {
+    path: '/archive/:format/:format2',
+    name: 'ArchiveConversion',
     component: Convert
   },
   {

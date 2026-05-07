@@ -3,6 +3,7 @@ import Worker from 'worker-loader!@/js/img-worker';
 import AudioWorker from 'worker-loader!@/js/audio-worker';
 import VideoWorker from 'worker-loader!@/js/video-worker';
 import DocWorker from 'worker-loader!@/js/doc-worker';
+import ArchiveWorker from 'worker-loader!@/js/archive-worker';
 import { FILE_STATUS } from '@/js/constants';
 import { MagickFormat } from "@imagemagick/magick-wasm/magick-format";
 
@@ -1328,6 +1329,59 @@ export default createStore({
                 mimeType: 'application/xml',
             },
         ],
+
+        // ── Archive ──────────────────────────────────────────────────────────
+        archiveFiles: [],
+        archiveNextIndex: 0,
+        archiveWorker: null,
+        archiveConfig: { format: null, inputFormat: null },
+        archiveFormats: [
+            {
+                name: 'zip',
+                extension: 'zip',
+                title: 'ZIP Archive',
+                description: 'A common archive format supported by almost all operating systems and extraction tools.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/zip',
+            },
+            {
+                name: '7z',
+                extension: '7z',
+                title: '7-Zip Archive',
+                description: 'High-compression archive format used by 7-Zip and other archive tools.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/x-7z-compressed',
+            },
+            {
+                name: 'rar',
+                extension: 'rar',
+                title: 'RAR Archive',
+                description: 'Proprietary compressed archive format commonly used for file distribution.',
+                canConvertFrom: true,
+                canConvertTo: false,
+                mimeType: 'application/vnd.rar',
+            },
+            {
+                name: 'tar',
+                extension: 'tar',
+                title: 'TAR Archive',
+                description: 'Tape Archive format that stores multiple files in a single container without compression by default.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/x-tar',
+            },
+            {
+                name: 'iso',
+                extension: 'iso',
+                title: 'ISO Disk Image',
+                description: 'ISO 9660 optical disk image containing full filesystem data.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/x-iso9660-image',
+            },
+        ],
     },
     mutations: {
 
@@ -1493,6 +1547,53 @@ export default createStore({
         },
         setDocumentInputFormat(state, format) {
             state.documentConfig.inputFormat = format;
+        },
+
+        // ── Archive mutations ────────────────────────────────────────────────
+        addArchiveFile(state, fileObject) {
+            state.archiveFiles.push(fileObject);
+        },
+        clearArchiveFiles(state) {
+            state.archiveFiles = [];
+            state.archiveNextIndex = 0;
+        },
+        setArchiveData(state, { id, data }) {
+            let file = state.archiveFiles.find(f => f.id === id);
+            if (!file) return;
+            file.output.blob = data.output;
+            file.output.config = data.config;
+        },
+        setArchiveUrl(state, { id, url }) {
+            let file = state.archiveFiles.find(f => f.id === id);
+            if (!file) return;
+            file.output.url = url;
+        },
+        setArchiveName(state, { id, name }) {
+            let file = state.archiveFiles.find(f => f.id === id);
+            if (!file) return;
+            file.output.name = name;
+        },
+        setArchiveStatus(state, { id, status }) {
+            let file = state.archiveFiles.find(f => f.id === id);
+            if (!file) return;
+            file.status = status;
+        },
+        setArchiveProgress(state, { id, progress }) {
+            let file = state.archiveFiles.find(f => f.id === id);
+            if (!file) return;
+            file.progress = Math.max(0, Math.min(100, progress));
+        },
+        removeArchiveFile(state, id) {
+            state.archiveFiles = state.archiveFiles.filter(f => f.id !== id);
+        },
+        incrementArchiveId(state) {
+            state.archiveNextIndex++;
+        },
+        setArchiveFormat(state, format) {
+            state.archiveConfig.format = format;
+        },
+        setArchiveInputFormat(state, format) {
+            state.archiveConfig.inputFormat = format;
         },
     },
     actions: {
@@ -1832,6 +1933,90 @@ export default createStore({
             context.commit('setDocumentProgress', { id, progress: 0 });
             context.commit('setDocumentStatus', { id, status: FILE_STATUS.processing });
         },
+
+        // ── Archive actions ──────────────────────────────────────────────────
+        loadArchiveWorker(context) {
+            if (context.state.archiveWorker) return;
+            const worker = new ArchiveWorker();
+            context.state.archiveWorker = worker;
+            worker.postMessage({ action: 'load' });
+            worker.onmessage = (e) => {
+                const { status, id } = e.data;
+                let processMore = false;
+                if (status === 'progress') {
+                    context.commit('setArchiveProgress', { id, progress: e.data.progress });
+                } else if (status === 'processed') {
+                    context.commit('setArchiveProgress', { id, progress: 100 });
+                    context.commit('setArchiveStatus', { id, status: FILE_STATUS.processed });
+                    context.commit('setArchiveData', { id, data: e.data });
+                    processMore = true;
+                } else if (status === 'failed') {
+                    context.commit('setArchiveStatus', { id, status: FILE_STATUS.failed });
+                    processMore = true;
+                }
+                if (processMore) context.dispatch('processAllWaitingArchive');
+            };
+        },
+        clearArchiveFiles(context) {
+            context.commit('clearArchiveFiles');
+        },
+        setArchiveFormat(context, format) {
+            context.commit('setArchiveFormat', format);
+        },
+        setArchiveInputFormat(context, format) {
+            context.commit('setArchiveInputFormat', format);
+        },
+        addArchiveFile(context, file) {
+            const fileObject = {
+                id: context.state.archiveNextIndex,
+                ogFile: file,
+                name: file.name,
+                status: FILE_STATUS.initialized,
+                progress: 0,
+                output: { blob: null, name: null, url: null, config: null },
+                process: [],
+            };
+            context.commit('incrementArchiveId');
+            context.commit('addArchiveFile', fileObject);
+        },
+        async addArchiveFiles(context, files) {
+            for (let i = 0; i < files.length; i++) {
+                context.dispatch('addArchiveFile', files[i]);
+                await new Promise(r => setTimeout(r, 16));
+            }
+        },
+        processAllArchiveFiles(context) {
+            const notProcessed = context.state.archiveFiles.filter(
+                f => f.status === FILE_STATUS.initialized
+            );
+            notProcessed.forEach(f => {
+                context.commit('setArchiveStatus', { id: f.id, status: FILE_STATUS.waiting });
+            });
+            context.dispatch('processAllWaitingArchive');
+        },
+        processAllWaitingArchive(context) {
+            const running = context.state.archiveFiles.filter(
+                f => f.status === FILE_STATUS.processing
+            ).length;
+            const maxInFlight = 1;
+            for (let i = 0; i < maxInFlight - running; i++) {
+                const waiting = context.state.archiveFiles.find(f => f.status === FILE_STATUS.waiting);
+                if (!waiting) break;
+                context.dispatch('processArchiveFile', waiting.id);
+            }
+        },
+        processArchiveFile(context, id) {
+            const file = context.state.archiveFiles.find(f => f.id === id);
+            const config = clone(context.state.archiveConfig);
+            context.state.archiveWorker.postMessage({
+                action: 'process',
+                file: file.ogFile,
+                id: file.id,
+                config,
+            });
+            context.commit('setArchiveProgress', { id, progress: 0 });
+            context.commit('setArchiveStatus', { id, status: FILE_STATUS.processing });
+        },
     },
     modules: {
     }
@@ -1840,4 +2025,3 @@ export default createStore({
 function clone(object) {
     return JSON.parse(JSON.stringify(object));
 }
-

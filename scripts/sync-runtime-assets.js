@@ -41,6 +41,26 @@ const copies = [
     src: path.join(root, 'node_modules', '@ffmpeg', 'core', 'dist', 'esm', 'ffmpeg-core.wasm'),
     dest: path.join(root, 'public', 'vendor', 'ffmpeg-core-esm', 'ffmpeg-core.wasm'),
   },
+  {
+    src: path.join(root, 'node_modules', 'libarchive.js', 'dist', 'libarchive.js'),
+    dest: path.join(root, 'public', 'vendor', 'libarchive', 'libarchive.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'libarchive.js', 'dist', 'worker-bundle.js'),
+    dest: path.join(root, 'public', 'vendor', 'libarchive', 'worker-bundle.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'libarchive.js', 'dist', 'libarchive.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'libarchive', 'libarchive.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', '7z-wasm', '7zz.es6.js'),
+    dest: path.join(root, 'public', 'vendor', '7z', '7zz.es6.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', '7z-wasm', '7zz.wasm'),
+    dest: path.join(root, 'public', 'vendor', '7z', '7zz.wasm'),
+  },
 ];
 
 for (const { src, dest } of copies) {

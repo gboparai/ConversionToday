@@ -12,6 +12,7 @@
     <a class="mediaTypeNav__card" href="/audio">🎵 Audio</a>
     <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/video">🎬 Video</a>
     <a class="mediaTypeNav__card" href="/document">📄 Document</a>
+    <a class="mediaTypeNav__card" href="/archive">🗜️ Archive</a>
   </div>
 
   <format-selector :isFrom="true" path="video" name="from" mediaType="video"></format-selector>

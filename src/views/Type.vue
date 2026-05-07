@@ -210,6 +210,7 @@ export default {
       if (path.startsWith('/audio')) return 'audio';
       if (path.startsWith('/video')) return 'video';
       if (path.startsWith('/document')) return 'document';
+      if (path.startsWith('/archive')) return 'archive';
       return 'image';
     },
     mediaHomePath() {
@@ -219,6 +220,7 @@ export default {
       if (this.mediaType === 'audio') return 'audioFormats';
       if (this.mediaType === 'video') return 'videoFormats';
       if (this.mediaType === 'document') return 'documentFormats';
+      if (this.mediaType === 'archive') return 'archiveFormats';
       return 'formats';
     },
     formatInofo() {
