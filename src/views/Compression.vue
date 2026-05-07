@@ -167,7 +167,7 @@ export default {
         }
         this.files.push({
           id: this.nextId++,
-          ogFile: file,
+          originalFile: file,
           format,
           name: file.name,
           status: FILE_STATUS.initialized,
@@ -213,7 +213,7 @@ export default {
       file.status = FILE_STATUS.processing;
       try {
         const codec = await this.codecFor(file.format);
-        const input = await file.ogFile.arrayBuffer();
+        const input = await file.originalFile.arrayBuffer();
         const decoded = await codec.decode(input);
         const encoded = await codec.encode(decoded, this.encodeOptions(file.format));
         const blob = new Blob([encoded], { type: this.mimeType(file.format) });

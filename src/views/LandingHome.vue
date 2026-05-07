@@ -133,7 +133,7 @@ export default {
 .mediaHub {
   @include mid-width;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 
