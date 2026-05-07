@@ -153,7 +153,10 @@ async function handleMessage(data) {
                 // Overlap precedence: always try fonteditor-core first.
                 outputBlob = await convertWithFonteditor(file, config, id, inputExtension, outputExtension);
             } catch (fonteditorErr) {
-                console.warn('fonteditor-core conversion failed, trying FontForge WASM fallback:', fonteditorErr);
+                console.warn(
+                    `fonteditor-core conversion failed for ${inputExtension} -> ${outputExtension}, trying FontForge WASM fallback:`,
+                    fonteditorErr
+                );
                 emitProgress(id, 0.55);
                 outputBlob = await convertWithFontforge(file, config, inputExtension, outputExtension);
             }
