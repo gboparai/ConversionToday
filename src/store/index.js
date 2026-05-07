@@ -1604,19 +1604,23 @@ export default createStore({
         },
         setArchiveData(state, { id, data }) {
             let file = state.archiveFiles.find(f => f.id === id);
+            if (!file) return;
             file.output.blob = data.output;
             file.output.config = data.config;
         },
         setArchiveUrl(state, { id, url }) {
             let file = state.archiveFiles.find(f => f.id === id);
+            if (!file) return;
             file.output.url = url;
         },
         setArchiveName(state, { id, name }) {
             let file = state.archiveFiles.find(f => f.id === id);
+            if (!file) return;
             file.output.name = name;
         },
         setArchiveStatus(state, { id, status }) {
             let file = state.archiveFiles.find(f => f.id === id);
+            if (!file) return;
             file.status = status;
         },
         setArchiveProgress(state, { id, progress }) {

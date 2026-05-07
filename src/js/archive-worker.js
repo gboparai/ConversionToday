@@ -14,9 +14,14 @@ const MIME_TYPE_BY_EXT = {
     ar: 'application/x-archive',
 };
 
-const SEVEN_ZIP_SUPPORTED_INPUTS = new Set(['7z', 'zip', 'rar', 'tar', 'gz', 'bz2', 'xz', 'iso', 'cpio']);
+const SEVEN_ZIP_SUPPORTED_INPUTS = new Set(['7z', 'zip', 'rar', 'tar', 'gz', 'bz2', 'xz']);
 const SEVEN_ZIP_SUPPORTED_OUTPUTS = new Set(['7z', 'zip', 'tar', 'gz', 'bz2', 'xz']);
 const PAKO_SUPPORTED_EXTS = new Set(['gz']);
+const COMPOUND_EXTENSION_MAP = {
+    'tar.gz': 'gz',
+    'tar.bz2': 'bz2',
+    'tar.xz': 'xz',
+};
 
 let processQueue = Promise.resolve();
 let archiveInit = false;
@@ -30,8 +35,17 @@ function emitProgress(id, fraction) {
 }
 
 function getExtension(name) {
-    const parts = String(name || '').toLowerCase().split('.');
+    const lower = String(name || '').toLowerCase();
+    const compound = Object.keys(COMPOUND_EXTENSION_MAP).find((ext) => lower.endsWith(`.${ext}`));
+    if (compound) return COMPOUND_EXTENSION_MAP[compound];
+    const parts = lower.split('.');
     return parts.length > 1 ? parts.pop() : '';
+}
+
+function createUniqueToken() {
+    const bytes = new Uint8Array(8);
+    self.crypto.getRandomValues(bytes);
+    return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 function sanitizePath(path) {
@@ -156,7 +170,7 @@ async function extractWithSevenZip(file) {
     }
     const sevenZip = await getSevenZip();
     const fs = sevenZip.FS;
-    const root = `/extract-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const root = `/extract-${createUniqueToken()}`;
     const inputPath = `${root}/input.${extension}`;
     const outPath = `${root}/out`;
     ensureSevenZipDir(fs, root);
@@ -211,22 +225,24 @@ async function extractWithPako(file) {
     }
     const bytes = new Uint8Array(await file.arrayBuffer());
     const inflated = pako.inflate(bytes);
-    const baseName = file.name.replace(/\.gz$/i, '') || 'archive-content.bin';
+    const strippedName = file.name.replace(/\.gz$/i, '');
+    const baseName = strippedName || 'archive-content.bin';
     return [{ path: sanitizePath(baseName), data: new Uint8Array(inflated) }];
 }
 
 async function extractEntries(file) {
     const extractors = [
-        extractWithLibarchive,
-        extractWithSevenZip,
-        extractWithIso9660,
-        extractWithPako,
+        { name: 'libarchive.js', fn: extractWithLibarchive },
+        { name: '7z-wasm', fn: extractWithSevenZip },
+        { name: '@gcu/iso9660', fn: extractWithIso9660 },
+        { name: 'pako', fn: extractWithPako },
     ];
     let lastError = null;
     for (const extract of extractors) {
         try {
-            return await extract(file);
+            return await extract.fn(file);
         } catch (err) {
+            console.warn(`Archive extract fallback failed in ${extract.name}:`, err);
             lastError = err;
         }
     }
@@ -296,7 +312,7 @@ async function createWithSevenZip(entries, outputExtension, outputName) {
     }
     const sevenZip = await getSevenZip();
     const fs = sevenZip.FS;
-    const root = `/create-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const root = `/create-${createUniqueToken()}`;
     const sourceRoot = `${root}/src`;
     const outputPath = `${root}/${outputName}`;
     ensureSevenZipDir(fs, sourceRoot);
@@ -344,17 +360,18 @@ async function createArchive(entries, outputExtension, originalName) {
     const outputName = `${baseName}.${outputExtension}`;
 
     const writers = [
-        async () => ({ data: await createWithLibarchive(entries, outputExtension, outputName), outputName }),
-        async () => ({ data: await createWithSevenZip(entries, outputExtension, outputName), outputName }),
-        async () => ({ data: await createWithIso9660(entries), outputName }),
-        async () => createWithPako(entries, outputName),
+        { name: 'libarchive.js', fn: async () => ({ data: await createWithLibarchive(entries, outputExtension, outputName), outputName }) },
+        { name: '7z-wasm', fn: async () => ({ data: await createWithSevenZip(entries, outputExtension, outputName), outputName }) },
+        { name: '@gcu/iso9660', fn: async () => ({ data: await createWithIso9660(entries), outputName }) },
+        { name: 'pako', fn: async () => createWithPako(entries, outputName) },
     ];
 
     let lastError = null;
     for (const write of writers) {
         try {
-            return await write();
+            return await write.fn();
         } catch (err) {
+            console.warn(`Archive create fallback failed in ${write.name}:`, err);
             lastError = err;
         }
     }
