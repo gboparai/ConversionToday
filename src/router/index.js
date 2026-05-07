@@ -7,6 +7,7 @@ const FAQ  = () => import('../views/FAQ.vue')
 const About  = () => import('../views/About.vue')
 const AudioHome = () => import('../views/AudioHome.vue')
 const VideoHome = () => import('../views/VideoHome.vue')
+const DocumentHome = () => import('../views/DocumentHome.vue')
 
 const routes = [
   {
@@ -62,6 +63,22 @@ const routes = [
   {
     path: '/video/:format/:format2',
     name: 'VideoConversion',
+    component: Convert
+  },
+  // ── Document routes ──────────────────────────────────────────────────────
+  {
+    path: '/document',
+    name: 'DocumentHome',
+    component: DocumentHome
+  },
+  {
+    path: '/document/:format',
+    name: 'DocumentFormat',
+    component: Type
+  },
+  {
+    path: '/document/:format/:format2',
+    name: 'DocumentConversion',
     component: Convert
   },
   {

@@ -130,13 +130,15 @@ export default {
     formats() {
       const list = this.$store.state[this.formatsKey];
       if (this.isFrom) {
-        return list.filter((f) => !f.isConvertToOnly);
+        return list.filter((f) => f.canConvertFrom !== false);
       }
-      return list;
+      // For output formats, exclude input-only formats.
+      return list.filter((f) => f.canConvertTo !== false);
     },
     formatsKey() {
       if (this.mediaType === 'audio') return 'audioFormats';
       if (this.mediaType === 'video') return 'videoFormats';
+      if (this.mediaType === 'document') return 'documentFormats';
       return 'formats';
     },
     formatOptions() {

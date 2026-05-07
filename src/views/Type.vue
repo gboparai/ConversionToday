@@ -209,6 +209,7 @@ export default {
       const path = this.$route.path;
       if (path.startsWith('/audio')) return 'audio';
       if (path.startsWith('/video')) return 'video';
+      if (path.startsWith('/document')) return 'document';
       return 'image';
     },
     mediaHomePath() {
@@ -217,6 +218,7 @@ export default {
     formatsKey() {
       if (this.mediaType === 'audio') return 'audioFormats';
       if (this.mediaType === 'video') return 'videoFormats';
+      if (this.mediaType === 'document') return 'documentFormats';
       return 'formats';
     },
     formatInofo() {
@@ -226,7 +228,7 @@ export default {
     },
     formats() {
       return this.$store.state[this.formatsKey].filter(
-        (format) => !format.isConvertToOnly
+        (format) => format.canConvertFrom !== false
       );
     },
   },

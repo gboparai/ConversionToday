@@ -10,10 +10,11 @@
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "lint": "vue-cli-service lint",
     "publish": "git subtree push --prefix dist origin gh-pages",
-    "sync:ffmpeg-assets": "node scripts/sync-ffmpeg-assets.js",
-    "postinstall": "npm run sync:ffmpeg-assets"
+    "sync:runtime-assets": "node scripts/sync-runtime-assets.js",
+    "postinstall": "npm run sync:runtime-assets"
   },
   "dependencies": {
+    "@bjorn3/browser_wasi_shim": "^0.4.2",
     "@ffmpeg/core": "^0.12.10",
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@imagemagick/magick-wasm": "^0.0.4",
@@ -21,6 +22,7 @@
     "core-js": "^3.6.5",
     "jszip": "^3.10.1",
     "mediabunny": "^1.44.0",
+    "pandoc-wasm": "^1.0.1",
     "register-service-worker": "^1.7.1",
     "vue": "^3.0.0",
     "vue-gtag": "^2.0.1",
