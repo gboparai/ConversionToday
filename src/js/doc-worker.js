@@ -17,7 +17,7 @@ const SHEETJS_BOOK_TYPES = {
     xlsx: 'xlsx',
     xls: 'biff8',
 };
-const TYPST_DIAGNOSTICS_FORMAT_NONE = 0;
+const TYPST_DIAGNOSTICS_FORMAT = 0;
 
 function getPandoc() {
     if (!pandocPromise) {
@@ -147,7 +147,7 @@ async function convertTypstToPdf(typstBlob) {
     const compiler = await builder.build();
     const mainPath = '/main.typ';
     compiler.add_source(mainPath, source);
-    const pdfBytes = compiler.compile(mainPath, null, 'pdf', TYPST_DIAGNOSTICS_FORMAT_NONE);
+    const pdfBytes = compiler.compile(mainPath, null, 'pdf', TYPST_DIAGNOSTICS_FORMAT);
     if (!pdfBytes || !pdfBytes.length) {
         throw new Error('Typst returned empty PDF output');
     }
