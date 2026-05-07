@@ -94,4 +94,4 @@ for (const { src, dest } of optionalCopies) {
   fs.copyFileSync(src, dest);
 }
 
-console.log('Synced local FFmpeg and Pandoc assets to public/vendor.');
+console.log('Synced local FFmpeg, Pandoc, archive, and font runtime assets to public/vendor.');

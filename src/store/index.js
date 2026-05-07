@@ -1405,7 +1405,7 @@ export default createStore({
                 title: 'OpenType Font',
                 description: 'OpenType font format with advanced typographic capabilities and broad desktop support.',
                 canConvertFrom: true,
-                canConvertTo: true,
+                canConvertTo: false,
                 mimeType: 'font/otf',
             },
             {
