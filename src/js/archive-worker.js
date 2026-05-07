@@ -1,5 +1,3 @@
-import { Archive, ArchiveFormat, ArchiveCompression } from 'libarchive.js/dist/libarchive.js';
-import SevenZip from '7z-wasm';
 import { ISOReader, ISOWriter } from '@gcu/iso9660';
 import pako from 'pako';
 
@@ -23,6 +21,7 @@ const PAKO_SUPPORTED_EXTS = new Set(['gz']);
 let processQueue = Promise.resolve();
 let archiveInit = false;
 let sevenZipPromise = null;
+let archiveModulePromise = null;
 
 function emitProgress(id, fraction) {
     if (id === null || id === undefined) return;
@@ -45,8 +44,19 @@ function resolveMimeType(config, outputExtension) {
         'application/octet-stream';
 }
 
-function ensureArchiveInitialized() {
+async function getArchiveModule() {
+    if (!archiveModulePromise) {
+        archiveModulePromise = import(
+            /* webpackIgnore: true */ `${self.location.origin}/vendor/libarchive/libarchive.js`
+        );
+    }
+    return archiveModulePromise;
+}
+
+async function ensureArchiveInitialized() {
     if (archiveInit) return;
+    const archiveModule = await getArchiveModule();
+    const Archive = archiveModule.Archive;
     Archive.init({
         workerUrl: `${self.location.origin}/vendor/libarchive/worker-bundle.js`,
     });
@@ -55,15 +65,20 @@ function ensureArchiveInitialized() {
 
 async function getSevenZip() {
     if (!sevenZipPromise) {
-        sevenZipPromise = SevenZip({
-            print: () => { },
-            printErr: () => { },
-            locateFile: (url) => {
-                if (url === '7zz.wasm') {
-                    return `${self.location.origin}/vendor/7z/7zz.wasm`;
-                }
-                return url;
-            },
+        sevenZipPromise = import(
+            /* webpackIgnore: true */ `${self.location.origin}/vendor/7z/7zz.es6.js`
+        ).then((module) => {
+            const SevenZipFactory = module.default || module;
+            return SevenZipFactory({
+                print: () => { },
+                printErr: () => { },
+                locateFile: (url) => {
+                    if (url === '7zz.wasm') {
+                        return `${self.location.origin}/vendor/7z/7zz.wasm`;
+                    }
+                    return url;
+                },
+            });
         });
     }
     return sevenZipPromise;
@@ -111,7 +126,9 @@ function removeSevenZipPath(fs, targetPath) {
 }
 
 async function extractWithLibarchive(file) {
-    ensureArchiveInitialized();
+    await ensureArchiveInitialized();
+    const archiveModule = await getArchiveModule();
+    const Archive = archiveModule.Archive;
     const archive = await Archive.open(file);
     try {
         const files = await archive.getFilesArray();
@@ -216,7 +233,9 @@ async function extractEntries(file) {
     throw lastError || new Error('Unable to extract input archive');
 }
 
-function libarchiveOutputOptions(outputExtension) {
+function libarchiveOutputOptions(outputExtension, archiveModule) {
+    const ArchiveFormat = archiveModule.ArchiveFormat;
+    const ArchiveCompression = archiveModule.ArchiveCompression;
     if (outputExtension === 'zip') {
         return { format: ArchiveFormat.ZIP, compression: ArchiveCompression.NONE };
     }
@@ -248,9 +267,11 @@ function libarchiveOutputOptions(outputExtension) {
 }
 
 async function createWithLibarchive(entries, outputExtension, outputName) {
-    const options = libarchiveOutputOptions(outputExtension);
+    const archiveModule = await getArchiveModule();
+    await ensureArchiveInitialized();
+    const Archive = archiveModule.Archive;
+    const options = libarchiveOutputOptions(outputExtension, archiveModule);
     if (!options) throw new Error('Unsupported extension for libarchive output');
-    ensureArchiveInitialized();
     const files = entries.map((entry) => {
         return {
             file: new File([entry.data], entry.path.split('/').pop() || 'file.bin', {
