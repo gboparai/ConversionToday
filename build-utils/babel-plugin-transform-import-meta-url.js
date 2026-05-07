@@ -1,4 +1,6 @@
 module.exports = function ({ types: t, template }) {
+  // JSquash codec runtime uses import.meta.url to resolve wasm paths.
+  // In this webpack 4 setup we rewrite to browser location-like values.
   const replacement = template.expression(
     '(typeof self !== "undefined" && self.location && self.location.href) || ((typeof document !== "undefined" && document.baseURI) ? document.baseURI : "")'
   );

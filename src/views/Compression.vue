@@ -267,7 +267,7 @@ export default {
     savedPercent(file) {
       if (!file.compressedSize || file.originalSize <= 0) return 0;
       const pct = ((file.originalSize - file.compressedSize) / file.originalSize) * 100;
-      return Math.round(pct);
+      return Math.max(0, Math.round(pct));
     },
     openPreview(id) {
       this.previewFileId = id;
@@ -506,11 +506,6 @@ export default {
     inset: 0 auto 0 0;
     overflow: hidden;
     border-right: 2px solid #fff;
-
-    .compare__img {
-      width: 100%;
-      max-width: none;
-    }
   }
 
   &__divider {
