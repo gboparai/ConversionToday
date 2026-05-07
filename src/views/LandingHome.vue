@@ -133,6 +133,7 @@ export default {
 .mediaHub {
   @include mid-width;
   display: grid;
+  // 12.5rem keeps cards readable while allowing auto-fit wrapping across viewports.
   grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;

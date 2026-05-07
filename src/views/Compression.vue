@@ -93,6 +93,7 @@ import { useMeta } from "vue-meta";
 
 const SUPPORTED = ["jpg", "png", "webp", "avif"];
 const COMPRESSION_OPTIONS = {
+  // JSquash MozJPEG uses snake_case option names (e.g. optimize_coding).
   jpg: { quality: 72, progressive: true, optimize_coding: true },
   webp: { quality: 70, method: 6 },
   avif: { quality: 45, speed: 6 },
@@ -262,6 +263,7 @@ export default {
       return "Failed";
     },
     formatBytes(bytes) {
+      // Intentionally catches both null and undefined values.
       if (bytes == null) return "0 B";
       if (bytes < 1024) return `${bytes} B`;
       if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
