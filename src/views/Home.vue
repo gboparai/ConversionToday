@@ -11,6 +11,7 @@
 
   <div class="mediaTypeNav">
     <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/image">🖼️ Image</a>
+    <a class="mediaTypeNav__card" href="/compression">🧰 Compression</a>
     <a class="mediaTypeNav__card" href="/audio">🎵 Audio</a>
     <a class="mediaTypeNav__card" href="/video">🎬 Video</a>
     <a class="mediaTypeNav__card" href="/document">📄 Document</a>

@@ -3,6 +3,7 @@
     <div class="nav__links">
       <router-link to="/" exact-active-class="router-link-active">Home</router-link>
       <router-link to="/image">Image</router-link>
+      <router-link to="/compression">Compression</router-link>
       <router-link to="/audio">Audio</router-link>
       <router-link to="/video">Video</router-link>
       <router-link to="/document">Document</router-link>

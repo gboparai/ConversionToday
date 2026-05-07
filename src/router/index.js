@@ -9,6 +9,7 @@ const AudioHome = () => import('../views/AudioHome.vue')
 const VideoHome = () => import('../views/VideoHome.vue')
 const DocumentHome = () => import('../views/DocumentHome.vue')
 const ArchiveHome = () => import('../views/ArchiveHome.vue')
+const Compression = () => import('../views/Compression.vue')
 
 const routes = [
   {
@@ -22,6 +23,11 @@ const routes = [
     name: 'ImageHome',
     component: Home,
     
+  },
+  {
+    path: '/compression',
+    name: 'Compression',
+    component: Compression
   },
   // ── Image routes ────────────────────────────────────────────────────────
   {
