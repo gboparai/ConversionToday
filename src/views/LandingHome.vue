@@ -173,6 +173,12 @@ export default {
   }
 }
 
+@media only screen and (max-width: 90rem) {
+  .mediaHub {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media only screen and (max-width: 55rem) {
   .mediaHub {
     grid-template-columns: 1fr;

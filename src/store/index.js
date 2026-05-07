@@ -1403,7 +1403,7 @@ export default createStore({
                 name: 'otf',
                 extension: 'otf',
                 title: 'OpenType Font',
-                description: 'OpenType font format with advanced typographic capabilities and broad desktop support.',
+                description: 'OpenType font format with advanced typographic capabilities and broad desktop support. Currently supported as an input format in browser conversion.',
                 canConvertFrom: true,
                 canConvertTo: false,
                 mimeType: 'font/otf',
