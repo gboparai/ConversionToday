@@ -1,6 +1,6 @@
 module.exports = function ({ types: t, template }) {
   const replacement = template.expression(
-    '(typeof document !== "undefined" && document.baseURI) ? document.baseURI : ((typeof self !== "undefined" && self.location) ? self.location.href : "")'
+    '(typeof self !== "undefined" && self.location && self.location.href) || ((typeof document !== "undefined" && document.baseURI) ? document.baseURI : "")'
   );
 
   function isImportMeta(node) {
@@ -23,6 +23,9 @@ module.exports = function ({ types: t, template }) {
     name: "transform-import-meta-url",
     visitor: {
       AssignmentExpression(path) {
+        // Some generated codec glue code conditionally assigns to import.meta.url.
+        // After rewriting import.meta.url to a runtime location expression, assignment
+        // is invalid, so replace the assignment expression with its RHS value.
         if (isImportMetaUrl(path.node.left)) {
           path.replaceWith(path.node.right);
         }

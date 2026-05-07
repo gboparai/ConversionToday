@@ -107,7 +107,7 @@ export default {
         },
       ],
       link: [{ rel: "canonical", href: "https://conversiontoday.com/compression" }],
-      htmlAttrs: { lang: "en", amp: true },
+      htmlAttrs: { lang: "en" },
     });
     return {
       FILE_STATUS,
@@ -217,7 +217,7 @@ export default {
         if (file.output.url) URL.revokeObjectURL(file.output.url);
         file.output.blob = blob;
         file.output.url = URL.createObjectURL(blob);
-        const extension = file.format === "jpeg" ? "jpeg" : this.normalizeFormat(file.format);
+        const extension = this.normalizeFormat(file.format);
         file.output.name = `${file.name.replace(/\.[^/.]+$/, "")}-compressed.${extension}`;
         file.compressedSize = blob.size;
         file.status = FILE_STATUS.processed;
@@ -508,7 +508,7 @@ export default {
     border-right: 2px solid #fff;
 
     .compare__img {
-      width: min(900px, 95vw);
+      width: 100%;
       max-width: none;
     }
   }
