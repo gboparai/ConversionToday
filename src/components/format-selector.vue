@@ -139,6 +139,7 @@ export default {
       if (this.mediaType === 'audio') return 'audioFormats';
       if (this.mediaType === 'video') return 'videoFormats';
       if (this.mediaType === 'document') return 'documentFormats';
+      if (this.mediaType === 'archive') return 'archiveFormats';
       return 'formats';
     },
     formatOptions() {

@@ -13,6 +13,9 @@ module.exports = {
         '@ffmpeg/util',
         'pandoc-wasm',
         '@bjorn3/browser_wasi_shim',
+        'libarchive.js',
+        '7z-wasm',
+        '@gcu/iso9660',
     ],
 
     pwa: {

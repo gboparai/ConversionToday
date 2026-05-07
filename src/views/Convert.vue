@@ -414,6 +414,7 @@ export default {
       if (path.startsWith('/audio')) return 'audio';
       if (path.startsWith('/video')) return 'video';
       if (path.startsWith('/document')) return 'document';
+      if (path.startsWith('/archive')) return 'archive';
       return 'image';
     },
     mediaHomePath() {
@@ -423,24 +424,28 @@ export default {
       if (this.mediaType === 'audio') return 'Audio Files';
       if (this.mediaType === 'video') return 'Video Files';
       if (this.mediaType === 'document') return 'Documents';
+      if (this.mediaType === 'archive') return 'Archives';
       return 'Images';
     },
     acceptMimeTypes() {
       if (this.mediaType === 'audio') return 'audio/*';
       if (this.mediaType === 'video') return 'video/*';
       if (this.mediaType === 'document') return '*/*';
+      if (this.mediaType === 'archive') return '.zip,.7z,.rar,.tar,.gz,.bz2,.xz,.iso,.cpio,.ar';
       return 'image/*';
     },
     formatsKey() {
       if (this.mediaType === 'audio') return 'audioFormats';
       if (this.mediaType === 'video') return 'videoFormats';
       if (this.mediaType === 'document') return 'documentFormats';
+      if (this.mediaType === 'archive') return 'archiveFormats';
       return 'formats';
     },
     files() {
       if (this.mediaType === 'audio') return this.$store.state.audioFiles;
       if (this.mediaType === 'video') return this.$store.state.videoFiles;
       if (this.mediaType === 'document') return this.$store.state.documentFiles;
+      if (this.mediaType === 'archive') return this.$store.state.archiveFiles;
       return this.$store.state.files;
     },
     nonProcessed() {
@@ -514,6 +519,8 @@ export default {
         this.$store.dispatch("addVideoFiles", e.target.files);
       } else if (this.mediaType === 'document') {
         this.$store.dispatch("addDocumentFiles", e.target.files);
+      } else if (this.mediaType === 'archive') {
+        this.$store.dispatch("addArchiveFiles", e.target.files);
       } else {
         this.$store.dispatch("addFiles", e.target.files);
       }
@@ -526,6 +533,8 @@ export default {
         this.$store.dispatch("addVideoFiles", e.dataTransfer.files);
       } else if (this.mediaType === 'document') {
         this.$store.dispatch("addDocumentFiles", e.dataTransfer.files);
+      } else if (this.mediaType === 'archive') {
+        this.$store.dispatch("addArchiveFiles", e.dataTransfer.files);
       } else {
         this.$store.dispatch("addFiles", e.dataTransfer.files);
       }
@@ -552,6 +561,8 @@ export default {
         this.$store.dispatch("processAllVideoFiles");
       } else if (this.mediaType === 'document') {
         this.$store.dispatch("processAllDocumentFiles");
+      } else if (this.mediaType === 'archive') {
+        this.$store.dispatch("processAllArchiveFiles");
       } else {
         this.$store.dispatch("processAllFiles", {
           format: this.selectedFormat,
@@ -602,6 +613,8 @@ export default {
         this.$store.dispatch("clearVideoFiles");
       } else if (this.mediaType === 'document') {
         this.$store.dispatch("clearDocumentFiles");
+      } else if (this.mediaType === 'archive') {
+        this.$store.dispatch("clearArchiveFiles");
       } else {
         this.$store.dispatch("clearFiles");
       }
@@ -631,6 +644,10 @@ export default {
       this.$store.dispatch("setDocumentFormat", this.formatInofo2);
       this.$store.dispatch("setDocumentInputFormat", this.formatInofo);
       this.$store.dispatch("loadDocumentWorker");
+    } else if (this.mediaType === 'archive') {
+      this.$store.dispatch("setArchiveFormat", this.formatInofo2);
+      this.$store.dispatch("setArchiveInputFormat", this.formatInofo);
+      this.$store.dispatch("loadArchiveWorker");
     } else {
       this.$store.dispatch("setFormat", this.formatInofo2);
       this.$store.dispatch("loadWorker");

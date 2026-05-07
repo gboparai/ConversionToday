@@ -2,7 +2,7 @@
   <descriptor>
     <template #header>Free File Converter</template>
     <template #description>
-      Convert images, audio and video locally in your browser with no uploads,
+      Convert images, audio, video, documents and archives locally in your browser with no uploads,
       no limits and no waiting for a server.
     </template>
   </descriptor>
@@ -27,6 +27,11 @@
       <span class="mediaHub__icon">📄</span>
       <h2>Document Converter</h2>
       <p>Convert Markdown, HTML, DOCX, ODT, LaTeX, EPUB, RST, Org-mode and 30+ more document formats.</p>
+    </a>
+    <a class="mediaHub__card" href="/archive">
+      <span class="mediaHub__icon">🗜️</span>
+      <h2>Archive Converter</h2>
+      <p>Convert ZIP, 7Z, TAR, GZ, BZ2, XZ, ISO, CPIO and AR archives in-browser.</p>
     </a>
   </div>
 
@@ -73,7 +78,7 @@ export default {
         {
           name: "description",
           content:
-            "Convert image, audio and video files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Convert image, audio, video, document and archive files online for free with local browser-based processing. No uploads, limits or signups.",
         },
         { name: "twitter:card", content: "summary" },
         {
@@ -83,7 +88,7 @@ export default {
         {
           name: "twitter:description",
           content:
-            "Convert image, audio and video files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Convert image, audio, video, document and archive files online for free with local browser-based processing. No uploads, limits or signups.",
         },
         {
           name: "twitter:image",
@@ -102,7 +107,7 @@ export default {
         {
           property: "og:description",
           content:
-            "Convert image, audio and video files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Convert image, audio, video, document and archive files online for free with local browser-based processing. No uploads, limits or signups.",
         },
       ],
       link: [
@@ -123,7 +128,7 @@ export default {
 .mediaHub {
   @include mid-width;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 
