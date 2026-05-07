@@ -3,7 +3,7 @@ import * as XLSX from '@e965/xlsx';
 
 let pandocPromise = null;
 let processQueue = Promise.resolve();
-let typstModulePromise = null;
+let typstPromise = null;
 
 const SPREADSHEET_FORMATS = new Set(['xlsx', 'xls', 'ods', 'csv', 'tsv']);
 const SPREADSHEET_MIME_TYPES = {
@@ -16,8 +16,8 @@ const SPREADSHEET_MIME_TYPES = {
 const SHEETJS_BOOK_TYPES = {
     xlsx: 'xlsx',
     xls: 'biff8',
-    ods: 'ods',
 };
+const TYPST_DIAGNOSTICS_FORMAT_NONE = 0;
 
 function getPandoc() {
     if (!pandocPromise) {
@@ -87,10 +87,10 @@ function workbookToSpreadsheetBlob(workbook, outputFormat) {
     }
 
     const bookType = SHEETJS_BOOK_TYPES[outputFormat];
-    if (!bookType) {
+    if (!bookType && outputFormat !== 'ods') {
         throw new Error(`Unsupported spreadsheet output format: ${outputFormat}`);
     }
-    const out = XLSX.write(workbook, { type: 'array', bookType });
+    const out = XLSX.write(workbook, { type: 'array', bookType: bookType || outputFormat });
     return new Blob([out], { type: getMimeTypeForFormat(outputFormat) });
 }
 
@@ -122,8 +122,8 @@ async function convertWithPandoc(inputBlob, fromName, toName, fromExt, toExt, mi
 }
 
 async function getTypstModule() {
-    if (!typstModulePromise) {
-        typstModulePromise = (async () => {
+    if (!typstPromise) {
+        typstPromise = (async () => {
             const moduleUrl = `${self.location.origin}/vendor/typst/typst_ts_web_compiler.mjs`;
             const wasmUrl = `${self.location.origin}/vendor/typst/typst_ts_web_compiler_bg.wasm`;
             const typstModule = await import(/* webpackIgnore: true */ moduleUrl);
@@ -136,7 +136,7 @@ async function getTypstModule() {
             return typstModule;
         })();
     }
-    return typstModulePromise;
+    return typstPromise;
 }
 
 async function convertTypstToPdf(typstBlob) {
@@ -147,7 +147,7 @@ async function convertTypstToPdf(typstBlob) {
     const compiler = await builder.build();
     const mainPath = '/main.typ';
     compiler.add_source(mainPath, source);
-    const pdfBytes = compiler.compile(mainPath, null, 'pdf', 0);
+    const pdfBytes = compiler.compile(mainPath, null, 'pdf', TYPST_DIAGNOSTICS_FORMAT_NONE);
     if (!pdfBytes || !pdfBytes.length) {
         throw new Error('Typst returned empty PDF output');
     }
