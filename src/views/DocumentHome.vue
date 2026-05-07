@@ -2,9 +2,9 @@
   <descriptor>
     <template #header>Document Converter</template>
     <template #description>
-      Convert unlimited documents online for free. Supports Markdown, HTML,
-      DOCX, ODT, LaTeX, EPUB, RST, Org-mode and many more — all processed
-      locally in your browser via Pandoc WebAssembly.
+      Convert unlimited documents online for free. Supports 60+ document formats
+      including Markdown, HTML, DOCX, ODT, LaTeX, EPUB, RST, Org-mode and more — all processed
+      locally in your browser.
     </template>
   </descriptor>
 
@@ -18,10 +18,10 @@
   <format-selector :isFrom="true" path="document" name="from" mediaType="document"></format-selector>
   <div class="infomationContainer">
     <information>
-      <template #header>Wide Format Support</template>
+      <template #header>60+ Format Support</template>
       <template #description>
         Convert between Markdown, HTML, DOCX, ODT, LaTeX, RST, Org-mode,
-        EPUB, and 30+ more document formats. Powered by Pandoc WebAssembly.
+        EPUB, and 60+ document formats including wikis, bibliographies, notebooks, and more.
       </template>
     </information>
     <information>
@@ -50,10 +50,10 @@
       </template>
     </information>
     <information>
-      <template #header>Powered by Pandoc</template>
+      <template #header>Universal Format Support</template>
       <template #description>
-        Pandoc is the universal document converter trusted by millions. The
-        same powerful conversion engine runs entirely in your browser.
+        Support for 30+ document formats including word processors, markup
+        languages, e-books, and academic standards — all converted in your browser.
       </template>
     </information>
     <information>
@@ -79,7 +79,7 @@ export default {
         {
           name: "description",
           content:
-            "Convert documents online for free. No limits, no uploads. Supports Markdown, HTML, DOCX, ODT, LaTeX, RST, Org-mode, EPUB and 30+ more. Powered by Pandoc WebAssembly.",
+            "Convert documents online for free. No limits, no uploads. Supports 60+ document formats including Markdown, HTML, DOCX, ODT, LaTeX, RST, Org-mode, EPUB, and many more.",
         },
         { name: "twitter:card", content: "summary" },
         {

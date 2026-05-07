@@ -480,7 +480,8 @@ export default {
       const query = this.conversionSearch.trim().toLowerCase();
       return this.$store.state[this.formatsKey]
         .filter((format) => {
-          if (format.isConvertToOnly || format.name == this.$route.params.format2) {
+          // Exclude output-only formats and input-only formats, and the currently selected output format.
+          if (format.canConvertFrom === false || format.canConvertTo === false || format.name == this.$route.params.format2) {
             return false;
           }
           if (!query) return true;
@@ -496,12 +497,13 @@ export default {
     formats1() {
       return this.$store.state[this.formatsKey].filter((format) => {
         return (
-          !format.isConvertToOnly && format.name != this.$route.params.format2
+          format.canConvertFrom !== false && format.canConvertTo !== false && format.name != this.$route.params.format2
         );
       });
     },
     formats2() {
-      return this.$store.state[this.formatsKey];
+      // Only show formats that can be converted TO (exclude input-only formats)
+      return this.$store.state[this.formatsKey].filter((format) => format.canConvertTo !== false);
     },
   },
   methods: {

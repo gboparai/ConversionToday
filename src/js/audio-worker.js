@@ -26,7 +26,7 @@ const MEDIABUNNY_OUTPUT_FORMATS = {
 };
 
 const FFMPEG_OUTPUT_EXTS = new Set([
-    'mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'webm', 'wma', 'opus'
+    'mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'webm', 'wma', 'opus', 'alac', 'ape'
 ]);
 
 const MIME_TYPE_BY_EXT = {
@@ -39,6 +39,8 @@ const MIME_TYPE_BY_EXT = {
     webm: 'audio/webm',
     wma: 'audio/x-ms-wma',
     opus: 'audio/ogg; codecs=opus',
+    alac: 'audio/alac',
+    ape: 'audio/ape',
 };
 
 let ffmpegInstance = null;

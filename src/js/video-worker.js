@@ -20,7 +20,7 @@ const MEDIABUNNY_OUTPUT_FORMATS = {
 };
 
 const FFMPEG_OUTPUT_EXTS = new Set([
-    'mp4', 'webm', 'mkv', 'mov', 'avi', 'wmv', 'flv', '3gp', 'mpeg'
+    'mp4', 'webm', 'mkv', 'mov', 'avi', 'wmv', 'flv', '3gp', 'mpeg', 'm3u8', 'ts', 'ogv'
 ]);
 
 const MIME_TYPE_BY_EXT = {
@@ -33,6 +33,9 @@ const MIME_TYPE_BY_EXT = {
     flv: 'video/x-flv',
     '3gp': 'video/3gpp',
     mpeg: 'video/mpeg',
+    m3u8: 'application/vnd.apple.mpegurl',
+    ts: 'video/mp2t',
+    ogv: 'video/ogg',
 };
 
 let ffmpegInstance = null;

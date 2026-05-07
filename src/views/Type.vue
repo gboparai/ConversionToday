@@ -228,7 +228,7 @@ export default {
     },
     formats() {
       return this.$store.state[this.formatsKey].filter(
-        (format) => !format.isConvertToOnly
+        (format) => format.canConvertFrom !== false
       );
     },
   },

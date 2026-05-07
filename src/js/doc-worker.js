@@ -37,12 +37,16 @@ async function handleMessage(data) {
     }
 
     if (action === 'process') {
-        const outputFormat = config.format.name;
-        const inputFormat = config.inputFormat.name;
-        const outputExt = config.format.extension;
-        const inputExt = config.inputFormat.extension;
-
         try {
+            // Validate config before using
+            if (!config || !config.format || !config.inputFormat) {
+                throw new Error('Incomplete config: missing format or inputFormat');
+            }
+
+            const outputFormat = config.format.name;
+            const inputFormat = config.inputFormat.name;
+            const outputExt = config.format.extension;
+            const inputExt = config.inputFormat.extension;
             emitProgress(id, 0.05);
             const pandoc = await getPandoc();
             emitProgress(id, 0.2);

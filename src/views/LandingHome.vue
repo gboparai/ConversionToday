@@ -26,7 +26,7 @@
     <a class="mediaHub__card" href="/document">
       <span class="mediaHub__icon">📄</span>
       <h2>Document Converter</h2>
-      <p>Convert Markdown, HTML, DOCX, ODT, LaTeX, EPUB, RST, Org-mode and 30+ more document formats via Pandoc.</p>
+      <p>Convert Markdown, HTML, DOCX, ODT, LaTeX, EPUB, RST, Org-mode and 30+ more document formats.</p>
     </a>
   </div>
 
