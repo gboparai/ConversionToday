@@ -136,7 +136,7 @@
     <span :class="['status-badge', statusClass]">{{ statusLabel }}</span>
 
     <button
-      v-if="file.status === FILE_STATUS.waiting || file.status === FILE_STATUS.initialized"
+      v-if="file.status === FILE_STATUS.waiting || file.status === FILE_STATUS.initialized || file.status === FILE_STATUS.failed"
       class="remove-btn"
       @click="removeFile"
       title="Remove"

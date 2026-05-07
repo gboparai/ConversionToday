@@ -431,7 +431,7 @@ export default {
       if (this.mediaType === 'audio') return 'audio/*';
       if (this.mediaType === 'video') return 'video/*';
       if (this.mediaType === 'document') return '*/*';
-      if (this.mediaType === 'archive') return '.zip,.7z,.rar,.tar,.gz,.bz2,.xz,.iso,.cpio,.ar';
+      if (this.mediaType === 'archive') return '.zip,.7z,.rar,.tar,.iso';
       return 'image/*';
     },
     formatsKey() {
