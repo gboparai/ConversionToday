@@ -33,6 +33,11 @@
       <h2>Archive Converter</h2>
       <p>Convert ZIP, 7Z, TAR and ISO archives in-browser.</p>
     </a>
+    <a class="mediaHub__card" href="/font">
+      <span class="mediaHub__icon">🔤</span>
+      <h2>Font Converter</h2>
+      <p>Convert TTF, OTF, WOFF, WOFF2, EOT and SVG fonts directly in your browser.</p>
+    </a>
   </div>
 
   <div class="infomationContainer">
@@ -78,7 +83,7 @@ export default {
         {
           name: "description",
           content:
-             "Convert image, audio, video, document and archive files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Convert image, audio, video, document, archive and font files online for free with local browser-based processing. No uploads, limits or signups.",
         },
         { name: "twitter:card", content: "summary" },
         {
@@ -88,7 +93,7 @@ export default {
         {
           name: "twitter:description",
           content:
-             "Convert image, audio, video, document and archive files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Convert image, audio, video, document, archive and font files online for free with local browser-based processing. No uploads, limits or signups.",
         },
         {
           name: "twitter:image",
@@ -107,7 +112,7 @@ export default {
         {
           property: "og:description",
           content:
-             "Convert image, audio, video, document and archive files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Convert image, audio, video, document, archive and font files online for free with local browser-based processing. No uploads, limits or signups.",
         },
       ],
       link: [
@@ -128,7 +133,7 @@ export default {
 .mediaHub {
   @include mid-width;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 

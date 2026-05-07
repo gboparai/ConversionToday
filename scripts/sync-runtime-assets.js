@@ -61,11 +61,34 @@ const copies = [
     src: path.join(root, 'node_modules', '7z-wasm', '7zz.wasm'),
     dest: path.join(root, 'public', 'vendor', '7z', '7zz.wasm'),
   },
+  {
+    src: path.join(root, 'node_modules', 'fonteditor-core', 'woff2', 'woff2.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'fonteditor', 'woff2.wasm'),
+  },
+];
+
+const optionalCopies = [
+  {
+    src: path.join(root, 'node_modules', 'fontforge-wasm', 'dist', 'fontforge.js'),
+    dest: path.join(root, 'public', 'vendor', 'fontforge', 'fontforge.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'fontforge-wasm', 'dist', 'fontforge.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'fontforge', 'fontforge.wasm'),
+  },
 ];
 
 for (const { src, dest } of copies) {
   if (!fs.existsSync(src)) {
     throw new Error(`Missing source file: ${src}`);
+  }
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.copyFileSync(src, dest);
+}
+
+for (const { src, dest } of optionalCopies) {
+  if (!fs.existsSync(src)) {
+    continue;
   }
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.copyFileSync(src, dest);

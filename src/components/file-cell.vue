@@ -188,6 +188,7 @@ export default {
                      : this.mediaType === 'video' ? 'setVideoUrl'
                      : this.mediaType === 'document' ? 'setDocumentUrl'
                      : this.mediaType === 'archive' ? 'setArchiveUrl'
+                     : this.mediaType === 'font' ? 'setFontUrl'
                      : 'setUrl';
       this.$store.commit(mutation, { id: this.file.id, url: url });
       return url;
@@ -204,6 +205,7 @@ export default {
                      : this.mediaType === 'video' ? 'setVideoName'
                      : this.mediaType === 'document' ? 'setDocumentName'
                      : this.mediaType === 'archive' ? 'setArchiveName'
+                     : this.mediaType === 'font' ? 'setFontName'
                      : 'setName';
       this.$store.commit(mutation, { id: this.file.id, name: name });
       return name;
@@ -236,6 +238,7 @@ export default {
                      : this.mediaType === 'video' ? 'removeVideoFile'
                      : this.mediaType === 'document' ? 'removeDocumentFile'
                      : this.mediaType === 'archive' ? 'removeArchiveFile'
+                     : this.mediaType === 'font' ? 'removeFontFile'
                      : 'removeFile';
       this.$store.commit(mutation, this.file.id);
     },

@@ -1,8 +1,8 @@
 <template>
   <descriptor>
-    <template #header>Archive Converter</template>
+    <template #header>Font Converter</template>
     <template #description>
-      Convert archive files online for free. Supports ZIP, 7Z, TAR and ISO formats — all processed in your browser.
+      Convert font files online for free. Supports TTF, OTF, WOFF, WOFF2, EOT and SVG fonts in your browser.
     </template>
   </descriptor>
 
@@ -11,28 +11,28 @@
     <a class="mediaTypeNav__card" href="/audio">🎵 Audio</a>
     <a class="mediaTypeNav__card" href="/video">🎬 Video</a>
     <a class="mediaTypeNav__card" href="/document">📄 Document</a>
-    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/archive">🗜️ Archive</a>
-    <a class="mediaTypeNav__card" href="/font">🔤 Font</a>
+    <a class="mediaTypeNav__card" href="/archive">🗜️ Archive</a>
+    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/font">🔤 Font</a>
   </div>
 
-  <format-selector :isFrom="true" path="archive" name="from" mediaType="archive"></format-selector>
+  <format-selector :isFrom="true" path="font" name="from" mediaType="font"></format-selector>
   <div class="infomationContainer">
     <information>
-      <template #header>Broad Archive Support</template>
+      <template #header>Broad Font Support</template>
       <template #description>
-        Convert between ZIP, 7Z, TAR and ISO using multiple archive engines with smart fallbacks.
+        Convert between TTF, OTF, WOFF, WOFF2, EOT and SVG font formats with in-browser processing.
       </template>
     </information>
     <information>
-      <template #header>In-Browser Processing</template>
+      <template #header>Smart Engine Priority</template>
       <template #description>
-        Archive conversion runs directly in your browser with WebAssembly runtimes. Your files stay on your device.
+        Uses fonteditor-core first for overlapping formats and falls back to FontForge WASM when needed.
       </template>
     </information>
     <information>
-      <template #header>No Upload Limits</template>
+      <template #header>No Uploads</template>
       <template #description>
-        Convert as many archive files as needed without account limits or server-side upload queues.
+        All font conversion runs locally in your browser. Your font files remain on your device.
       </template>
     </information>
   </div>
@@ -45,18 +45,18 @@ import Information from "@/components/information.vue";
 import { useMeta } from "vue-meta";
 
 export default {
-  name: "ArchiveHome",
+  name: "FontHome",
   setup() {
     useMeta({
-      title: "Free Online Archive Converter - Conversion Today",
+      title: "Free Online Font Converter - Conversion Today",
       meta: [
         {
           name: "description",
           content:
-            "Convert archive files online for free in your browser. Supports ZIP, 7Z, TAR and ISO formats.",
+            "Convert font files online for free in your browser. Supports TTF, OTF, WOFF, WOFF2, EOT and SVG font formats.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/archive" }],
+      link: [{ rel: "canonical", href: "https://conversiontoday.com/font" }],
       htmlAttrs: { lang: "en", amp: true },
     });
   },
