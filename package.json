@@ -10,8 +10,8 @@
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "lint": "vue-cli-service lint",
     "publish": "git subtree push --prefix dist origin gh-pages",
-    "sync:ffmpeg-assets": "node scripts/sync-ffmpeg-assets.js",
-    "postinstall": "npm run sync:ffmpeg-assets"
+    "sync:runtime-assets": "node scripts/sync-runtime-assets.js",
+    "postinstall": "npm run sync:runtime-assets"
   },
   "dependencies": {
     "@bjorn3/browser_wasi_shim": "^0.4.2",

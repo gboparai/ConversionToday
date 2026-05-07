@@ -56,6 +56,7 @@ async function handleMessage(data) {
                 from: inputFormat,
                 to: outputFormat,
                 'output-file': outputFileName,
+                'input-files': [inputFileName],
             };
 
             emitProgress(id, 0.35);
@@ -67,10 +68,16 @@ async function handleMessage(data) {
             let outputBlob = result.files[outputFileName];
             if (!outputBlob || (outputBlob instanceof Blob && outputBlob.size === 0)) {
                 // Fall back to stdout text
-                outputBlob = new Blob(
-                    [result.stdout],
-                    { type: config.format.mimeType || 'text/plain' }
-                );
+                if (result.stdout && result.stdout.length > 0) {
+                    outputBlob = new Blob(
+                        [result.stdout],
+                        { type: config.format.mimeType || 'text/plain' }
+                    );
+                }
+            }
+
+            if (!outputBlob || (outputBlob instanceof Blob && outputBlob.size === 0)) {
+                throw new Error('Pandoc returned empty output');
             }
 
             emitProgress(id, 1);
