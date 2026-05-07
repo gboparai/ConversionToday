@@ -8,6 +8,14 @@ const copies = [
     src: path.join(root, 'node_modules', 'pandoc-wasm', 'src', 'pandoc.wasm'),
     dest: path.join(root, 'public', 'vendor', 'pandoc', 'pandoc.wasm'),
   },
+  {
+    src: path.join(root, 'node_modules', '@myriaddreamin', 'typst-ts-web-compiler', 'pkg', 'typst_ts_web_compiler_bg.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'typst', 'typst_ts_web_compiler_bg.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', '@myriaddreamin', 'typst-ts-web-compiler', 'pkg', 'typst_ts_web_compiler.mjs'),
+    dest: path.join(root, 'public', 'vendor', 'typst', 'typst_ts_web_compiler.mjs'),
+  },
 
   {
     src: path.join(root, 'node_modules', '@ffmpeg', 'ffmpeg', 'dist', 'umd', 'ffmpeg.js'),
@@ -71,4 +79,4 @@ for (const { src, dest } of copies) {
   fs.copyFileSync(src, dest);
 }
 
-console.log('Synced local FFmpeg and Pandoc assets to public/vendor.');
+console.log('Synced local FFmpeg, Pandoc, and Typst assets to public/vendor.');
