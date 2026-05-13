@@ -10,15 +10,15 @@ const MIME_TYPE_BY_EXT = {
     cab: 'application/vnd.ms-cab-compressed',
     chm: 'application/vnd.ms-htmlhelp',
     dmg: 'application/x-apple-diskimage',
-    hfs: 'application/octet-stream',
+    hfs: 'application/x-hfs',
     lzh: 'application/x-lzh-compressed',
     rpm: 'application/x-rpm',
-    squashfs: 'application/octet-stream',
+    squashfs: 'application/x-squashfs',
     tar: 'application/x-tar',
     'tar.gz': 'application/gzip',
     'tar.bz2': 'application/x-bzip2',
     'tar.xz': 'application/x-xz',
-    udf: 'application/octet-stream',
+    udf: 'application/x-udf-image',
     wim: 'application/x-ms-wim',
     xar: 'application/x-xar',
     z: 'application/x-compress',
@@ -37,7 +37,6 @@ const SEVEN_ZIP_SUPPORTED_INPUTS = new Set([
 ]);
 const SEVEN_ZIP_SUPPORTED_OUTPUTS = new Set(['7z', 'zip', 'tar', 'wim']);
 const SEVEN_ZIP_SUPPORTED_STREAM_CODECS = new Set(['gz', 'bz2', 'xz']);
-const LIBARCHIVE_SUPPORTED_INPUTS = new Set(['7z', 'zip', 'rar', 'tar', 'cpio']);
 const COMPOUND_EXTENSION_CONFIG = {
     'tar.gz': { archiveExtension: 'tar', streamExtension: 'gz' },
     'tar.bz2': { archiveExtension: 'tar', streamExtension: 'bz2' },
@@ -369,21 +368,14 @@ async function extractWithArchiveFallback(file, inputExtension) {
             sevenZipError = err;
         }
     }
-    if (LIBARCHIVE_SUPPORTED_INPUTS.has(inputExtension)) {
-        try {
-            return await extractWithLibarchive(file);
-        } catch (libarchiveErr) {
-            if (sevenZipError) {
-                throw new Error(
-                    `Failed to extract ${inputExtension}: 7z-wasm error: ${getErrorMessage(sevenZipError)}; `
-                    + `libarchive-wasm error: ${getErrorMessage(libarchiveErr)}`
-                );
-            }
-            throw libarchiveErr;
+    try {
+        return await extractWithLibarchive(file);
+    } catch (libarchiveErr) {
+        if (sevenZipError) {
+            throw new Error(`Failed to extract ${inputExtension} after trying both 7z-wasm and libarchive-wasm: 7z-wasm error: ${getErrorMessage(sevenZipError)}; libarchive-wasm error: ${getErrorMessage(libarchiveErr)}`);
         }
+        throw libarchiveErr;
     }
-    if (sevenZipError) throw sevenZipError;
-    throw new Error(`Unsupported input archive format for extraction: ${inputExtension || 'unknown'}`);
 }
 
 async function extractWithIso9660(file) {
@@ -414,11 +406,7 @@ async function extractEntries(file, preferredInputExtension) {
         return extractWithIso9660(file);
     }
 
-    if (SEVEN_ZIP_SUPPORTED_INPUTS.has(inputExtension) || LIBARCHIVE_SUPPORTED_INPUTS.has(inputExtension)) {
-        return extractWithArchiveFallback(file, inputExtension);
-    }
-
-    throw new Error(`Unsupported input archive format: ${inputExtension || 'unknown'}`);
+    return extractWithArchiveFallback(file, inputExtension);
 }
 
 async function createWithSevenZip(entries, outputExtension, outputName) {

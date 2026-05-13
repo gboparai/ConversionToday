@@ -321,6 +321,15 @@ import { FILE_STATUS } from "@/js/constants";
 import Information from "@/components/information.vue";
 import { useMeta } from "vue-meta";
 import JSZip from "jszip";
+
+const ARCHIVE_ACCEPT_PATTERNS = [
+  ".zip", ".7z", ".rar", ".r00", ".cpio", ".ar", ".deb", ".udeb", ".lib", ".arj",
+  ".cab", ".chm", ".chi", ".chq", ".chw", ".dmg", ".hfs", ".hfsx", ".lzh", ".lha",
+  ".rpm", ".squashfs", ".tar", ".tar.gz", ".tgz", ".tpz", ".tar.bz2", ".tbz2", ".tbz",
+  ".tar.xz", ".txz", ".udf", ".wim", ".swm", ".esd", ".ppkg", ".xar", ".pkg", ".xip",
+  ".z", ".taz", ".gz", ".gzip", ".bz2", ".bzip2", ".xz", ".lzma", ".zst", ".tzst", ".iso",
+];
+
 export default {
   name: "App",
 
@@ -431,7 +440,7 @@ export default {
       if (this.mediaType === 'audio') return 'audio/*';
       if (this.mediaType === 'video') return 'video/*';
       if (this.mediaType === 'document') return '*/*';
-      if (this.mediaType === 'archive') return '.zip,.7z,.rar,.r00,.cpio,.ar,.deb,.udeb,.lib,.arj,.cab,.chm,.chi,.chq,.chw,.dmg,.hfs,.hfsx,.lzh,.lha,.rpm,.squashfs,.tar,.tar.gz,.tgz,.tpz,.tar.bz2,.tbz2,.tbz,.tar.xz,.txz,.udf,.wim,.swm,.esd,.ppkg,.xar,.pkg,.xip,.z,.taz,.gz,.gzip,.bz2,.bzip2,.xz,.lzma,.zst,.tzst,.iso';
+      if (this.mediaType === 'archive') return ARCHIVE_ACCEPT_PATTERNS.join(",");
       return 'image/*';
     },
     formatsKey() {

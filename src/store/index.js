@@ -1424,7 +1424,7 @@ export default createStore({
                 description: 'Apple HFS/HFS+ filesystem image format that can be read as an archive source.',
                 canConvertFrom: true,
                 canConvertTo: false,
-                mimeType: 'application/octet-stream',
+                mimeType: 'application/x-hfs',
             },
             {
                 name: 'lzh',
@@ -1451,7 +1451,7 @@ export default createStore({
                 description: 'Compressed read-only filesystem image format commonly used in Linux distributions.',
                 canConvertFrom: true,
                 canConvertTo: false,
-                mimeType: 'application/octet-stream',
+                mimeType: 'application/x-squashfs',
             },
             {
                 name: 'tar',
@@ -1496,7 +1496,7 @@ export default createStore({
                 description: 'Universal Disk Format image used by optical media and disk-image containers.',
                 canConvertFrom: true,
                 canConvertTo: false,
-                mimeType: 'application/octet-stream',
+                mimeType: 'application/x-udf-image',
             },
             {
                 name: 'wim',
