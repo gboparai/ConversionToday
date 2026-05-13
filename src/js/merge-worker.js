@@ -108,7 +108,12 @@ function createUniqueToken() {
 }
 
 function sanitizePath(path) {
-    return String(path || '').replace(/^\/+/, '').replace(/\.\.(\/|\\)/g, '');
+    const normalized = String(path || '')
+        .replace(/\\/g, '/')
+        .split('/')
+        .map((segment) => segment.trim())
+        .filter((segment) => segment && segment !== '.' && segment !== '..');
+    return normalized.join('/') || 'file';
 }
 
 function splitFileName(path) {
@@ -367,7 +372,7 @@ async function blobToUint8Array(blob) {
 
 async function compressWithBrowserGzip(inputData) {
     if (typeof self.CompressionStream !== 'function') {
-        throw new Error('This browser does not support gzip compression');
+        throw new Error('This browser does not support native gzip compression. Please try a different browser or choose another archive output format.');
     }
     const stream = new Blob([inputData]).stream().pipeThrough(new self.CompressionStream('gzip'));
     return blobToUint8Array(await new Response(stream).blob());
@@ -455,8 +460,8 @@ async function createWithIso9660(entries) {
     return writer.toUint8Array();
 }
 
-async function createArchive(entries, outputExtension, originalName) {
-    const baseName = getBaseName(originalName);
+async function createArchive(entries, outputExtension, baseFileName) {
+    const baseName = getBaseName(baseFileName);
     const outputName = `${baseName}.${outputExtension}`;
 
     if (COMPOUND_EXTENSION_CONFIG[outputExtension]) {

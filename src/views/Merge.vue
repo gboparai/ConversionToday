@@ -459,8 +459,7 @@ export default {
         return;
       }
       const [moved] = ids.splice(fromIndex, 1);
-      const insertIndex = fromIndex < targetIndex ? targetIndex - 1 : targetIndex;
-      ids.splice(insertIndex, 0, moved);
+      ids.splice(targetIndex, 0, moved);
       this.$store.dispatch("reorderMergeFiles", ids);
       this.draggedId = null;
     },
