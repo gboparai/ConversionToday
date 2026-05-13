@@ -465,12 +465,22 @@ export default {
         const input = await file.originalFile.arrayBuffer();
         const decoded = await codec.decode(input);
         const encoded = await codec.encode(decoded, this.encodeOptions(file.format));
-        const blob = new Blob([encoded], { type: this.mimeType(file.format) });
+        let blob = new Blob([encoded], { type: this.mimeType(file.format) });
         if (file.output.url) URL.revokeObjectURL(file.output.url);
+        const extension = this.normalizeFormat(file.format);
+
+        // Compression can occasionally produce a larger output (for example on
+        // already-optimized or hard-to-compress PNGs). In that case keep the
+        // original file as the final output so users never download a bigger file.
+        if (blob.size > file.originalSize) {
+          blob = file.originalFile;
+          file.output.name = file.name;
+        } else {
+          file.output.name = `${file.name.replace(/\.[^/.]+$/, "")}-compressed.${extension}`;
+        }
+
         file.output.blob = blob;
         file.output.url = URL.createObjectURL(blob);
-        const extension = this.normalizeFormat(file.format);
-        file.output.name = `${file.name.replace(/\.[^/.]+$/, "")}-compressed.${extension}`;
         file.compressedSize = blob.size;
         file.status = FILE_STATUS.processed;
       } catch (error) {
