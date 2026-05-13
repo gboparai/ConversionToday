@@ -21,7 +21,7 @@
     </a>
     <a class="formatCard" href="/merge/document/markdown">
       <span class="formatCard__ext">DOCUMENT</span>
-      <span class="formatCard__label">Markdown, HTML, DOCX, ODT, EPUB, RTF</span>
+      <span class="formatCard__label">PDF, Markdown, HTML, DOCX, ODT, EPUB, RTF</span>
     </a>
   </div>
 
@@ -42,6 +42,7 @@
       <template #header>Local Processing</template>
       <template #description>
         FFmpeg, Pandoc, and archive runtimes run in-browser, keeping your files on your device.
+        PDF merge also runs locally with pdf-lib.
       </template>
     </information>
   </div>

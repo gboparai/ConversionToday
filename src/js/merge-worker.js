@@ -1,5 +1,6 @@
 import { createPandocInstance } from 'pandoc-wasm/src/core.js';
 import { ISOWriter } from '@gcu/iso9660';
+import { PDFDocument } from 'pdf-lib';
 
 const AUDIO_MIME_TYPE_BY_EXT = {
     mp3: 'audio/mpeg',
@@ -265,6 +266,38 @@ async function getDocumentAst(pandoc, item, index) {
 async function mergeDocumentFiles(files, config, id) {
     if (!config || !config.format || !config.format.name || !config.format.extension) {
         throw new Error('Incomplete document merge config');
+    }
+
+    const isPdfOutput = config.format.name === 'pdf' || config.format.extension === 'pdf';
+    const hasPdfInput = files.some((file) =>
+        (file.inputFormat === 'pdf') || normalizeExtension(file.inputExtension || getExtension(file.name)) === 'pdf'
+    );
+
+    if (isPdfOutput) {
+        const allPdf = files.every((file) =>
+            (file.inputFormat === 'pdf') || normalizeExtension(file.inputExtension || getExtension(file.name)) === 'pdf'
+        );
+        if (!allPdf) {
+            throw new Error('PDF merge currently supports PDF input files only.');
+        }
+        const mergedPdf = await PDFDocument.create();
+        for (let i = 0; i < files.length; i++) {
+            emitProgress(id, 0.08 + (0.5 * ((i + 1) / files.length)), `Preparing ${i + 1} of ${files.length}`);
+            const sourcePdf = await PDFDocument.load(await files[i].file.arrayBuffer());
+            const copiedPages = await mergedPdf.copyPages(sourcePdf, sourcePdf.getPageIndices());
+            copiedPages.forEach((page) => mergedPdf.addPage(page));
+        }
+        emitProgress(id, 0.72, 'Merging');
+        const pdfBytes = await mergedPdf.save();
+        emitProgress(id, 0.95, 'Finalizing');
+        return {
+            blob: new Blob([pdfBytes], { type: 'application/pdf' }),
+            outputName: buildMergedOutputName(files, 'pdf'),
+        };
+    }
+
+    if (hasPdfInput) {
+        throw new Error('PDF files can only be merged when the output format is PDF.');
     }
 
     const pandoc = await getPandoc();

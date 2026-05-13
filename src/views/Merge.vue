@@ -150,6 +150,15 @@ import SearchableSelect from "@/components/searchable-select.vue";
 import { FILE_STATUS } from "@/js/constants";
 import { useMeta } from "vue-meta";
 
+const PDF_MERGE_FORMAT = {
+  name: "pdf",
+  extension: "pdf",
+  title: "Portable Document Format",
+  description:
+    "Merge PDF files into a single PDF entirely in your browser. PDF merge uses pdf-lib directly and only accepts PDF inputs when PDF output is selected.",
+  mimeType: "application/pdf",
+};
+
 const FAMILY_CONFIG = {
   archive: {
     label: "Archive",
@@ -194,8 +203,9 @@ const FAMILY_CONFIG = {
     label: "Document",
     defaultFormat: "markdown",
     storeKey: "documentFormats",
-    outputAllow: ["markdown", "html", "docx", "odt", "epub", "rtf"],
+    outputAllow: ["markdown", "html", "docx", "odt", "epub", "rtf", "pdf"],
     inputAllow: [
+      "pdf",
       "markdown",
       "gfm",
       "commonmark",
@@ -225,10 +235,11 @@ const FAMILY_CONFIG = {
       "Merge supported document formats into one file with a Pandoc-based document pipeline. This flow is limited to formats that can be combined reliably.",
     addLabel: "Documents",
     accept:
-      ".md,.markdown,.html,.htm,.docx,.odt,.rst,.tex,.org,.wiki,.textile,.adoc,.asciidoc,.epub,.rtf,.typ,.xml,.opml,.fb2,.muse,.dj,.doku,.creole,.man,.hs",
-    skipText: "Document merge only accepts the listed text and document formats supported by this merge tool.",
+      ".pdf,.md,.markdown,.html,.htm,.docx,.odt,.rst,.tex,.org,.wiki,.textile,.adoc,.asciidoc,.epub,.rtf,.typ,.xml,.opml,.fb2,.muse,.dj,.doku,.creole,.man,.hs",
+    skipText: "Document merge only accepts the listed formats. PDF output accepts PDF inputs only.",
     supportText:
-      "Document merge is intentionally limited to formats Pandoc can combine into one coherent output reliably.",
+      "Document merge is intentionally limited to formats Pandoc can combine reliably, plus direct PDF-to-PDF merging with pdf-lib.",
+    customFormats: [PDF_MERGE_FORMAT],
   },
 };
 
@@ -271,7 +282,9 @@ export default {
       return FAMILY_CONFIG[this.selectedFamily];
     },
     storeFormats() {
-      return this.$store.state[this.familyConfig.storeKey] || [];
+      const storeFormats = this.$store.state[this.familyConfig.storeKey] || [];
+      const customFormats = this.familyConfig.customFormats || [];
+      return [...storeFormats, ...customFormats];
     },
     availableFormats() {
       return this.storeFormats.filter((format) =>
@@ -334,7 +347,7 @@ export default {
     },
     documentInputLookup() {
       const allowed = new Set(this.familyConfig.inputAllow || []);
-      return this.$store.state.documentFormats
+      return this.storeFormats
         .filter((format) => allowed.has(format.name))
         .reduce((map, format) => {
           if (!map[format.extension]) map[format.extension] = format.name;
@@ -403,6 +416,10 @@ export default {
     },
     detectDocumentFormat(file) {
       const extension = this.fileExtension(file);
+      if (this.selectedFormat && this.selectedFormat.name === "pdf") {
+        return extension === "pdf" ? "pdf" : null;
+      }
+      if (extension === "pdf") return null;
       return this.documentInputLookup[extension] || null;
     },
     addFiles(list) {
