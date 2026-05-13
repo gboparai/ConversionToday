@@ -31,7 +31,7 @@
     <a class="mediaHub__card" href="/archive">
       <span class="mediaHub__icon">🗜️</span>
       <h2>Archive Converter</h2>
-      <p>Convert ZIP, 7Z, TAR and ISO archives in-browser.</p>
+      <p>Convert ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO archives in-browser.</p>
     </a>
   </div>
 
