@@ -301,7 +301,11 @@ async function extractWithSevenZip(file) {
 
 async function extractWithLibarchive(file) {
     const libarchive = await getLibarchive();
-    const reader = new ArchiveReader(libarchive, new Int8Array(await file.arrayBuffer()));
+    const sourceData = new Uint8Array(await file.arrayBuffer());
+    const reader = new ArchiveReader(
+        libarchive,
+        new Int8Array(sourceData.buffer, sourceData.byteOffset, sourceData.byteLength)
+    );
     try {
         const entries = [];
         for (const entry of reader.entries()) {
@@ -313,8 +317,11 @@ async function extractWithLibarchive(file) {
             if (!relPath) {
                 continue;
             }
-            const data = entry.readData() || new Int8Array(0);
-            entries.push({ path: relPath, data: new Uint8Array(data) });
+            const rawData = entry.readData();
+            const data = rawData
+                ? new Uint8Array(rawData.buffer, rawData.byteOffset, rawData.byteLength)
+                : new Uint8Array(0);
+            entries.push({ path: relPath, data });
         }
         if (!entries.length) throw new Error('No files extracted via libarchive-wasm');
         return entries;
