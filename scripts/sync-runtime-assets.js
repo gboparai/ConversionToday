@@ -54,16 +54,8 @@ const copies = [
     dest: path.join(root, 'public', 'vendor', 'ffmpeg-core-esm', 'ffmpeg-core.wasm'),
   },
   {
-    src: path.join(root, 'node_modules', 'libarchive.js', 'dist', 'libarchive.js'),
-    dest: path.join(root, 'public', 'vendor', 'libarchive', 'libarchive.js'),
-  },
-  {
-    src: path.join(root, 'node_modules', 'libarchive.js', 'dist', 'worker-bundle.js'),
-    dest: path.join(root, 'public', 'vendor', 'libarchive', 'worker-bundle.js'),
-  },
-  {
-    src: path.join(root, 'node_modules', 'libarchive.js', 'dist', 'libarchive.wasm'),
-    dest: path.join(root, 'public', 'vendor', 'libarchive', 'libarchive.wasm'),
+    src: path.join(root, 'node_modules', 'libarchive-wasm', 'dist', 'libarchive.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'libarchive-wasm', 'libarchive.wasm'),
   },
   {
     src: path.join(root, 'node_modules', '7z-wasm', '7zz.es6.js'),
@@ -128,4 +120,4 @@ for (const { src, dest } of copies) {
   fs.copyFileSync(src, dest);
 }
 
-console.log('Synced local FFmpeg and Pandoc assets to public/vendor.');
+console.log('Synced runtime assets to public/vendor.');

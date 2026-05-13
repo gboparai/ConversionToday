@@ -1364,6 +1364,15 @@ export default createStore({
                 mimeType: 'application/vnd.rar',
             },
             {
+                name: 'cpio',
+                extension: 'cpio',
+                title: 'CPIO Archive',
+                description: 'Unix archive format commonly used in packaging and initramfs images.',
+                canConvertFrom: true,
+                canConvertTo: false,
+                mimeType: 'application/x-cpio',
+            },
+            {
                 name: 'tar',
                 extension: 'tar',
                 title: 'TAR Archive',

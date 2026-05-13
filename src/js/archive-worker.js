@@ -1,4 +1,5 @@
 import { ISOReader, ISOWriter } from '@gcu/iso9660';
+import { ArchiveReader, libarchiveWasm } from 'libarchive-wasm';
 
 const MIME_TYPE_BY_EXT = {
     zip: 'application/zip',
@@ -8,12 +9,14 @@ const MIME_TYPE_BY_EXT = {
     'tar.gz': 'application/gzip',
     'tar.bz2': 'application/x-bzip2',
     'tar.xz': 'application/x-xz',
+    cpio: 'application/x-cpio',
     iso: 'application/x-iso9660-image',
 };
 
 const SEVEN_ZIP_SUPPORTED_INPUTS = new Set(['7z', 'zip', 'rar', 'tar']);
 const SEVEN_ZIP_SUPPORTED_OUTPUTS = new Set(['7z', 'zip', 'tar']);
 const SEVEN_ZIP_SUPPORTED_STREAM_CODECS = new Set(['gz', 'bz2', 'xz']);
+const LIBARCHIVE_SUPPORTED_INPUTS = new Set(['7z', 'zip', 'rar', 'tar', 'cpio']);
 const COMPOUND_EXTENSION_CONFIG = {
     'tar.gz': { archiveExtension: 'tar', streamExtension: 'gz' },
     'tar.bz2': { archiveExtension: 'tar', streamExtension: 'bz2' },
@@ -22,6 +25,7 @@ const COMPOUND_EXTENSION_CONFIG = {
 
 let processQueue = Promise.resolve();
 let sevenZipPromise = null;
+let libarchivePromise = null;
 
 function emitProgress(id, fraction) {
     if (id === null || id === undefined) return;
@@ -88,6 +92,20 @@ async function getSevenZip() {
         });
     }
     return sevenZipPromise;
+}
+
+async function getLibarchive() {
+    if (!libarchivePromise) {
+        libarchivePromise = libarchiveWasm({
+            locateFile: (url) => {
+                if (url === 'libarchive.wasm') {
+                    return `${self.location.origin}/vendor/libarchive-wasm/libarchive.wasm`;
+                }
+                return url;
+            },
+        });
+    }
+    return libarchivePromise;
 }
 
 function sevenZipCallMain(module, args) {
@@ -238,7 +256,7 @@ async function extractCompoundEntries(file, compoundExtension) {
     const tarFile = new File([tarData], `${getBaseName(file.name)}.tar`, {
         type: MIME_TYPE_BY_EXT.tar,
     });
-    return extractWithSevenZip(tarFile);
+    return extractWithArchiveFallback(tarFile, 'tar');
 }
 
 async function extractWithSevenZip(file) {
@@ -281,6 +299,53 @@ async function extractWithSevenZip(file) {
     }
 }
 
+async function extractWithLibarchive(file) {
+    const libarchive = await getLibarchive();
+    const reader = new ArchiveReader(libarchive, new Int8Array(await file.arrayBuffer()));
+    try {
+        const entries = [];
+        for (const entry of reader.entries()) {
+            const fileType = entry.getFiletype();
+            if (fileType !== 'File') {
+                continue;
+            }
+            const relPath = sanitizePath(entry.getPathname());
+            if (!relPath) {
+                continue;
+            }
+            const data = entry.readData() || new Int8Array(0);
+            entries.push({ path: relPath, data: new Uint8Array(data) });
+        }
+        if (!entries.length) throw new Error('No files extracted via libarchive-wasm');
+        return entries;
+    } finally {
+        reader.free();
+    }
+}
+
+async function extractWithArchiveFallback(file, inputExtension) {
+    let sevenZipError = null;
+    if (SEVEN_ZIP_SUPPORTED_INPUTS.has(inputExtension)) {
+        try {
+            return await extractWithSevenZip(file);
+        } catch (err) {
+            sevenZipError = err;
+        }
+    }
+    if (LIBARCHIVE_SUPPORTED_INPUTS.has(inputExtension)) {
+        try {
+            return await extractWithLibarchive(file);
+        } catch (libarchiveErr) {
+            if (sevenZipError) {
+                throw new Error(`Failed to extract ${inputExtension} archive with 7z-wasm and libarchive-wasm`);
+            }
+            throw libarchiveErr;
+        }
+    }
+    if (sevenZipError) throw sevenZipError;
+    throw new Error(`Unsupported input archive format for extraction: ${inputExtension || 'unknown'}`);
+}
+
 async function extractWithIso9660(file) {
     if (getExtension(file.name) !== 'iso') {
         throw new Error('Unsupported extension for ISO reader');
@@ -309,8 +374,8 @@ async function extractEntries(file, preferredInputExtension) {
         return extractWithIso9660(file);
     }
 
-    if (SEVEN_ZIP_SUPPORTED_INPUTS.has(inputExtension)) {
-        return extractWithSevenZip(file);
+    if (SEVEN_ZIP_SUPPORTED_INPUTS.has(inputExtension) || LIBARCHIVE_SUPPORTED_INPUTS.has(inputExtension)) {
+        return extractWithArchiveFallback(file, inputExtension);
     }
 
     throw new Error(`Unsupported input archive format: ${inputExtension || 'unknown'}`);
