@@ -190,6 +190,7 @@ a {
 .informationBar > * {
   flex: 1;
 }
+.informationContainer,
 .infomationContainer {
   display: flex;
   gap: 1.25rem;
@@ -202,6 +203,7 @@ a {
 }
 @media only screen and (max-width: 55rem) {
   .informationBar,
+  .informationContainer,
   .infomationContainer {
     flex-direction: column;
     padding: 0 1.25rem;

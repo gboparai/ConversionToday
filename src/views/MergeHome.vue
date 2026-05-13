@@ -25,7 +25,7 @@
     </a>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>One Output File</template>
       <template #description>

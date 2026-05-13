@@ -106,7 +106,7 @@
     <a :href="output.url" :download="output.name">Download</a>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Step 1</template>
       <template #description>
