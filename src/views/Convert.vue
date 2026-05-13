@@ -431,7 +431,7 @@ export default {
       if (this.mediaType === 'audio') return 'audio/*';
       if (this.mediaType === 'video') return 'video/*';
       if (this.mediaType === 'document') return '*/*';
-      if (this.mediaType === 'archive') return '.zip,.7z,.rar,.cpio,.tar,.tar.gz,.tgz,.tar.bz2,.tbz2,.tar.xz,.txz,.iso';
+      if (this.mediaType === 'archive') return '.zip,.7z,.rar,.r00,.cpio,.ar,.deb,.udeb,.lib,.arj,.cab,.chm,.chi,.chq,.chw,.dmg,.hfs,.hfsx,.lzh,.lha,.rpm,.squashfs,.tar,.tar.gz,.tgz,.tpz,.tar.bz2,.tbz2,.tbz,.tar.xz,.txz,.udf,.wim,.swm,.esd,.ppkg,.xar,.pkg,.xip,.z,.taz,.gz,.gzip,.bz2,.bzip2,.xz,.lzma,.zst,.tzst,.iso';
       return 'image/*';
     },
     formatsKey() {

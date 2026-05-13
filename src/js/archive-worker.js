@@ -5,16 +5,37 @@ const MIME_TYPE_BY_EXT = {
     zip: 'application/zip',
     '7z': 'application/x-7z-compressed',
     rar: 'application/vnd.rar',
+    ar: 'application/x-archive',
+    arj: 'application/x-arj',
+    cab: 'application/vnd.ms-cab-compressed',
+    chm: 'application/vnd.ms-htmlhelp',
+    dmg: 'application/x-apple-diskimage',
+    hfs: 'application/octet-stream',
+    lzh: 'application/x-lzh-compressed',
+    rpm: 'application/x-rpm',
+    squashfs: 'application/octet-stream',
     tar: 'application/x-tar',
     'tar.gz': 'application/gzip',
     'tar.bz2': 'application/x-bzip2',
     'tar.xz': 'application/x-xz',
+    udf: 'application/octet-stream',
+    wim: 'application/x-ms-wim',
+    xar: 'application/x-xar',
+    z: 'application/x-compress',
+    lzma: 'application/x-lzma',
+    zst: 'application/zstd',
     cpio: 'application/x-cpio',
     iso: 'application/x-iso9660-image',
 };
 
-const SEVEN_ZIP_SUPPORTED_INPUTS = new Set(['7z', 'zip', 'rar', 'tar']);
-const SEVEN_ZIP_SUPPORTED_OUTPUTS = new Set(['7z', 'zip', 'tar']);
+const SEVEN_ZIP_SUPPORTED_INPUTS = new Set([
+    '7z', 'zip', 'rar', 'r00', 'tar',
+    'cpio', 'ar', 'deb', 'udeb', 'lib', 'arj', 'cab', 'chm', 'chi', 'chq', 'chw',
+    'dmg', 'hfs', 'hfsx', 'lzh', 'lha', 'rpm', 'squashfs', 'udf', 'xar', 'pkg', 'xip',
+    'wim', 'swm', 'esd', 'ppkg', 'z', 'taz', 'gz', 'gzip', 'tgz', 'tpz', 'bz2', 'bzip2',
+    'tbz2', 'tbz', 'xz', 'txz', 'lzma', 'zst', 'tzst', 'iso',
+]);
+const SEVEN_ZIP_SUPPORTED_OUTPUTS = new Set(['7z', 'zip', 'tar', 'wim']);
 const SEVEN_ZIP_SUPPORTED_STREAM_CODECS = new Set(['gz', 'bz2', 'xz']);
 const LIBARCHIVE_SUPPORTED_INPUTS = new Set(['7z', 'zip', 'rar', 'tar', 'cpio']);
 const COMPOUND_EXTENSION_CONFIG = {
@@ -413,6 +434,7 @@ async function createWithSevenZip(entries, outputExtension, outputName) {
         '7z': '-t7z',
         zip: '-tzip',
         tar: '-ttar',
+        wim: '-twim',
     };
     ensureSevenZipDir(fs, sourceRoot);
     const previousCwd = fs.cwd();
