@@ -20,6 +20,9 @@
     <button class="batchBar__button" :disabled="processed.length <= 0" @click="downloadAll">
       <div>Download All</div>
     </button>
+    <button class="batchBar__button" :disabled="processed.length <= 0" @click="downloadZip">
+      <div>Download ZIP</div>
+    </button>
     <button class="batchBar__button" :disabled="files.length <= 0" @click="clearAll">
       <div>Clear All</div>
     </button>
@@ -32,19 +35,20 @@
   <div class="files">
     <div v-for="file in files" :key="file.id" class="fileRow">
       <div class="fileRow__name">{{ file.name }}</div>
-      <div class="fileRow__status">{{ statusLabel(file.status) }}</div>
       <div v-if="file.status === FILE_STATUS.processed" class="fileRow__savings">
-        {{ formatBytes(file.originalSize) }} → {{ formatBytes(file.compressedSize) }}
-        <strong>({{ savedPercent(file) }}% saved)</strong>
+        {{ formatBytes(file.originalSize) }} → {{ formatBytes(file.compressedSize) }} <strong>({{ savedPercent(file) }}% saved)</strong>
       </div>
       <div class="fileRow__actions">
+        <span :class="['status-badge', statusClass(file.status)]">{{ statusLabel(file.status) }}</span>
         <button
           v-if="file.status === FILE_STATUS.processed"
           class="iconButton iconButton--preview"
           @click="openPreview(file.id)"
           title="Preview compare"
           aria-label="Preview compare"
-        >👁</button>
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        </button>
         <a
           v-if="file.status === FILE_STATUS.processed"
           class="iconButton iconButton--download"
@@ -52,14 +56,19 @@
           :download="file.output.name"
           title="Download"
           :aria-label="'Download ' + file.output.name"
-        >⬇</a>
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zm7-18v10.17l-3.59-3.58L7 10l5 5 5-5-1.41-1.41L13 12.17V2h-1z"/></svg>
+        </a>
         <button
+          v-if="file.status !== FILE_STATUS.processed"
           class="iconButton iconButton--remove"
           :disabled="file.status === FILE_STATUS.processing"
           @click="removeFile(file.id)"
           title="Remove"
           aria-label="Remove file"
-        >✕</button>
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -90,6 +99,7 @@
 import Descriptor from "@/components/descriptor.vue";
 import { FILE_STATUS } from "@/js/constants";
 import { useMeta } from "vue-meta";
+import JSZip from "jszip";
 
 const SUPPORTED = ["jpg", "png", "webp", "avif"];
 const COMPRESSION_OPTIONS = {
@@ -262,6 +272,33 @@ export default {
       if (status === FILE_STATUS.processed) return "Successful";
       return "Failed";
     },
+    statusClass(status) {
+      if (status === FILE_STATUS.initialized) return "status-badge--waiting";
+      if (status === FILE_STATUS.processing) return "status-badge--converting";
+      if (status === FILE_STATUS.processed) return "status-badge--successful";
+      return "status-badge--failed";
+    },
+    async downloadZip() {
+      const zip = new JSZip();
+      for (const file of this.processed) {
+        try {
+          const response = await fetch(file.output.url);
+          const blob = await response.blob();
+          zip.file(file.output.name, blob);
+        } catch (error) {
+          console.error(`Error adding ${file.output.name} to zip:`, error);
+        }
+      }
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.download = "compressed_images.zip";
+      a.href = url;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
     formatBytes(bytes) {
       // Intentionally catches both null and undefined values.
       if (bytes == null) return "0 B";
@@ -399,13 +436,6 @@ export default {
     color: var(--text-primary);
   }
 
-  &__status {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    min-width: 6rem;
-    text-align: right;
-  }
-
   &__savings {
     color: var(--text-secondary);
     font-size: 0.82rem;
@@ -419,7 +449,23 @@ export default {
   }
 }
 
+.status-badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &--waiting    { background-color: var(--bg-surface-hover); color: var(--text-secondary); }
+  &--converting { background-color: var(--accent);           color: var(--accent-text); }
+  &--failed     { background-color: var(--negative);         color: #fff; }
+  &--successful { background-color: var(--positive);         color: var(--positive-text); }
+}
+
 .iconButton {
+  flex-shrink: 0;
   width: 2rem;
   height: 2rem;
   display: inline-flex;
@@ -427,9 +473,15 @@ export default {
   justify-content: center;
   border-radius: 50%;
   border: none;
-  font-size: 1rem;
   text-decoration: none;
   cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: currentColor;
+  }
 
   &--preview {
     background: var(--accent);
@@ -438,6 +490,7 @@ export default {
   &--download {
     background: var(--positive);
     color: var(--positive-text);
+    &:hover { transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
   }
   &--remove {
     background: var(--negative);
