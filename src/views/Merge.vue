@@ -36,7 +36,13 @@
   </div>
 
   <label class="fileInput">
-    <input @change="input" type="file" multiple :accept="acceptAttr" />
+    <input
+      @change="input"
+      type="file"
+      multiple
+      :accept="acceptAttr"
+      :aria-label="'Add ' + familyConfig.addLabel"
+    />
     <div class="file">
       <p>Add {{ familyConfig.addLabel }} Here</p>
     </div>
@@ -76,7 +82,7 @@
   </div>
 
   <div class="files">
-    <p v-if="files.length > 1" class="queueHint">Drag files to change the merge order.</p>
+    <p v-if="files.length > 1" class="queueHint">Drag files to change the merge order, or use the move buttons for keyboard-friendly reordering.</p>
     <div
       v-for="(file, index) in files"
       :key="file.id"
@@ -86,11 +92,19 @@
       @dragstart="dragStart(file.id)"
       @dragover.prevent
       @drop="dropOn(file.id)"
-    >
+      >
       <span class="fileRow__handle" aria-hidden="true">⋮⋮</span>
       <div class="fileRow__copy">
         <div class="fileRow__name">{{ index + 1 }}. {{ file.name }}</div>
         <div v-if="file.inputFormat" class="fileRow__meta">{{ file.inputFormat.toUpperCase() }}</div>
+      </div>
+      <div class="fileRow__order">
+        <button type="button" :disabled="isProcessing || index === 0" @click="moveFile(file.id, -1)">
+          Up
+        </button>
+        <button type="button" :disabled="isProcessing || index === files.length - 1" @click="moveFile(file.id, 1)">
+          Down
+        </button>
       </div>
       <button class="fileRow__remove" type="button" :disabled="isProcessing" @click="removeFile(file.id)">
         Remove
@@ -442,6 +456,16 @@ export default {
     removeFile(id) {
       this.$store.dispatch("removeMergeFile", id);
     },
+    moveFile(id, offset) {
+      if (this.isProcessing) return;
+      const ids = this.files.map((file) => file.id);
+      const index = ids.indexOf(id);
+      const nextIndex = index + offset;
+      if (index === -1 || nextIndex < 0 || nextIndex >= ids.length) return;
+      const [moved] = ids.splice(index, 1);
+      ids.splice(nextIndex, 0, moved);
+      this.$store.dispatch("reorderMergeFiles", ids);
+    },
     dragStart(id) {
       if (this.isProcessing) return;
       this.draggedId = id;
@@ -713,6 +737,26 @@ export default {
     &[disabled] {
       opacity: 0.45;
       cursor: not-allowed;
+    }
+  }
+
+  &__order {
+    display: flex;
+    gap: 0.4rem;
+
+    button {
+      border: 1px solid var(--border);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      border-radius: 999px;
+      padding: 0.4rem 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+
+      &[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
     }
   }
 }

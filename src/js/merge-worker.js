@@ -158,10 +158,11 @@ function ensureFfmpegScriptLoaded() {
     if (ffmpegScriptLoaded) return;
 
     if (!self.__ffmpegDocumentShimLoaded) {
+        const safeBase = `${self.location.origin}/`;
         const shimCode = [
             'var document = {',
-            '  baseURI: self.location.href,',
-            '  currentScript: { src: self.location.href },',
+            `  baseURI: ${JSON.stringify(safeBase)},`,
+            `  currentScript: { src: ${JSON.stringify(safeBase)} },`,
             '  getElementsByTagName: function () { return []; }',
             '};',
         ].join('');
@@ -209,6 +210,12 @@ function resolveAudioVideoMimeType(family, config, outputExtension) {
     if (config && config.format && config.format.mimeType) return config.format.mimeType;
     const byFamily = family === 'audio' ? AUDIO_MIME_TYPE_BY_EXT : VIDEO_MIME_TYPE_BY_EXT;
     return byFamily[outputExtension] || `${family}/${outputExtension}`;
+}
+
+function escapeConcatPath(path) {
+    return String(path || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, `'\\''`);
 }
 
 async function getPandoc() {
@@ -536,7 +543,7 @@ async function mergeMediaFiles(files, config, id, family) {
             const inputName = `input-${unique}-${i}.${extension}`;
             inputNames.push(inputName);
             await ff.writeFile(inputName, await fetchFile(files[i].file));
-            concatLines.push(`file '${inputName}'`);
+            concatLines.push(`file '${escapeConcatPath(inputName)}'`);
         }
 
         await ff.writeFile(listName, new TextEncoder().encode(concatLines.join('\n')));
