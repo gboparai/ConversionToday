@@ -61,6 +61,38 @@ const copies = [
     src: path.join(root, 'node_modules', '7z-wasm', '7zz.wasm'),
     dest: path.join(root, 'public', 'vendor', '7z', '7zz.wasm'),
   },
+
+  // jsquash codec wasm files — served at root because import.meta.url is rewritten
+  // to self.location.href by the babel plugin, so new URL("x.wasm", location.href)
+  // always resolves relative to the page origin root.
+  {
+    src: path.join(root, 'node_modules', '@jsquash', 'jpeg', 'codec', 'dec', 'mozjpeg_dec.wasm'),
+    dest: path.join(root, 'public', 'mozjpeg_dec.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', '@jsquash', 'jpeg', 'codec', 'enc', 'mozjpeg_enc.wasm'),
+    dest: path.join(root, 'public', 'mozjpeg_enc.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', '@jsquash', 'png', 'codec', 'pkg', 'squoosh_png_bg.wasm'),
+    dest: path.join(root, 'public', 'squoosh_png_bg.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', '@jsquash', 'webp', 'codec', 'dec', 'webp_dec.wasm'),
+    dest: path.join(root, 'public', 'webp_dec.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', '@jsquash', 'webp', 'codec', 'enc', 'webp_enc.wasm'),
+    dest: path.join(root, 'public', 'webp_enc.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', '@jsquash', 'avif', 'codec', 'dec', 'avif_dec.wasm'),
+    dest: path.join(root, 'public', 'avif_dec.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', '@jsquash', 'avif', 'codec', 'enc', 'avif_enc.wasm'),
+    dest: path.join(root, 'public', 'avif_enc.wasm'),
+  },
 ];
 
 for (const { src, dest } of copies) {
