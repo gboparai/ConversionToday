@@ -10,6 +10,7 @@ const VideoHome = () => import('../views/VideoHome.vue')
 const DocumentHome = () => import('../views/DocumentHome.vue')
 const ArchiveHome = () => import('../views/ArchiveHome.vue')
 const Compression = () => import('../views/Compression.vue')
+const CompressionHome = () => import('../views/CompressionHome.vue')
 
 const routes = [
   {
@@ -26,6 +27,11 @@ const routes = [
   },
   {
     path: '/compression',
+    name: 'CompressionHome',
+    component: CompressionHome
+  },
+  {
+    path: '/compression/:format',
     name: 'Compression',
     component: Compression
   },

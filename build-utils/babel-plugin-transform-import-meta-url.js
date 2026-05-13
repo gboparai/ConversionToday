@@ -1,8 +1,9 @@
 module.exports = function ({ types: t, template }) {
   // JSquash codec runtime uses import.meta.url to resolve wasm paths.
-  // In this webpack 4 setup we rewrite to browser location-like values.
+  // In this webpack 4 setup we rewrite to the site root so nested routes
+  // like /compression/png still resolve wasm assets from /<file>.wasm.
   const replacement = template.expression(
-    '(typeof self !== "undefined" && self.location && self.location.href) || ((typeof document !== "undefined" && document.baseURI) ? document.baseURI : "")'
+    '(typeof self !== "undefined" && self.location && self.location.origin ? self.location.origin + "/" : ((typeof document !== "undefined" && document.baseURI) ? new URL("/", document.baseURI).href : "/"))'
   );
 
   function isImportMeta(node) {
