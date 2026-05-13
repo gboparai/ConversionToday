@@ -82,7 +82,7 @@
   </div>
 
   <div class="files">
-    <p v-if="files.length > 1" class="queueHint">Drag files to change the merge order, or use the move buttons for keyboard-friendly reordering.</p>
+    <p v-if="files.length > 1" class="queueHint">Drag files to change the merge order, or use the Up and Down buttons for keyboard-friendly reordering.</p>
     <div
       v-for="(file, index) in files"
       :key="file.id"
