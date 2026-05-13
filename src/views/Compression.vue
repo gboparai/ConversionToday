@@ -175,6 +175,8 @@ const COMPRESSION_OPTIONS = {
   avif: { quality: 45, speed: 6 },
 };
 
+const WASM_BASE_PATH = "/vendor/jsquash";
+
 const COMPRESSION_FORMATS = [
   {
     name: "jpg",
@@ -311,7 +313,7 @@ export default {
       unsupportedCount: 0,
       previewFileId: null,
       slider: 50,
-      faqs: buildFaqs((this.$route.params.format || "jpg").toUpperCase()),
+      faqs: buildFaqs(this.formatLabel),
     };
   },
   watch: {
@@ -374,7 +376,7 @@ export default {
       const key = this.normalizeFormat(format);
       if (this.codecCache[key]) return this.codecCache[key];
       let codec = null;
-      const locateFile = (path) => `/${path}`;
+      const locateFile = (path) => `${WASM_BASE_PATH}/${path}`;
 
       if (key === "jpg") {
         const [decodeModule, encodeModule] = await Promise.all([
@@ -397,8 +399,8 @@ export default {
           import("@jsquash/png/encode.js"),
         ]);
         await Promise.all([
-          decodeModule.init("/squoosh_png_bg.wasm"),
-          encodeModule.init("/squoosh_png_bg.wasm"),
+          decodeModule.init(`${WASM_BASE_PATH}/squoosh_png_bg.wasm`),
+          encodeModule.init(`${WASM_BASE_PATH}/squoosh_png_bg.wasm`),
         ]);
         codec = {
           decode: decodeModule.default,
@@ -530,9 +532,9 @@ export default {
       const zip = new JSZip();
       for (const file of this.processed) {
         try {
-          const response = await fetch(file.output.url);
-          const blob = await response.blob();
-          zip.file(file.output.name, blob);
+          if (file.output.blob) {
+            zip.file(file.output.name, file.output.blob);
+          }
         } catch (error) {
           console.error(`Error adding ${file.output.name} to zip:`, error);
         }

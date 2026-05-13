@@ -3,6 +3,18 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '..');
 
+const legacyRootJsquashWasm = [
+  'mozjpeg_dec.wasm',
+  'mozjpeg_enc.wasm',
+  'squoosh_png_bg.wasm',
+  'webp_dec.wasm',
+  'webp_enc.wasm',
+  'webp_enc_simd.wasm',
+  'avif_dec.wasm',
+  'avif_enc.wasm',
+  'avif_enc_mt.wasm',
+];
+
 const copies = [
   {
     src: path.join(root, 'node_modules', 'pandoc-wasm', 'src', 'pandoc.wasm'),
@@ -62,46 +74,51 @@ const copies = [
     dest: path.join(root, 'public', 'vendor', '7z', '7zz.wasm'),
   },
 
-  // jsquash codec wasm files — served at root because import.meta.url is rewritten
-  // to self.location.href by the babel plugin, so new URL("x.wasm", location.href)
-  // always resolves relative to the page origin root.
+  // jsquash codec wasm files (kept in a dedicated vendor subdirectory).
   {
     src: path.join(root, 'node_modules', '@jsquash', 'jpeg', 'codec', 'dec', 'mozjpeg_dec.wasm'),
-    dest: path.join(root, 'public', 'mozjpeg_dec.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'jsquash', 'mozjpeg_dec.wasm'),
   },
   {
     src: path.join(root, 'node_modules', '@jsquash', 'jpeg', 'codec', 'enc', 'mozjpeg_enc.wasm'),
-    dest: path.join(root, 'public', 'mozjpeg_enc.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'jsquash', 'mozjpeg_enc.wasm'),
   },
   {
     src: path.join(root, 'node_modules', '@jsquash', 'png', 'codec', 'pkg', 'squoosh_png_bg.wasm'),
-    dest: path.join(root, 'public', 'squoosh_png_bg.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'jsquash', 'squoosh_png_bg.wasm'),
   },
   {
     src: path.join(root, 'node_modules', '@jsquash', 'webp', 'codec', 'dec', 'webp_dec.wasm'),
-    dest: path.join(root, 'public', 'webp_dec.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'jsquash', 'webp_dec.wasm'),
   },
   {
     src: path.join(root, 'node_modules', '@jsquash', 'webp', 'codec', 'enc', 'webp_enc.wasm'),
-    dest: path.join(root, 'public', 'webp_enc.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'jsquash', 'webp_enc.wasm'),
   },
   {
     src: path.join(root, 'node_modules', '@jsquash', 'webp', 'codec', 'enc', 'webp_enc_simd.wasm'),
-    dest: path.join(root, 'public', 'webp_enc_simd.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'jsquash', 'webp_enc_simd.wasm'),
   },
   {
     src: path.join(root, 'node_modules', '@jsquash', 'avif', 'codec', 'dec', 'avif_dec.wasm'),
-    dest: path.join(root, 'public', 'avif_dec.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'jsquash', 'avif_dec.wasm'),
   },
   {
     src: path.join(root, 'node_modules', '@jsquash', 'avif', 'codec', 'enc', 'avif_enc.wasm'),
-    dest: path.join(root, 'public', 'avif_enc.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'jsquash', 'avif_enc.wasm'),
   },
   {
     src: path.join(root, 'node_modules', '@jsquash', 'avif', 'codec', 'enc', 'avif_enc_mt.wasm'),
-    dest: path.join(root, 'public', 'avif_enc_mt.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'jsquash', 'avif_enc_mt.wasm'),
   },
 ];
+
+for (const fileName of legacyRootJsquashWasm) {
+  const legacyPath = path.join(root, 'public', fileName);
+  if (fs.existsSync(legacyPath)) {
+    fs.unlinkSync(legacyPath);
+  }
+}
 
 for (const { src, dest } of copies) {
   if (!fs.existsSync(src)) {
