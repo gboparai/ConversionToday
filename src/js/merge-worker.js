@@ -140,14 +140,13 @@ function createUniqueEntryPath(path, usedPaths) {
     }
     const { dir, base, extension } = splitFileName(clean);
     let index = 2;
-    while (true) {
-        const candidate = `${dir}${base}-${index}${extension ? `.${extension}` : ''}`;
-        if (!usedPaths.has(candidate)) {
-            usedPaths.add(candidate);
-            return candidate;
-        }
+    let candidate = '';
+    do {
+        candidate = `${dir}${base}-${index}${extension ? `.${extension}` : ''}`;
         index++;
-    }
+    } while (usedPaths.has(candidate));
+    usedPaths.add(candidate);
+    return candidate;
 }
 
 function ensureFfmpegScriptLoaded() {
