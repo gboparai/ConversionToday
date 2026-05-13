@@ -443,7 +443,7 @@ async function compressSingleFileWithSevenZip(inputData, sourceName, outputExten
         try {
             fs.chdir(previousCwd);
         } catch (e) {
-            // Best-effort cwd restore; cleanup still runs below.
+            // Best effort cwd restore; cleanup still runs below.
         }
         removeSevenZipPath(fs, root);
     }
@@ -486,7 +486,7 @@ async function createWithSevenZip(entries, outputExtension, outputName) {
         try {
             fs.chdir(previousCwd);
         } catch (e) {
-            // Best-effort cwd restore; cleanup still runs below.
+            // Best effort cwd restore; cleanup still runs below.
         }
         removeSevenZipPath(fs, root);
     }
