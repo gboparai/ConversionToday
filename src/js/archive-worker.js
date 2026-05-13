@@ -67,6 +67,18 @@ function sanitizePath(path) {
     return String(path || '').replace(/^\/+/, '');
 }
 
+function toInt8View(data) {
+    return new Int8Array(data.buffer, data.byteOffset, data.byteLength);
+}
+
+function toUint8View(data) {
+    return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+}
+
+function getErrorMessage(err) {
+    return err && err.message ? err.message : String(err);
+}
+
 function resolveMimeType(config, outputExtension) {
     return (config && config.format && config.format.mimeType) ||
         MIME_TYPE_BY_EXT[outputExtension] ||
@@ -302,10 +314,7 @@ async function extractWithSevenZip(file) {
 async function extractWithLibarchive(file) {
     const libarchive = await getLibarchive();
     const sourceData = new Uint8Array(await file.arrayBuffer());
-    const reader = new ArchiveReader(
-        libarchive,
-        new Int8Array(sourceData.buffer, sourceData.byteOffset, sourceData.byteLength)
-    );
+    const reader = new ArchiveReader(libarchive, toInt8View(sourceData));
     try {
         const entries = [];
         for (const entry of reader.entries()) {
@@ -319,7 +328,7 @@ async function extractWithLibarchive(file) {
             }
             const rawData = entry.readData();
             const data = rawData
-                ? new Uint8Array(rawData.buffer, rawData.byteOffset, rawData.byteLength)
+                ? toUint8View(rawData)
                 : new Uint8Array(0);
             entries.push({ path: relPath, data });
         }
@@ -344,7 +353,10 @@ async function extractWithArchiveFallback(file, inputExtension) {
             return await extractWithLibarchive(file);
         } catch (libarchiveErr) {
             if (sevenZipError) {
-                throw new Error(`Failed to extract ${inputExtension} archive with 7z-wasm and libarchive-wasm`);
+                throw new Error(
+                    `Failed to extract ${inputExtension}: 7z-wasm error: ${getErrorMessage(sevenZipError)}; `
+                    + `libarchive-wasm error: ${getErrorMessage(libarchiveErr)}`
+                );
             }
             throw libarchiveErr;
         }
