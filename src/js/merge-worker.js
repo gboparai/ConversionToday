@@ -404,7 +404,7 @@ async function compressSingleFileWithSevenZip(inputData, sourceName, outputExten
     try {
         fs.writeFile(sourcePath, inputData);
         fs.chdir(root);
-        sevenZipCallMain(sevenZip, ['a', outputPath, formatArgByExtension[outputExtension], sourceName]);
+        sevenZipCallMain(sevenZip, ['a', formatArgByExtension[outputExtension], outputPath, sourceName]);
         return new Uint8Array(fs.readFile(outputPath));
     } finally {
         try {

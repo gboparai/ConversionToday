@@ -235,7 +235,7 @@ const FAMILY_CONFIG = {
 export default {
   name: "Merge",
   components: { Card, Descriptor, Information, SearchableSelect },
-  data() {
+  setup() {
     useMeta({
       title: "Free File Merge Tool - Conversion Today",
       meta: [
@@ -248,6 +248,8 @@ export default {
       link: [{ rel: "canonical", href: "https://conversiontoday.com/merge" }],
       htmlAttrs: { lang: "en" },
     });
+  },
+  data() {
     return {
       FILE_STATUS,
       unsupportedCount: 0,

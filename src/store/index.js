@@ -1645,7 +1645,7 @@ export default createStore({
         addMergeFile(state, fileObject) {
             state.mergeFiles.push(fileObject);
         },
-        incrementMergeId(state) {
+        incrementMergeNextIndex(state) {
             state.mergeNextIndex++;
         },
         setMergeFiles(state, files) {
@@ -2168,7 +2168,7 @@ export default createStore({
                 inputFormat: fileObject.inputFormat || null,
                 inputExtension: fileObject.inputExtension || null,
             });
-            context.commit('incrementMergeId');
+            context.commit('incrementMergeNextIndex');
         },
         async addMergeFiles(context, files) {
             context.dispatch('resetMergeResult');
