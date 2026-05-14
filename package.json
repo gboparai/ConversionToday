@@ -18,7 +18,6 @@
     "@e965/xlsx": "^0.20.3",
     "@ffmpeg/core": "^0.12.10",
     "@ffmpeg/ffmpeg": "^0.12.10",
-    "@fontsource/noto-sans": "^5.2.10",
     "@gcu/iso9660": "0.1.0",
     "@imagemagick/magick-wasm": "^0.0.4",
     "@jsquash/avif": "^2.1.1",

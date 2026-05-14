@@ -1,10 +1,49 @@
-module.exports = function ({ types: t, template }) {
+module.exports = function ({ types: t }) {
   // JSquash codec runtime uses import.meta.url to resolve wasm paths.
   // In this webpack 4 setup we rewrite to the site root so nested routes
   // like /compression/png still resolve wasm assets from /<file>.wasm.
-  const replacement = template.expression(
-    '(typeof self !== "undefined" && self.location && self.location.origin ? self.location.origin + "/" : ((typeof document !== "undefined" && document.location && document.location.origin) ? document.location.origin + "/" : "/"))'
-  );
+  function replacement() {
+    const selfOrigin = t.memberExpression(
+      t.memberExpression(t.identifier("self"), t.identifier("location")),
+      t.identifier("origin")
+    );
+    const documentBaseUri = t.memberExpression(
+      t.identifier("document"),
+      t.identifier("baseURI")
+    );
+
+    return t.conditionalExpression(
+      t.logicalExpression(
+        "&&",
+        t.binaryExpression("!==", t.unaryExpression("typeof", t.identifier("self")), t.stringLiteral("undefined")),
+        t.logicalExpression(
+          "&&",
+          t.memberExpression(t.identifier("self"), t.identifier("location")),
+          t.logicalExpression(
+            "&&",
+            selfOrigin,
+            t.binaryExpression("!==", selfOrigin, t.stringLiteral("null"))
+          )
+        )
+      ),
+      t.binaryExpression("+", selfOrigin, t.stringLiteral("/")),
+      t.conditionalExpression(
+        t.logicalExpression(
+          "&&",
+          t.binaryExpression("!==", t.unaryExpression("typeof", t.identifier("document")), t.stringLiteral("undefined")),
+          documentBaseUri
+        ),
+        t.callExpression(
+          t.memberExpression(
+            t.newExpression(t.identifier("URL"), [t.stringLiteral("/"), documentBaseUri]),
+            t.identifier("toString")
+          ),
+          []
+        ),
+        t.stringLiteral("/")
+      )
+    );
+  }
 
   function isImportMeta(node) {
     return (

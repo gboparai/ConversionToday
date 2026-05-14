@@ -12,15 +12,48 @@ const TYPST_FONTS = [
 
 function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
-    if (fs.existsSync(dest)) { resolve(); return; }
+    if (fs.existsSync(dest) && fs.statSync(dest).size > 0) {
+      resolve();
+      return;
+    }
     fs.mkdirSync(path.dirname(dest), { recursive: true });
-    const file = fs.createWriteStream(dest);
+    const tempDest = `${dest}.tmp`;
+    if (fs.existsSync(tempDest)) {
+      fs.unlinkSync(tempDest);
+    }
+    const file = fs.createWriteStream(tempDest);
     const get = (u) => https.get(u, (res) => {
-      if (res.statusCode === 301 || res.statusCode === 302) { get(res.headers.location); return; }
-      if (res.statusCode !== 200) { reject(new Error(`HTTP ${res.statusCode} for ${u}`)); return; }
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        file.close(() => {
+          fs.unlink(tempDest, () => {});
+          get(res.headers.location);
+        });
+        return;
+      }
+      if (res.statusCode !== 200) {
+        file.close(() => {
+          fs.unlink(tempDest, () => {});
+          reject(new Error(`HTTP ${res.statusCode} for ${u}`));
+        });
+        return;
+      }
       res.pipe(file);
-      file.on('finish', () => file.close(resolve));
-    }).on('error', (err) => { fs.unlink(dest, () => {}); reject(err); });
+      file.on('finish', () => file.close(() => {
+        const size = fs.statSync(tempDest).size;
+        if (size <= 0) {
+          fs.unlink(tempDest, () => {});
+          reject(new Error(`Downloaded empty file from ${u}`));
+          return;
+        }
+        fs.renameSync(tempDest, dest);
+        resolve();
+      }));
+    }).on('error', (err) => {
+      file.close(() => {
+        fs.unlink(tempDest, () => {});
+        reject(err);
+      });
+    });
     get(url);
   });
 }

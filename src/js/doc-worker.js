@@ -4,6 +4,7 @@ import * as XLSX from '@e965/xlsx';
 let pandocPromise = null;
 let processQueue = Promise.resolve();
 let typstPromise = null;
+let typstFontBytesPromise = null;
 
 const SPREADSHEET_FORMATS = new Set(['xlsx', 'xls', 'ods', 'csv', 'tsv']);
 const SPREADSHEET_MIME_TYPES = {
@@ -139,6 +140,22 @@ async function getTypstModule() {
     return typstPromise;
 }
 
+async function getTypstFontBytes() {
+    if (!typstFontBytesPromise) {
+        typstFontBytesPromise = (async () => {
+            const fontRes = await fetch(`${self.location.origin}/vendor/typst/fonts/NotoSans.ttf`);
+            if (!fontRes.ok) {
+                throw new Error(`Failed to fetch NotoSans.ttf: ${fontRes.status}`);
+            }
+            return new Uint8Array(await fontRes.arrayBuffer());
+        })().catch((err) => {
+            typstFontBytesPromise = null;
+            throw err;
+        });
+    }
+    return typstFontBytesPromise;
+}
+
 // Pandoc's default typst template uses system fonts and #import directives that
 // fail under the wasm dummy access model, producing a blank PDF. We strip the
 // pandoc preamble (everything before the first non-comment content line) and
@@ -175,7 +192,6 @@ function wrapTypstSourceForWasm(source) {
         }
     }
     const body = lines.slice(bodyStart).join('\n').trimStart();
-    console.log('[doc-worker] typst body preview (first 300 chars):', body.slice(0, 300));
     // Minimal preamble that works under the wasm dummy access model
     const preamble = `#set page(margin: (x: 2cm, y: 2cm))\n#set text(size: 11pt)\n#set par(justify: false)\n#set block(breakable: true)\n#show figure: set block(breakable: true)\n\n`;
     return preamble + body;
@@ -184,19 +200,11 @@ function wrapTypstSourceForWasm(source) {
 async function convertTypstToPdf(typstBlob) {
     const typstModule = await getTypstModule();
     const rawSource = await typstBlob.text();
-    console.log('[doc-worker] raw typst source (first 600 chars):', rawSource.slice(0, 600));
     const source = wrapTypstSourceForWasm(rawSource);
     const builder = new typstModule.TypstCompilerBuilder();
     builder.set_dummy_access_model();
-    // Load the bundled Noto Sans font so typst can render text
     try {
-        const fontRes = await fetch(`${self.location.origin}/vendor/typst/fonts/NotoSans.ttf`);
-        if (fontRes.ok) {
-            const fontBytes = new Uint8Array(await fontRes.arrayBuffer());
-            builder.add_raw_font(fontBytes);
-        } else {
-            console.warn('[doc-worker] Could not load NotoSans.ttf:', fontRes.status);
-        }
+        builder.add_raw_font(await getTypstFontBytes());
     } catch (e) {
         console.warn('[doc-worker] Font load error:', e);
     }
