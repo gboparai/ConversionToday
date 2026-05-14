@@ -1,10 +1,10 @@
 import { createPandocInstance } from 'pandoc-wasm/src/core.js';
-import * as XLSX from '@e965/xlsx';
 
 let pandocPromise = null;
 let processQueue = Promise.resolve();
 let typstPromise = null;
 let typstFontBytesPromise = null;
+let xlsxPromise = null;
 
 const SPREADSHEET_FORMATS = new Set(['xlsx', 'xls', 'ods', 'csv', 'tsv']);
 const SPREADSHEET_MIME_TYPES = {
@@ -30,6 +30,18 @@ function getPandoc() {
             .then(binary => createPandocInstance(binary));
     }
     return pandocPromise;
+}
+
+async function getXlsx() {
+    if (!xlsxPromise) {
+        xlsxPromise = import('@e965/xlsx')
+            .then((mod) => mod.default || mod)
+            .catch((err) => {
+                xlsxPromise = null;
+                throw err;
+            });
+    }
+    return xlsxPromise;
 }
 
 function isSpreadsheetFormat(formatName) {
@@ -62,7 +74,8 @@ function tableToHtmlFromRows(rows) {
     return `<table>${thead}${tbody}</table>`;
 }
 
-function workbookToHtml(workbook) {
+async function workbookToHtml(workbook) {
+    const XLSX = await getXlsx();
     const sections = workbook.SheetNames.map((sheetName) => {
         const sheet = workbook.Sheets[sheetName];
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
@@ -72,11 +85,13 @@ function workbookToHtml(workbook) {
 }
 
 async function spreadsheetBlobToWorkbook(blob) {
+    const XLSX = await getXlsx();
     const buffer = await blob.arrayBuffer();
     return XLSX.read(buffer, { type: 'array', cellDates: true });
 }
 
-function workbookToSpreadsheetBlob(workbook, outputFormat) {
+async function workbookToSpreadsheetBlob(workbook, outputFormat) {
+    const XLSX = await getXlsx();
     if (outputFormat === 'csv' || outputFormat === 'tsv') {
         const firstSheetName = workbook.SheetNames[0];
         if (!firstSheetName) throw new Error('Spreadsheet has no sheets');
@@ -95,7 +110,8 @@ function workbookToSpreadsheetBlob(workbook, outputFormat) {
     return new Blob([out], { type: getMimeTypeForFormat(outputFormat) });
 }
 
-function workbookFromHtml(html) {
+async function workbookFromHtml(html) {
+    const XLSX = await getXlsx();
     return XLSX.read(html, { type: 'string', cellDates: true });
 }
 
@@ -234,7 +250,8 @@ async function convertDocumentWithIntermediates(file, config) {
         if (isSpreadsheetFormat(inputFormat)) {
             // Spreadsheets aren't understood by Pandoc directly — go through HTML
             const workbook = await spreadsheetBlobToWorkbook(file);
-            docBlob = new Blob([workbookToHtml(workbook)], { type: 'text/html' });
+            const html = await workbookToHtml(workbook);
+            docBlob = new Blob([html], { type: 'text/html' });
             docFormat = 'html';
             docExt = 'html';
         }
@@ -254,12 +271,12 @@ async function convertDocumentWithIntermediates(file, config) {
 
     if (inputIsSpreadsheet && outputIsSpreadsheet) {
         const workbook = await spreadsheetBlobToWorkbook(file);
-        return workbookToSpreadsheetBlob(workbook, outputFormat);
+        return await workbookToSpreadsheetBlob(workbook, outputFormat);
     }
 
     if (inputIsSpreadsheet) {
         const workbook = await spreadsheetBlobToWorkbook(file);
-        const html = workbookToHtml(workbook);
+        const html = await workbookToHtml(workbook);
         const htmlBlob = new Blob([html], { type: 'text/html' });
         if (outputFormat === 'html') return htmlBlob;
         return convertWithPandoc(
@@ -280,8 +297,8 @@ async function convertDocumentWithIntermediates(file, config) {
             htmlBlob = await convertWithPandoc(file, inputFormat, 'html', inputExt, 'html', 'text/html');
         }
         const html = await htmlBlob.text();
-        const workbook = workbookFromHtml(html);
-        return workbookToSpreadsheetBlob(workbook, outputFormat);
+        const workbook = await workbookFromHtml(html);
+        return await workbookToSpreadsheetBlob(workbook, outputFormat);
     }
 
     return convertWithPandoc(
