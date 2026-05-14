@@ -3,7 +3,7 @@ module.exports = function ({ types: t, template }) {
   // In this webpack 4 setup we rewrite to the site root so nested routes
   // like /compression/png still resolve wasm assets from /<file>.wasm.
   const replacement = template.expression(
-    '(typeof self !== "undefined" && self.location && self.location.origin ? self.location.origin + "/" : ((typeof document !== "undefined" && document.baseURI) ? new URL("/", document.baseURI).href : "/"))'
+    '(typeof self !== "undefined" && self.location && self.location.origin ? self.location.origin + "/" : ((typeof document !== "undefined" && document.location && document.location.origin) ? document.location.origin + "/" : "/"))'
   );
 
   function isImportMeta(node) {

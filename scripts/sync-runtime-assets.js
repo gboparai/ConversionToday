@@ -1,5 +1,29 @@
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
+
+// Fonts required by the typst wasm compiler (must be TTF/OTF — woff/woff2 not supported)
+const TYPST_FONTS = [
+  {
+    url: 'https://github.com/google/fonts/raw/main/ofl/notosans/NotoSans%5Bwdth%2Cwght%5D.ttf',
+    dest: path.join(__dirname, '..', 'public', 'vendor', 'typst', 'fonts', 'NotoSans.ttf'),
+  },
+];
+
+function downloadFile(url, dest) {
+  return new Promise((resolve, reject) => {
+    if (fs.existsSync(dest)) { resolve(); return; }
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    const file = fs.createWriteStream(dest);
+    const get = (u) => https.get(u, (res) => {
+      if (res.statusCode === 301 || res.statusCode === 302) { get(res.headers.location); return; }
+      if (res.statusCode !== 200) { reject(new Error(`HTTP ${res.statusCode} for ${u}`)); return; }
+      res.pipe(file);
+      file.on('finish', () => file.close(resolve));
+    }).on('error', (err) => { fs.unlink(dest, () => {}); reject(err); });
+    get(url);
+  });
+}
 
 const root = path.resolve(__dirname, '..');
 
@@ -136,4 +160,8 @@ for (const { src, dest } of copies) {
   fs.copyFileSync(src, dest);
 }
 
-console.log('Synced local FFmpeg, Pandoc, and Typst assets to public/vendor.');
+// Download typst fonts (skipped if already present)
+Promise.all(TYPST_FONTS.map(({ url, dest }) => downloadFile(url, dest)))
+  .then(() => console.log('Synced local FFmpeg, Pandoc, Typst assets and fonts to public/vendor.'))
+  .catch((err) => { console.error('Failed to download typst font:', err.message); process.exit(1); });
+

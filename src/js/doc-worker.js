@@ -139,11 +139,67 @@ async function getTypstModule() {
     return typstPromise;
 }
 
+// Pandoc's default typst template uses system fonts and #import directives that
+// fail under the wasm dummy access model, producing a blank PDF. We strip the
+// pandoc preamble (everything before the first non-comment content line) and
+// wrap the body in a minimal, self-contained typst document instead.
+function wrapTypstSourceForWasm(source) {
+    const lines = source.split('\n');
+    // Find where the actual content starts — skip lines that are part of the
+    // pandoc template preamble (#set/#show/#import/#let rules and their multi-line blocks).
+    // Key fix: check bracket depth BEFORE decrementing so closing `]` lines are
+    // still treated as preamble (not mistakenly identified as the body start).
+    let bodyStart = lines.length; // default: whole file is preamble → empty body
+    let depth = 0;
+    for (let i = 0; i < lines.length; i++) {
+        const trimmed = lines[i].trimStart();
+        const depthBefore = depth;
+        depth += (lines[i].match(/\[/g) || []).length;
+        depth -= (lines[i].match(/\]/g) || []).length;
+        if (depth < 0) depth = 0;
+
+        const isDirective =
+            trimmed.startsWith('#set ') ||
+            trimmed.startsWith('#show ') ||
+            trimmed.startsWith('#import ') ||
+            trimmed.startsWith('#let ') ||
+            trimmed.startsWith('//');
+        const isBlank = trimmed === '';
+        // Line is preamble if we're already inside a directive block,
+        // or if it IS a directive/blank. Opening a bracket does NOT make content preamble.
+        const isPreambleLine = depthBefore > 0 || isDirective || isBlank;
+
+        if (!isPreambleLine) {
+            bodyStart = i;
+            break;
+        }
+    }
+    const body = lines.slice(bodyStart).join('\n').trimStart();
+    console.log('[doc-worker] typst body preview (first 300 chars):', body.slice(0, 300));
+    // Minimal preamble that works under the wasm dummy access model
+    const preamble = `#set page(margin: (x: 2cm, y: 2cm))\n#set text(size: 11pt)\n#set par(justify: false)\n#set block(breakable: true)\n#show figure: set block(breakable: true)\n\n`;
+    return preamble + body;
+}
+
 async function convertTypstToPdf(typstBlob) {
     const typstModule = await getTypstModule();
-    const source = await typstBlob.text();
+    const rawSource = await typstBlob.text();
+    console.log('[doc-worker] raw typst source (first 600 chars):', rawSource.slice(0, 600));
+    const source = wrapTypstSourceForWasm(rawSource);
     const builder = new typstModule.TypstCompilerBuilder();
     builder.set_dummy_access_model();
+    // Load the bundled Noto Sans font so typst can render text
+    try {
+        const fontRes = await fetch(`${self.location.origin}/vendor/typst/fonts/NotoSans.ttf`);
+        if (fontRes.ok) {
+            const fontBytes = new Uint8Array(await fontRes.arrayBuffer());
+            builder.add_raw_font(fontBytes);
+        } else {
+            console.warn('[doc-worker] Could not load NotoSans.ttf:', fontRes.status);
+        }
+    } catch (e) {
+        console.warn('[doc-worker] Font load error:', e);
+    }
     const compiler = await builder.build();
     const mainPath = '/main.typ';
     compiler.add_source(mainPath, source);
@@ -164,11 +220,21 @@ async function convertDocumentWithIntermediates(file, config) {
         if (inputFormat === 'typst') {
             return convertTypstToPdf(file);
         }
+        let docBlob = file;
+        let docFormat = inputFormat;
+        let docExt = inputExt;
+        if (isSpreadsheetFormat(inputFormat)) {
+            // Spreadsheets aren't understood by Pandoc directly — go through HTML
+            const workbook = await spreadsheetBlobToWorkbook(file);
+            docBlob = new Blob([workbookToHtml(workbook)], { type: 'text/html' });
+            docFormat = 'html';
+            docExt = 'html';
+        }
         const typstBlob = await convertWithPandoc(
-            file,
-            inputFormat,
+            docBlob,
+            docFormat,
             'typst',
-            inputExt,
+            docExt,
             'typ',
             'text/plain'
         );
