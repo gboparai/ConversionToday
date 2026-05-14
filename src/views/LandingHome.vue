@@ -31,7 +31,12 @@
     <a class="mediaHub__card" href="/archive">
       <span class="mediaHub__icon">🗜️</span>
       <h2>Archive Converter</h2>
-      <p>Convert ZIP, 7Z, TAR and ISO archives in-browser.</p>
+      <p>Convert ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO archives in-browser.</p>
+    </a>
+    <a class="mediaHub__card" href="/compression">
+      <span class="mediaHub__icon">🧰</span>
+      <h2>Image Compression</h2>
+      <p>Compress JPG, PNG, WEBP and AVIF files locally with before/after preview.</p>
     </a>
   </div>
 
@@ -128,7 +133,8 @@ export default {
 .mediaHub {
   @include mid-width;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  // 12.5rem keeps cards readable while allowing auto-fit wrapping across viewports.
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 

@@ -5,11 +5,20 @@ const MIME_TYPE_BY_EXT = {
     '7z': 'application/x-7z-compressed',
     rar: 'application/vnd.rar',
     tar: 'application/x-tar',
+    'tar.gz': 'application/gzip',
+    'tar.bz2': 'application/x-bzip2',
+    'tar.xz': 'application/x-xz',
     iso: 'application/x-iso9660-image',
 };
 
 const SEVEN_ZIP_SUPPORTED_INPUTS = new Set(['7z', 'zip', 'rar', 'tar']);
 const SEVEN_ZIP_SUPPORTED_OUTPUTS = new Set(['7z', 'zip', 'tar']);
+const SEVEN_ZIP_SUPPORTED_STREAM_CODECS = new Set(['gz', 'bz2', 'xz']);
+const COMPOUND_EXTENSION_CONFIG = {
+    'tar.gz': { archiveExtension: 'tar', streamExtension: 'gz' },
+    'tar.bz2': { archiveExtension: 'tar', streamExtension: 'bz2' },
+    'tar.xz': { archiveExtension: 'tar', streamExtension: 'xz' },
+};
 
 let processQueue = Promise.resolve();
 let sevenZipPromise = null;
@@ -26,8 +35,22 @@ function getExtension(name) {
     return parts.length > 1 ? parts.pop() : '';
 }
 
+function getCompoundExtension(name) {
+    const lower = String(name || '').toLowerCase();
+    return Object.keys(COMPOUND_EXTENSION_CONFIG).find((extension) => lower.endsWith(`.${extension}`)) || '';
+}
+
 function normalizeExtension(extension) {
     return String(extension || '').toLowerCase().replace(/^\./, '');
+}
+
+function getBaseName(name) {
+    const raw = String(name || 'output');
+    const compoundExtension = getCompoundExtension(raw);
+    if (compoundExtension) {
+        return raw.slice(0, -(compoundExtension.length + 1)) || 'output';
+    }
+    return raw.replace(/\.[^.]+$/, '') || 'output';
 }
 
 function createUniqueToken() {
@@ -111,6 +134,113 @@ function removeSevenZipPath(fs, targetPath) {
     }
 }
 
+async function blobToUint8Array(blob) {
+    return new Uint8Array(await blob.arrayBuffer());
+}
+
+async function compressWithBrowserGzip(inputData) {
+    if (typeof self.CompressionStream !== 'function') {
+        throw new Error('This browser does not support gzip compression');
+    }
+    const stream = new Blob([inputData]).stream().pipeThrough(new self.CompressionStream('gzip'));
+    return blobToUint8Array(await new Response(stream).blob());
+}
+
+async function decompressWithBrowserGzip(inputData) {
+    if (typeof self.DecompressionStream !== 'function') {
+        throw new Error('This browser does not support gzip decompression');
+    }
+    const stream = new Blob([inputData]).stream().pipeThrough(new self.DecompressionStream('gzip'));
+    return blobToUint8Array(await new Response(stream).blob());
+}
+
+async function compressSingleFileWithSevenZip(inputData, sourceName, outputExtension) {
+    if (!SEVEN_ZIP_SUPPORTED_STREAM_CODECS.has(outputExtension)) {
+        throw new Error(`Unsupported 7z stream compression format: ${outputExtension}`);
+    }
+    const sevenZip = await getSevenZip();
+    const fs = sevenZip.FS;
+    const root = `/stream-create-${createUniqueToken()}`;
+    const sourcePath = `${root}/${sourceName}`;
+    const outputPath = `${root}/${sourceName}.${outputExtension}`;
+    const formatArgByExtension = {
+        gz: '-tgzip',
+        bz2: '-tbzip2',
+        xz: '-txz',
+    };
+    ensureSevenZipDir(fs, root);
+    const previousCwd = fs.cwd();
+    try {
+        fs.writeFile(sourcePath, inputData);
+        fs.chdir(root);
+        sevenZipCallMain(sevenZip, ['a', outputPath, formatArgByExtension[outputExtension], sourceName]);
+        return new Uint8Array(fs.readFile(outputPath));
+    } finally {
+        try {
+            fs.chdir(previousCwd);
+        } catch (e) {
+            // Best-effort cwd restore; cleanup still runs below.
+        }
+        removeSevenZipPath(fs, root);
+    }
+}
+
+async function decompressSingleFileWithSevenZip(fileData, inputExtension) {
+    if (!SEVEN_ZIP_SUPPORTED_STREAM_CODECS.has(inputExtension)) {
+        throw new Error(`Unsupported 7z stream extraction format: ${inputExtension}`);
+    }
+    const sevenZip = await getSevenZip();
+    const fs = sevenZip.FS;
+    const root = `/stream-extract-${createUniqueToken()}`;
+    const inputPath = `${root}/input.${inputExtension}`;
+    const outPath = `${root}/out`;
+    ensureSevenZipDir(fs, root);
+    ensureSevenZipDir(fs, outPath);
+    try {
+        fs.writeFile(inputPath, fileData);
+        sevenZipCallMain(sevenZip, ['x', inputPath, `-o${outPath}`, '-y']);
+        const extractedNames = fs.readdir(outPath).filter((name) => name !== '.' && name !== '..');
+        if (extractedNames.length !== 1) {
+            throw new Error('Expected a single file from stream decompression');
+        }
+        const extractedPath = `${outPath}/${extractedNames[0]}`;
+        const stat = fs.stat(extractedPath);
+        if (fs.isDir(stat.mode)) {
+            throw new Error('Expected a file from stream decompression');
+        }
+        return new Uint8Array(fs.readFile(extractedPath));
+    } finally {
+        removeSevenZipPath(fs, root);
+    }
+}
+
+async function compressTarArchive(tarData, streamExtension) {
+    if (streamExtension === 'gz') {
+        return compressWithBrowserGzip(tarData);
+    }
+    return compressSingleFileWithSevenZip(tarData, 'archive.tar', streamExtension);
+}
+
+async function decompressTarArchive(fileData, streamExtension) {
+    if (streamExtension === 'gz') {
+        return decompressWithBrowserGzip(fileData);
+    }
+    return decompressSingleFileWithSevenZip(fileData, streamExtension);
+}
+
+async function extractCompoundEntries(file, compoundExtension) {
+    const compoundConfig = COMPOUND_EXTENSION_CONFIG[compoundExtension];
+    if (!compoundConfig) {
+        throw new Error(`Unsupported compound archive format: ${compoundExtension}`);
+    }
+    const fileData = new Uint8Array(await file.arrayBuffer());
+    const tarData = await decompressTarArchive(fileData, compoundConfig.streamExtension);
+    const tarFile = new File([tarData], `${getBaseName(file.name)}.tar`, {
+        type: MIME_TYPE_BY_EXT.tar,
+    });
+    return extractWithSevenZip(tarFile);
+}
+
 async function extractWithSevenZip(file) {
     const extension = getExtension(file.name);
     if (!SEVEN_ZIP_SUPPORTED_INPUTS.has(extension)) {
@@ -167,9 +297,13 @@ async function extractWithIso9660(file) {
 }
 
 async function extractEntries(file, preferredInputExtension) {
-    const detectedInputExtension = getExtension(file.name);
+    const detectedInputExtension = getCompoundExtension(file.name) || getExtension(file.name);
     const preferred = normalizeExtension(preferredInputExtension);
     const inputExtension = preferred || detectedInputExtension;
+
+    if (COMPOUND_EXTENSION_CONFIG[inputExtension]) {
+        return extractCompoundEntries(file, inputExtension);
+    }
 
     if (inputExtension === 'iso') {
         return extractWithIso9660(file);
@@ -234,8 +368,16 @@ async function createWithIso9660(entries) {
 }
 
 async function createArchive(entries, outputExtension, originalName) {
-    const baseName = String(originalName || 'output').replace(/\.[^.]+$/, '') || 'output';
+    const baseName = getBaseName(originalName);
     const outputName = `${baseName}.${outputExtension}`;
+
+    if (COMPOUND_EXTENSION_CONFIG[outputExtension]) {
+        const tarData = await createWithSevenZip(entries, 'tar', `${baseName}.tar`);
+        return {
+            data: await compressTarArchive(tarData, COMPOUND_EXTENSION_CONFIG[outputExtension].streamExtension),
+            outputName,
+        };
+    }
 
     if (outputExtension === 'iso') {
         return { data: await createWithIso9660(entries), outputName };

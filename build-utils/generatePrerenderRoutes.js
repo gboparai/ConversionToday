@@ -39,7 +39,7 @@ const formatsByMediaType = {
     'markua', 'odt-xml'
   ],
   archive: [
-    'zip', '7z', 'rar', 'tar', 'iso'
+    'zip', '7z', 'rar', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'iso'
   ]
 };
 
