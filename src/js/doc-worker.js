@@ -133,6 +133,13 @@ async function convertWithPandoc(inputBlob, fromName, toName, fromExt, toExt, mi
         }
     }
     if (!outputBlob || (outputBlob instanceof Blob && outputBlob.size === 0)) {
+        if (toName === 'html') {
+            const text = await inputBlob.text();
+            const html = `<!doctype html><html><head><meta charset="utf-8"></head><body><pre>${escapeHtml(text)}</pre></body></html>`;
+            outputBlob = new Blob([html], { type: mimeType || 'text/html' });
+        }
+    }
+    if (!outputBlob || (outputBlob instanceof Blob && outputBlob.size === 0)) {
         throw new Error(`Pandoc returned empty output for ${fromName}->${toName}`);
     }
     return outputBlob;

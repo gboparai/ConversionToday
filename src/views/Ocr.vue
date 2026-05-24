@@ -306,7 +306,7 @@ const OCR_OUTPUT_FORMATS = [
   { name: 'ods',       extension: 'ods',      title: 'ODS Spreadsheet',      description: 'OpenDocument spreadsheet with each line of OCR text in its own row.',                             mimeType: 'application/vnd.oasis.opendocument.spreadsheet',                                       isPandoc: false, isSpreadsheet: true  },
 ];
 
-const PLAIN_INPUT_FORMAT = { name: 'plain', extension: 'txt', mimeType: 'text/plain' };
+const OCR_TEXT_INPUT_FORMAT = { name: 'markdown', extension: 'md', mimeType: 'text/markdown' };
 
 const OCR_LANGUAGES = [
   { code: 'eng',     name: 'English'                  },
@@ -723,7 +723,7 @@ export default {
               extension: outputFormatConfig.extension,
               mimeType: outputFormatConfig.mimeType,
             },
-            inputFormat: PLAIN_INPUT_FORMAT,
+            inputFormat: OCR_TEXT_INPUT_FORMAT,
           },
           id,
         });
