@@ -21,6 +21,7 @@ module.exports = {
         '@jsquash/png',
         '@jsquash/webp',
         '@jsquash/avif',
+        'tesseract.js',
     ],
 
     pwa: {
