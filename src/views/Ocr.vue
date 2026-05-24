@@ -40,10 +40,6 @@
           @change="onLanguageChange"
         />
       </div>
-      <p class="languageCard__hint">
-        {{ selectedLanguageInfo ? selectedLanguageInfo.name : 'English' }} —
-        language data is loaded on first use
-      </p>
     </div>
   </div>
 
@@ -834,6 +830,24 @@ export default {
     async runAll() {
       this.clearCombinedOutput();
       const targets = this.processable.map(f => f.id);
+      if (targets.length <= 0) return;
+
+      // Warm the selected language before processing files so first-run download cost is paid upfront.
+      const queuedFiles = this.files.filter(f => targets.includes(f.id));
+      queuedFiles.forEach((file) => {
+        file.statusMessage = 'Loading OCR language data…';
+      });
+      try {
+        await this._getTesseractWorker(this.selectedLanguage);
+      } catch (error) {
+        queuedFiles.forEach((file) => {
+          file.status = FILE_STATUS.failed;
+          file.progress = 0;
+          file.statusMessage = error?.message || 'Failed to load OCR language data';
+        });
+        return;
+      }
+
       for (const id of targets) {
         const fileEntry = this.files.find(f => f.id === id);
         if (fileEntry) await this._processFile(fileEntry);
