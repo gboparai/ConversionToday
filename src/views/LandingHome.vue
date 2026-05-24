@@ -51,6 +51,11 @@
         <h2>Image Compression</h2>
         <p>Compress JPG, PNG, WEBP and AVIF files locally with before/after preview.</p>
       </a>
+      <a class="mediaHub__card" href="/compress">
+        <span class="mediaHub__icon">🗃️</span>
+        <h2>Archive Compress Tool</h2>
+        <p>Combine multiple files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ or ISO archive.</p>
+      </a>
       <a class="mediaHub__card" href="/merge">
         <span class="mediaHub__icon">🧩</span>
         <h2>File Merge Tool</h2>
