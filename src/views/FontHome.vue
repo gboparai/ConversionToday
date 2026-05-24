@@ -2,7 +2,7 @@
   <descriptor>
     <template #header>Font Converter</template>
     <template #description>
-      Convert font files online for free. Supports TTF, OTF, WOFF, WOFF2, EOT and SVG fonts in your browser.
+      Convert font files online for free. Supports TTF, OTF, WOFF, WOFF2, EOT and SVG fonts directly in your browser.
     </template>
   </descriptor>
 
@@ -12,7 +12,7 @@
     <information>
       <template #header>Broad Font Support</template>
       <template #description>
-        Convert between TTF, OTF, WOFF, WOFF2, EOT and SVG font formats with in-browser processing.
+        Convert between TTF, OTF, WOFF, WOFF2, EOT and SVG formats with in-browser processing.
       </template>
     </information>
     <information>

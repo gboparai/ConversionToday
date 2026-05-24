@@ -179,14 +179,6 @@ const copies = [
     src: path.join(root, 'node_modules', '@jsquash', 'avif', 'codec', 'enc', 'avif_enc_mt.wasm'),
     dest: path.join(root, 'public', 'vendor', 'jsquash', 'avif_enc_mt.wasm'),
   },
-  {
-    src: path.join(root, 'node_modules', 'fontforge-wasm', 'dist', 'fontforge.js'),
-    dest: path.join(root, 'public', 'vendor', 'fontforge', 'fontforge.js'),
-  },
-  {
-    src: path.join(root, 'node_modules', 'fontforge-wasm', 'dist', 'fontforge.wasm'),
-    dest: path.join(root, 'public', 'vendor', 'fontforge', 'fontforge.wasm'),
-  },
 ];
 
 for (const fileName of legacyRootJsquashWasm) {

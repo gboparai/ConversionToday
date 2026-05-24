@@ -1458,9 +1458,9 @@ export default createStore({
                 name: 'otf',
                 extension: 'otf',
                 title: 'OpenType Font',
-                description: 'OpenType font format with advanced typographic capabilities and broad desktop support. Browser conversion currently supports OTF as input; OTF output depends on optional FontForge WASM runtime.',
+                description: 'OpenType font format with advanced typographic capabilities and broad desktop support.',
                 canConvertFrom: true,
-                canConvertTo: false,
+                canConvertTo: true,
                 mimeType: 'font/otf',
             },
             {

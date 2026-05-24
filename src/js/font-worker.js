@@ -1,4 +1,5 @@
 import { createFont, woff2 } from 'fonteditor-core';
+import opentype from 'opentype.js';
 
 let processQueue = Promise.resolve();
 let fonteditorWoff2Ready = false;
@@ -6,6 +7,8 @@ let fontforgeInstancePromise = null;
 
 const FONTEDITOR_SUPPORTED_INPUTS = new Set(['ttf', 'otf', 'woff', 'woff2', 'eot', 'svg']);
 const FONTEDITOR_SUPPORTED_OUTPUTS = new Set(['ttf', 'woff', 'woff2', 'eot', 'svg']);
+const OPENTYPE_SUPPORTED_INPUTS = new Set(['ttf', 'otf', 'woff']);
+const OPENTYPE_SUPPORTED_OUTPUTS = new Set(['otf', 'ttf']);
 const FONT_MIME_TYPE_BY_EXT = {
     ttf: 'font/ttf',
     otf: 'font/otf',
@@ -47,10 +50,50 @@ function toArrayBuffer(data) {
     return new Uint8Array(data || []).buffer;
 }
 
+function getWoff2WasmUrl() {
+    const publicPath = (typeof self.__webpack_public_path__ === 'string' && self.__webpack_public_path__) || '/';
+    const normalizedPublicPath = publicPath.endsWith('/') ? publicPath : `${publicPath}/`;
+    return new URL(`${normalizedPublicPath}vendor/fonteditor/woff2.wasm`, self.location.origin).toString();
+}
+
+async function fetchVerifiedWasm(url) {
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) {
+        throw new Error(`Unable to fetch woff2 wasm (${response.status}) from ${url}`);
+    }
+    const buffer = await response.arrayBuffer();
+    const magic = new Uint8Array(buffer.slice(0, 4));
+    const isWasm = magic.length === 4
+        && magic[0] === 0x00
+        && magic[1] === 0x61
+        && magic[2] === 0x73
+        && magic[3] === 0x6d;
+    if (!isWasm) {
+        throw new Error(`woff2 wasm fetch returned non-wasm content at ${url}`);
+    }
+    return buffer;
+}
+
 async function ensureWoff2Ready(inputExtension, outputExtension) {
     const needsWoff2 = inputExtension === 'woff2' || outputExtension === 'woff2';
     if (!needsWoff2 || fonteditorWoff2Ready) return;
-    await woff2.init(`${self.location.origin}/vendor/fonteditor/woff2.wasm`);
+
+    const wasmUrl = getWoff2WasmUrl();
+    await fetchVerifiedWasm(wasmUrl);
+
+    // fonteditor-core checks for `window` to detect browser mode; in Web Workers
+    // `window` is undefined, so we provide an alias to avoid node-style loading.
+    const hadWindow = typeof self.window !== 'undefined';
+    if (!hadWindow) {
+        self.window = self;
+    }
+    try {
+        await woff2.init(wasmUrl);
+    } finally {
+        if (!hadWindow) {
+            delete self.window;
+        }
+    }
     fonteditorWoff2Ready = true;
 }
 
@@ -75,6 +118,23 @@ async function convertWithFonteditor(file, config, id, inputExtension, outputExt
 
     const written = font.write({ type: outputExtension });
     const outputBuffer = toArrayBuffer(written);
+    return new Blob([outputBuffer], { type: resolveMimeType(config, outputExtension) });
+}
+
+async function convertWithOpenType(file, config, id, inputExtension, outputExtension) {
+    const canHandle =
+        OPENTYPE_SUPPORTED_INPUTS.has(inputExtension) &&
+        OPENTYPE_SUPPORTED_OUTPUTS.has(outputExtension);
+    if (!canHandle) {
+        throw new Error(`OpenType.js does not support ${inputExtension} -> ${outputExtension}`);
+    }
+
+    emitProgress(id, 0.2);
+    const sourceBuffer = toArrayBuffer(await file.arrayBuffer());
+    const font = opentype.parse(sourceBuffer);
+    emitProgress(id, 0.75);
+
+    const outputBuffer = toArrayBuffer(font.toArrayBuffer());
     return new Blob([outputBuffer], { type: resolveMimeType(config, outputExtension) });
 }
 
@@ -149,16 +209,28 @@ async function handleMessage(data) {
 
             emitProgress(id, 0.05);
             let outputBlob;
-            try {
-                // Overlap precedence: always try fonteditor-core first.
-                outputBlob = await convertWithFonteditor(file, config, id, inputExtension, outputExtension);
-            } catch (fonteditorErr) {
-                console.warn(
-                    `fonteditor-core conversion failed for ${inputExtension} -> ${outputExtension}, trying FontForge WASM fallback:`,
-                    fonteditorErr
-                );
-                emitProgress(id, 0.55);
-                outputBlob = await convertWithFontforge(file, config, inputExtension, outputExtension);
+            if (inputExtension === 'otf' || outputExtension === 'otf') {
+                try {
+                    outputBlob = await convertWithOpenType(file, config, id, inputExtension, outputExtension);
+                } catch (openTypeErr) {
+                    console.warn(
+                        `OpenType.js conversion failed for ${inputExtension} -> ${outputExtension}, trying next engine:`,
+                        openTypeErr
+                    );
+                }
+            }
+
+            if (!outputBlob) {
+                try {
+                    outputBlob = await convertWithFonteditor(file, config, id, inputExtension, outputExtension);
+                } catch (fonteditorErr) {
+                    console.warn(
+                        `fonteditor-core conversion failed for ${inputExtension} -> ${outputExtension}, trying FontForge WASM fallback:`,
+                        fonteditorErr
+                    );
+                    emitProgress(id, 0.55);
+                    outputBlob = await convertWithFontforge(file, config, inputExtension, outputExtension);
+                }
             }
 
             if (!outputBlob || outputBlob.size <= 0) {
