@@ -1684,7 +1684,6 @@ export default createStore({
         clearMergeFiles(state) {
             state.mergeFiles = [];
             state.mergeNextIndex = 0;
-            state.mergeRunId = 0;
             state.mergeStatus = FILE_STATUS.initialized;
             state.mergeProgress = 0;
             state.mergeMessage = '';
@@ -2141,7 +2140,10 @@ export default createStore({
             context.commit('setMergeWorker', worker);
             worker.postMessage({ action: 'load' });
             worker.onmessage = (e) => {
-                const { status } = e.data;
+                const { status, id } = e.data;
+                if ((status === 'progress' || status === 'processed' || status === 'failed') && id !== context.state.mergeRunId) {
+                    return;
+                }
                 if (status === 'progress') {
                     context.commit('setMergeProgress', e.data.progress);
                     context.commit('setMergeMessage', e.data.message);
@@ -2171,11 +2173,17 @@ export default createStore({
         clearMergeFiles(context) {
             const previousUrl = context.state.mergeOutput.url;
             if (previousUrl) URL.revokeObjectURL(previousUrl);
+            if (context.state.mergeStatus === FILE_STATUS.processing) {
+                context.commit('incrementMergeRunId');
+            }
             context.commit('clearMergeFiles');
         },
         resetMergeResult(context) {
             const previousUrl = context.state.mergeOutput.url;
             if (previousUrl) URL.revokeObjectURL(previousUrl);
+            if (context.state.mergeStatus === FILE_STATUS.processing) {
+                context.commit('incrementMergeRunId');
+            }
             context.commit('clearMergeOutput');
             context.commit('setMergeStatus', FILE_STATUS.initialized);
             context.commit('setMergeProgress', 0);

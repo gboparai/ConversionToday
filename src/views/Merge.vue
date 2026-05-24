@@ -458,9 +458,7 @@ export default {
     addFiles(list) {
       const accepted = [];
       let skipped = 0;
-      const expectedDocumentFormat = this.selectedFamily === "document"
-        ? this.selectedFormat.name
-        : null;
+      const requirePdfInput = this.selectedFamily === "document" && this.selectedFormat && this.selectedFormat.name === "pdf";
       for (let i = 0; i < list.length; i++) {
         const file = list[i];
         if (this.selectedFamily === "archive") {
@@ -477,7 +475,7 @@ export default {
         }
         const inputFormat = this.detectDocumentFormat(file);
         if (inputFormat) {
-          if (expectedDocumentFormat && inputFormat !== expectedDocumentFormat) {
+          if (requirePdfInput && inputFormat !== "pdf") {
             skipped++;
             continue;
           }
@@ -497,11 +495,11 @@ export default {
     },
     processMerge() {
       if (this.selectedFamily === "document" && this.files.length > 0) {
-        const requiredFormat = this.selectedFormat.name;
-        const mixedFormats = this.files.some((file) => file.inputFormat !== requiredFormat);
-        if (mixedFormats) {
+        const isPdfOutput = this.selectedFormat && this.selectedFormat.name === "pdf";
+        const hasNonPdf = this.files.some((file) => file.inputFormat !== "pdf");
+        if (isPdfOutput && hasNonPdf) {
           this.$store.commit("setMergeStatus", FILE_STATUS.failed);
-          this.$store.commit("setMergeMessage", "All document inputs must match the selected format.");
+          this.$store.commit("setMergeMessage", "PDF output requires PDF input files.");
           return;
         }
       }
