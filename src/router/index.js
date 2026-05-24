@@ -14,6 +14,8 @@ const Compression = () => import('../views/Compression.vue')
 const CompressionHome = () => import('../views/CompressionHome.vue')
 const Merge = () => import('../views/Merge.vue')
 const MergeHome = () => import('../views/MergeHome.vue')
+const OcrHome = () => import('../views/OcrHome.vue')
+const Ocr = () => import('../views/Ocr.vue')
 
 const routes = [
   {
@@ -138,6 +140,17 @@ const routes = [
     path: '/font/:format/:format2',
     name: 'FontConversion',
     component: Convert
+  },
+  // ── OCR routes ─────────────────────────────────────────────────────────────
+  {
+    path: '/ocr',
+    name: 'OcrHome',
+    component: OcrHome
+  },
+  {
+    path: '/ocr/:outputFormat',
+    name: 'Ocr',
+    component: Ocr
   },
   {
     path: '/FAQ',

@@ -142,6 +142,20 @@ const copies = [
     src: path.join(root, 'node_modules', 'fonteditor-core', 'woff2', 'woff2.wasm'),
     dest: path.join(root, 'public', 'vendor', 'fonteditor', 'woff2.wasm'),
   },
+  // tesseract.js worker script
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js', 'dist', 'worker.min.js'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract', 'worker.min.js'),
+  },
+  // pdfjs-dist worker + main (loaded at runtime via webpackIgnore dynamic import)
+  {
+    src: path.join(root, 'node_modules', 'pdfjs-dist', 'build', 'pdf.mjs'),
+    dest: path.join(root, 'public', 'vendor', 'pdfjs', 'pdf.mjs'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'pdfjs-dist', 'build', 'pdf.worker.mjs'),
+    dest: path.join(root, 'public', 'vendor', 'pdfjs', 'pdf.worker.mjs'),
+  },
    // jsquash codec wasm files (kept in a dedicated vendor subdirectory).
   {
     src: path.join(root, 'node_modules', '@jsquash', 'jpeg', 'codec', 'dec', 'mozjpeg_dec.wasm'),

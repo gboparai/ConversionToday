@@ -43,6 +43,11 @@
       <h2>File Merge Tool</h2>
       <p>Merge audio, video, archive and supported document files into one downloadable output.</p>
     </a>
+    <a class="mediaHub__card" href="/ocr">
+      <span class="mediaHub__icon">🔍</span>
+      <h2>OCR Tool</h2>
+      <p>Extract text from images and PDFs using Tesseract OCR. Export as TXT, DOCX, PDF, XLSX, CSV, EPUB and more.</p>
+    </a>
     <a class="mediaHub__card" href="/font">
       <span class="mediaHub__icon">🔤</span>
       <h2>Font Converter</h2>

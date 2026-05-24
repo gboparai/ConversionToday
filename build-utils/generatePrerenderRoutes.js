@@ -43,6 +43,12 @@ const formatsByMediaType = {
   ]
 };
 
+const ocrOutputFormats = [
+  'txt', 'docx', 'pdf', 'xlsx', 'csv', 'epub', 'rtf', 'odt', 'html',
+  'markdown', 'rst', 'latex', 'org', 'asciidoc', 'mediawiki', 'textile',
+  'docbook', 'fb2', 'tsv', 'ods'
+];
+
 /**
  * Generate all prerender routes for the application.
  * @returns {string[]} Array of route paths
@@ -63,6 +69,10 @@ function generatePrerenderRoutes() {
       });
     });
   });
+
+  // OCR routes
+  routes.push('/ocr');
+  ocrOutputFormats.forEach(fmt => routes.push(`/ocr/${fmt}`));
 
   return routes;
 }
