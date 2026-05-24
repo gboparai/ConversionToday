@@ -11,6 +11,13 @@
   user-select: none;
 }
 
+.ss-wrapper--full {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+  min-width: 0;
+}
+
 .ss-trigger {
   display: flex;
   align-items: center;
@@ -54,6 +61,10 @@
   }
 }
 
+.ss-wrapper--full .ss-trigger {
+  width: 100%;
+}
+
 .ss-dropdown {
   position: absolute;
   top: calc(100% + 4px);
@@ -69,6 +80,13 @@
   box-shadow: var(--shadow-md);
   overflow: hidden;
   animation: ss-fade-in 0.12s ease;
+}
+
+.ss-wrapper--full .ss-dropdown {
+  left: 0;
+  transform: none;
+  width: 100%;
+  max-width: none;
 }
 
 @keyframes ss-fade-in {
@@ -147,7 +165,7 @@
 </style>
 
 <template>
-  <div class="ss-wrapper" ref="wrapperRef">
+  <div class="ss-wrapper" :class="{ 'ss-wrapper--full': fullWidth }" ref="wrapperRef">
     <button
       type="button"
       class="ss-trigger"
@@ -217,6 +235,10 @@ export default {
     searchPlaceholder: {
       type: String,
       default: "Search…",
+    },
+    fullWidth: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {

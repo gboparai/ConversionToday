@@ -149,6 +149,10 @@ const routes = [
   },
   {
     path: '/ocr/:outputFormat',
+    redirect: to => `/ocr/image/${to.params.outputFormat}`
+  },
+  {
+    path: '/ocr/:inputFormat/:outputFormat',
     name: 'Ocr',
     component: Ocr
   },

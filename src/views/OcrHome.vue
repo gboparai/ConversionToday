@@ -2,56 +2,24 @@
   <descriptor>
     <template #header>OCR Tool</template>
     <template #description>
-      Extract text from images and PDFs using Tesseract OCR. Upload files, choose a language and output format,
-      then download your recognized text.
+      Choose your OCR input type first, then pick output format and language in the tool.
+      Processing stays local in your browser.
     </template>
   </descriptor>
 
   <div class="formatGrid">
-    <a class="formatCard" href="/ocr/txt">
-      <span class="formatCard__ext">TXT</span>
-      <span class="formatCard__label">Plain text — fastest, no conversion</span>
+    <a class="formatCard" href="/ocr/image/txt">
+      <span class="formatCard__ext">IMAGE</span>
+      <span class="formatCard__label">Use JPG, PNG, GIF, BMP, WebP or TIFF as OCR input.</span>
     </a>
-    <a class="formatCard" href="/ocr/docx">
-      <span class="formatCard__ext">DOCX</span>
-      <span class="formatCard__label">Microsoft Word document</span>
-    </a>
-    <a class="formatCard" href="/ocr/pdf">
+    <a class="formatCard" href="/ocr/pdf/txt">
       <span class="formatCard__ext">PDF</span>
-      <span class="formatCard__label">PDF document from OCR text</span>
-    </a>
-    <a class="formatCard" href="/ocr/xlsx">
-      <span class="formatCard__ext">XLSX</span>
-      <span class="formatCard__label">Excel spreadsheet (one line per row)</span>
-    </a>
-    <a class="formatCard" href="/ocr/csv">
-      <span class="formatCard__ext">CSV</span>
-      <span class="formatCard__label">Comma-separated values</span>
-    </a>
-    <a class="formatCard" href="/ocr/epub">
-      <span class="formatCard__ext">EPUB</span>
-      <span class="formatCard__label">EPUB ebook</span>
-    </a>
-    <a class="formatCard" href="/ocr/rtf">
-      <span class="formatCard__ext">RTF</span>
-      <span class="formatCard__label">Rich Text Format</span>
-    </a>
-    <a class="formatCard" href="/ocr/odt">
-      <span class="formatCard__ext">ODT</span>
-      <span class="formatCard__label">OpenDocument text</span>
-    </a>
-    <a class="formatCard" href="/ocr/html">
-      <span class="formatCard__ext">HTML</span>
-      <span class="formatCard__label">HTML document</span>
-    </a>
-    <a class="formatCard" href="/ocr/markdown">
-      <span class="formatCard__ext">MD</span>
-      <span class="formatCard__label">Markdown</span>
+      <span class="formatCard__label">Use PDF pages as OCR input.</span>
     </a>
   </div>
 
   <p class="moreFormats">
-    More output formats available in the tool: RST, LaTeX, Org, AsciiDoc, MediaWiki, Textile, DocBook, FictionBook 2, TSV, ODS.
+    Next step in the OCR tool: choose language and output format (TXT, DOCX, PDF, XLSX, CSV, EPUB and more).
   </p>
 
   <div class="informationContainer">
@@ -79,19 +47,19 @@
     <information>
       <template #header>Step 1</template>
       <template #description>
-        Choose the output format you want and click its card to open the OCR tool.
+        Choose your input type (Image or PDF) to open the OCR tool.
       </template>
     </information>
     <information>
       <template #header>Step 2</template>
       <template #description>
-        Select the OCR language, add your image or PDF files, and click "Run OCR on All".
+        Pick OCR language and output format, then add your files.
       </template>
     </information>
     <information>
       <template #header>Step 3</template>
       <template #description>
-        Download each result individually or grab all files as a single ZIP archive.
+        Run OCR and download each result or all results together.
       </template>
     </information>
   </div>
