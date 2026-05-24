@@ -12,7 +12,7 @@
         @focusout="handleDropdownFocusOut($event, 'convert')"
       >
         <button type="button" class="navDropdown__trigger">Convert</button>
-        <div class="navDropdown__menu">
+        <div class="navDropdown__menu" @click="closeAllDropdowns">
           <router-link to="/image">Image</router-link>
           <router-link to="/audio">Audio</router-link>
           <router-link to="/video">Video</router-link>
@@ -31,7 +31,7 @@
         @focusout="handleDropdownFocusOut($event, 'tools')"
       >
         <button type="button" class="navDropdown__trigger">Tools</button>
-        <div class="navDropdown__menu">
+        <div class="navDropdown__menu" @click="closeAllDropdowns">
           <router-link to="/compression">Compression</router-link>
           <router-link to="/merge">Merge</router-link>
           <router-link to="/ocr">OCR</router-link>
@@ -378,6 +378,9 @@ export default {
       if (!nextTarget || !event.currentTarget.contains(nextTarget)) {
         this.closeDropdown(name);
       }
+    },
+    closeAllDropdowns() {
+      this.activeDropdown = null;
     },
   },
   computed: {
