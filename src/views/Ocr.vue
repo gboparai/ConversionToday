@@ -166,9 +166,42 @@
     </information>
   </div>
 
-  <div class="faqSection">
-    <h3 class="faqSection__title">OCR FAQ</h3>
-    <faq :faqs="faqs" @toggle="toggleFaq" />
+  <div class="informationContainer">
+    <information>
+      <template #header>Step 1</template>
+      <template #description>
+        Choose your OCR language and output format, then add your files.
+      </template>
+    </information>
+    <information>
+      <template #header>Step 2</template>
+      <template #description>
+        Click Run OCR on All to process the full batch in your browser.
+      </template>
+    </information>
+    <information>
+      <template #header>Step 3</template>
+      <template #description>
+        Download each result individually, download all results, or download a ZIP.
+      </template>
+    </information>
+  </div>
+
+  <div class="infomationContainer">
+    <div>
+      <h3 class="supportedConversionsTitle">Supported OCR Conversions</h3>
+      <input
+        v-model="ocrConversionSearch"
+        class="supportedConversionsSearch"
+        type="search"
+        placeholder="Filter OCR conversions (example: bmp, txt, pdf)"
+        aria-label="Filter supported OCR conversions"
+      />
+      <div class="supportedConversionsListContainter">
+        <list :listOptions="ocrInputList" />
+        <list :listOptions="ocrOutputList" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -176,8 +209,8 @@
 import JSZip from "jszip";
 import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
-import Faq from "@/components/faq.vue";
 import Information from "@/components/information.vue";
+import List from "@/components/list.vue";
 import SearchableSelect from "@/components/searchable-select.vue";
 import { FILE_STATUS } from "@/js/constants";
 import { useMeta } from "vue-meta";
@@ -316,44 +349,9 @@ const OCR_LANGUAGES = [
   { code: 'msa',     name: 'Malay'                    },
 ];
 
-function buildFaqs() {
-  return [
-    {
-      question: 'What file formats can I use as input?',
-      answer: 'The OCR tool accepts JPG, JPEG, PNG, GIF, BMP, WebP, TIFF and PDF files. Multi-page PDFs are rendered page-by-page before recognition.',
-      open: false,
-    },
-    {
-      question: 'Are my files uploaded to a server?',
-      answer: 'No. All OCR processing runs locally in your browser using the Tesseract WebAssembly engine. Your files never leave your device.',
-      open: false,
-    },
-    {
-      question: 'How do I change the OCR language?',
-      answer: 'Use the Language selector in the tool. When you switch to a new language, Tesseract downloads the corresponding language data file (a few MB) on first use. Once cached, subsequent runs are instant.',
-      open: false,
-    },
-    {
-      question: 'Can I batch-process multiple files?',
-      answer: 'Yes. Add as many images or PDFs as you want, then click "Run OCR on All". Each file is processed in sequence and gets its own download link.',
-      open: false,
-    },
-    {
-      question: 'What output formats are available?',
-      answer: 'You can export to TXT, DOCX, PDF, XLSX, CSV, EPUB, RTF, ODT, HTML, Markdown, LaTeX, Org, AsciiDoc, MediaWiki, Textile, DocBook, FictionBook 2, TSV, ODS and reStructuredText. Document formats are converted via Pandoc; spreadsheet formats via SheetJS.',
-      open: false,
-    },
-    {
-      question: 'Why does PDF output take longer?',
-      answer: 'PDF output routes the OCR text through Pandoc and then the Typst WASM compiler to produce a properly typeset PDF. This requires loading the Typst runtime on first use.',
-      open: false,
-    },
-  ];
-}
-
 export default {
   name: 'Ocr',
-  components: { Card, Descriptor, Faq, Information, SearchableSelect },
+  components: { Card, Descriptor, Information, List, SearchableSelect },
   computed: {
     routeInputFormat() {
       const f = (this.$route.params.inputFormat || 'jpg').toLowerCase();
@@ -387,6 +385,32 @@ export default {
     },
     ocrOutputFormats() {
       return OCR_OUTPUT_FORMATS;
+    },
+    ocrInputList() {
+      const query = this.ocrConversionSearch.trim().toLowerCase();
+      return OCR_INPUT_FORMATS
+        .filter((format) => {
+          if (format.name === this.selectedInputFormat) return false;
+          if (!query) return true;
+          const itemText = `${format.name} ${format.title} ${this.selectedOutputFormat}`.toLowerCase();
+          return itemText.includes(query);
+        })
+        .map((format, index) => {
+          return `<a href="/ocr/${format.name}/${this.selectedOutputFormat}">${index + 1}. ${format.title} to ${this.selectedFormatInfo.title}</a>`;
+        });
+    },
+    ocrOutputList() {
+      const query = this.ocrConversionSearch.trim().toLowerCase();
+      return OCR_OUTPUT_FORMATS
+        .filter((format) => {
+          if (format.name === this.selectedOutputFormat) return false;
+          if (!query) return true;
+          const itemText = `${this.selectedInputFormat} ${format.name} ${format.title}`.toLowerCase();
+          return itemText.includes(query);
+        })
+        .map((format, index) => {
+          return `<a href="/ocr/${this.selectedInputFormat}/${format.name}">${index + 1}. ${this.selectedInputInfo.title} to ${format.title}</a>`;
+        });
     },
     processable() {
       return this.files.filter(f => f.status === FILE_STATUS.initialized || f.status === FILE_STATUS.failed);
@@ -468,7 +492,7 @@ export default {
       selectedLanguage: 'eng',
       isBuildingOutput: false,
       output: { blob: null, url: null, name: null },
-      faqs: buildFaqs(),
+      ocrConversionSearch: '',
     };
   },
   watch: {
@@ -531,10 +555,6 @@ export default {
       this.addFiles(e.target.files);
       e.target.value = '';
     },
-    toggleFaq(index) {
-      this.faqs[index].open = !this.faqs[index].open;
-    },
-
     // ── File management ────────────────────────────────────────────────────
     addFiles(fileList) {
       this.clearCombinedOutput();
@@ -1228,18 +1248,38 @@ export default {
   }
 }
 
-.faqSection {
+.supportedConversionsTitle {
   @include mid-width;
+  text-align: center;
+  font-size: 1.75rem;
   margin-top: 1.75rem;
   margin-bottom: 2rem;
-  padding: 0 0.25rem;
+  color: var(--text-primary);
+}
 
-  &__title {
-    text-align: center;
-    font-size: 1.75rem;
-    margin-bottom: 1rem;
-    color: var(--text-primary);
-  }
+.supportedConversionsSearch {
+  display: block;
+  width: min(28rem, 100%);
+  margin: 0 auto 0.85rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: $default-radius;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.supportedConversionsSearch:focus {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+
+.supportedConversionsListContainter {
+  display: flex;
+  justify-content: stretch;
+  gap: 2rem;
+  flex-direction: row;
 }
 
 @media only screen and (max-width: 55rem) {
@@ -1251,6 +1291,11 @@ export default {
 
   .downloadCard a {
     width: 100%;
+  }
+
+  .supportedConversionsListContainter {
+    flex-direction: column;
+    gap: 1rem;
   }
 }
 </style>
