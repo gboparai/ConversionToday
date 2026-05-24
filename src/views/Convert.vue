@@ -433,8 +433,8 @@ export default {
       if (this.mediaType === 'audio') return 'audio/*';
       if (this.mediaType === 'video') return 'video/*';
       if (this.mediaType === 'document') return '*/*';
-      if (this.mediaType === 'archive') return '.zip,.7z,.rar,.tar,.iso';
       if (this.mediaType === 'font') return '.ttf,.otf,.woff,.woff2,.eot,.svg';
+      if (this.mediaType === 'archive') return '.zip,.7z,.rar,.tar,.tar.gz,.tgz,.tar.bz2,.tbz2,.tar.xz,.txz,.iso';
       return 'image/*';
     },
     formatsKey() {

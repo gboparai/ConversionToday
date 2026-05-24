@@ -16,6 +16,11 @@ module.exports = {
         'libarchive.js',
         '7z-wasm',
         '@gcu/iso9660',
+        '@e965/xlsx',
+        '@jsquash/jpeg',
+        '@jsquash/png',
+        '@jsquash/webp',
+        '@jsquash/avif',
     ],
 
     pwa: {
