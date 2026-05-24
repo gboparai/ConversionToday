@@ -147,6 +147,54 @@ const copies = [
     src: path.join(root, 'node_modules', 'tesseract.js', 'dist', 'worker.min.js'),
     dest: path.join(root, 'public', 'vendor', 'tesseract', 'worker.min.js'),
   },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core.js'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core.wasm.js'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core.wasm.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core-lstm.js'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core-lstm.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core-lstm.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core-lstm.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core-lstm.wasm.js'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core-lstm.wasm.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core-simd.js'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core-simd.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core-simd.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core-simd.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core-simd.wasm.js'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core-simd.wasm.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core-simd-lstm.js'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core-simd-lstm.js'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core-simd-lstm.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core-simd-lstm.wasm'),
+  },
+  {
+    src: path.join(root, 'node_modules', 'tesseract.js-core', 'tesseract-core-simd-lstm.wasm.js'),
+    dest: path.join(root, 'public', 'vendor', 'tesseract-core', 'tesseract-core-simd-lstm.wasm.js'),
+  },
   // pdfjs-dist worker + main (loaded at runtime via webpackIgnore dynamic import)
   {
     src: path.join(root, 'node_modules', 'pdfjs-dist', 'build', 'pdf.mjs'),
@@ -212,5 +260,5 @@ for (const { src, dest } of copies) {
 
 // Download typst fonts (skipped if already present)
 Promise.all(TYPST_FONTS.map(({ url, dest }) => downloadFile(url, dest)))
-  .then(() => console.log('Synced local FFmpeg, Pandoc, archive, font runtime assets, Typst assets and fonts to public/vendor.'))
+  .then(() => console.log('Synced local FFmpeg, Pandoc, archive, font, Tesseract, Typst assets and fonts to public/vendor.'))
   .catch((err) => { console.error('Failed to download typst font:', err.message); process.exit(1); });

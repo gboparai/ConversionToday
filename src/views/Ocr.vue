@@ -463,6 +463,7 @@ export default {
     // Non-reactive worker references
     this.tesseractWorkerRef = null;
     this.tesseractLanguageRef = null;
+    this.tesseractProgressCallback = null;
     this.docWorkerRef = null;
     this.docWorkerReady = false;
     this.pendingConversions = new Map();
@@ -630,6 +631,7 @@ export default {
 
     // ── Tesseract helpers ──────────────────────────────────────────────────
     async _getTesseractWorker(language, onProgress) {
+      this.tesseractProgressCallback = onProgress || null;
       if (this.tesseractWorkerRef && this.tesseractLanguageRef === language) {
         return this.tesseractWorkerRef;
       }
@@ -640,10 +642,12 @@ export default {
       const { createWorker } = await import('tesseract.js');
       const worker = await createWorker(language, 1, {
         workerPath: `${window.location.origin}/vendor/tesseract/worker.min.js`,
+        corePath: `${window.location.origin}/vendor/tesseract-core`,
         langPath: 'https://tessdata.projectnaptha.com/4.0.0',
         logger: (m) => {
-          if (m.status === 'recognizing text' && onProgress) {
-            onProgress(Math.round(m.progress * 100));
+          const progressCallback = this.tesseractProgressCallback;
+          if (m.status === 'recognizing text' && progressCallback) {
+            progressCallback(Math.round(m.progress * 100));
           }
         },
       });
