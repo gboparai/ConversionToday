@@ -3,7 +3,6 @@ import opentype from 'opentype.js';
 
 let processQueue = Promise.resolve();
 let fonteditorWoff2Ready = false;
-let fontforgeInstancePromise = null;
 
 const FONTEDITOR_SUPPORTED_INPUTS = new Set(['ttf', 'otf', 'woff', 'woff2', 'eot', 'svg']);
 const FONTEDITOR_SUPPORTED_OUTPUTS = new Set(['ttf', 'woff', 'woff2', 'eot', 'svg']);
@@ -79,7 +78,7 @@ async function ensureWoff2Ready(inputExtension, outputExtension) {
     if (!needsWoff2 || fonteditorWoff2Ready) return;
 
     const wasmUrl = getWoff2WasmUrl();
-    await fetchVerifiedWasm(wasmUrl);
+    const wasmBinary = await fetchVerifiedWasm(wasmUrl);
 
     // fonteditor-core checks for `window` to detect browser mode; in Web Workers
     // `window` is undefined, so we provide an alias to avoid node-style loading.
@@ -87,9 +86,16 @@ async function ensureWoff2Ready(inputExtension, outputExtension) {
     if (!hadWindow) {
         self.window = self;
     }
+    let wasmBlobUrl = null;
     try {
-        await woff2.init(wasmUrl);
+        // Use a blob URL so fonteditor-core stays in browser mode without
+        // re-fetching the original network URL.
+        wasmBlobUrl = URL.createObjectURL(new Blob([wasmBinary], { type: 'application/wasm' }));
+        await woff2.init(wasmBlobUrl);
     } finally {
+        if (wasmBlobUrl) {
+            URL.revokeObjectURL(wasmBlobUrl);
+        }
         if (!hadWindow) {
             delete self.window;
         }
@@ -138,52 +144,6 @@ async function convertWithOpenType(file, config, id, inputExtension, outputExten
     return new Blob([outputBuffer], { type: resolveMimeType(config, outputExtension) });
 }
 
-async function getFontforgeWasm() {
-    if (!fontforgeInstancePromise) {
-        fontforgeInstancePromise = import(
-            /* webpackIgnore: true */ `${self.location.origin}/vendor/fontforge/fontforge.js`
-        ).then(async (module) => {
-            const factory =
-                module.default
-                || module.createFontForge
-                || module.createFontforge
-                || module.initFontForge
-                || module;
-            if (typeof factory === 'function') {
-                return factory({
-                    wasmURL: `${self.location.origin}/vendor/fontforge/fontforge.wasm`,
-                });
-            }
-            return factory;
-        });
-    }
-    return fontforgeInstancePromise;
-}
-
-async function convertWithFontforge(file, config, inputExtension, outputExtension) {
-    const sourceBytes = new Uint8Array(await file.arrayBuffer());
-    const fontforge = await getFontforgeWasm();
-
-    if (fontforge && typeof fontforge.convert === 'function') {
-        const result = await fontforge.convert({
-            input: sourceBytes,
-            inputFormat: inputExtension,
-            outputFormat: outputExtension,
-        });
-        return new Blob([toArrayBuffer(result)], { type: resolveMimeType(config, outputExtension) });
-    }
-
-    if (fontforge && typeof fontforge.transcode === 'function') {
-        const result = await fontforge.transcode(sourceBytes, {
-            from: inputExtension,
-            to: outputExtension,
-        });
-        return new Blob([toArrayBuffer(result)], { type: resolveMimeType(config, outputExtension) });
-    }
-
-    throw new Error('FontForge WASM runtime is unavailable or has an unsupported API');
-}
-
 async function handleMessage(data) {
     const { action, file, config, id } = data;
 
@@ -224,12 +184,19 @@ async function handleMessage(data) {
                 try {
                     outputBlob = await convertWithFonteditor(file, config, id, inputExtension, outputExtension);
                 } catch (fonteditorErr) {
-                    console.warn(
-                        `fonteditor-core conversion failed for ${inputExtension} -> ${outputExtension}, trying FontForge WASM fallback:`,
-                        fonteditorErr
-                    );
-                    emitProgress(id, 0.55);
-                    outputBlob = await convertWithFontforge(file, config, inputExtension, outputExtension);
+                    const pairSupportedByFonteditor =
+                        FONTEDITOR_SUPPORTED_INPUTS.has(inputExtension)
+                        && FONTEDITOR_SUPPORTED_OUTPUTS.has(outputExtension);
+                    if (!pairSupportedByFonteditor) {
+                        throw new Error(
+                            `Unsupported font conversion ${inputExtension} -> ${outputExtension}. ` +
+                            `OpenType.js and fonteditor-core do not support this pair.`
+                        );
+                    }
+                    const details = fonteditorErr && fonteditorErr.message
+                        ? fonteditorErr.message
+                        : String(fonteditorErr);
+                    throw new Error(`Font conversion failed for ${inputExtension} -> ${outputExtension}: ${details}`);
                 }
             }
 

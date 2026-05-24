@@ -198,7 +198,5 @@ for (const { src, dest } of copies) {
 
 // Download typst fonts (skipped if already present)
 Promise.all(TYPST_FONTS.map(({ url, dest }) => downloadFile(url, dest)))
-  .then(() => console.log('Synced local FFmpeg, Pandoc, Typst assets and fonts to public/vendor.'))
+  .then(() => console.log('Synced local FFmpeg, Pandoc, archive, font runtime assets, Typst assets and fonts to public/vendor.'))
   .catch((err) => { console.error('Failed to download typst font:', err.message); process.exit(1); });
-
-console.log('Synced local FFmpeg, Pandoc, archive, and font runtime assets to public/vendor.');

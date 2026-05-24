@@ -18,7 +18,7 @@
     <information>
       <template #header>Smart Engine Priority</template>
       <template #description>
-        Uses fonteditor-core first for overlapping formats and falls back to FontForge WASM when needed.
+        Uses OpenType.js for OTF-priority paths and fonteditor-core for broad web font conversions.
       </template>
     </information>
     <information>
@@ -61,47 +61,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "src/styles/_utilities";
-
-.mediaTypeNav {
-  @include mid-width;
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-
-  &__card {
-    flex: 1;
-    max-width: 10rem;
-    text-align: center;
-    padding: 0.6rem 1rem;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    text-decoration: none;
-    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
-    box-shadow: var(--shadow-sm);
-
-    &:hover {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-    }
-
-    &--active {
-      border-color: var(--accent);
-      font-weight: 900;
-    }
-  }
-}
-
-@media only screen and (max-width: 55rem) {
-  .mediaTypeNav {
-    padding: 0 1.25rem;
-  }
-}
 </style>
