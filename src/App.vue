@@ -2,14 +2,42 @@
   <nav id="nav">
     <div class="nav__links">
       <router-link to="/" exact-active-class="router-link-active">Home</router-link>
-      <router-link to="/image">Image</router-link>
-      <router-link to="/compression">Compression</router-link>
-      <router-link to="/merge">Merge</router-link>
-      <router-link to="/ocr">OCR</router-link>
-      <router-link to="/audio">Audio</router-link>
-      <router-link to="/video">Video</router-link>
-      <router-link to="/document">Document</router-link>
-      <router-link to="/archive">Archive</router-link>
+
+      <div
+        class="navDropdown"
+        :class="{ 'is-open': activeDropdown === 'convert' }"
+        @mouseenter="openDropdown('convert')"
+        @mouseleave="closeDropdown('convert')"
+        @focusin="openDropdown('convert')"
+        @focusout="handleDropdownFocusOut($event, 'convert')"
+      >
+        <button type="button" class="navDropdown__trigger">Convert</button>
+        <div class="navDropdown__menu">
+          <router-link to="/image">Image</router-link>
+          <router-link to="/audio">Audio</router-link>
+          <router-link to="/video">Video</router-link>
+          <router-link to="/document">Document</router-link>
+          <router-link to="/archive">Archive</router-link>
+          <router-link to="/font">Font</router-link>
+        </div>
+      </div>
+
+      <div
+        class="navDropdown"
+        :class="{ 'is-open': activeDropdown === 'tools' }"
+        @mouseenter="openDropdown('tools')"
+        @mouseleave="closeDropdown('tools')"
+        @focusin="openDropdown('tools')"
+        @focusout="handleDropdownFocusOut($event, 'tools')"
+      >
+        <button type="button" class="navDropdown__trigger">Tools</button>
+        <div class="navDropdown__menu">
+          <router-link to="/compression">Compression</router-link>
+          <router-link to="/merge">Merge</router-link>
+          <router-link to="/ocr">OCR</router-link>
+        </div>
+      </div>
+
       <router-link to="/about">About</router-link>
       <router-link to="/FAQ">FAQ</router-link>
       <a
@@ -104,6 +132,7 @@ a {
   z-index: 100;
   .nav__links {
     display: flex;
+    align-items: center;
     gap: 1.5rem;
     margin-right: auto;
 
@@ -119,6 +148,74 @@ a {
       &.router-link-active {
         color: var(--text-primary);
         border-bottom-color: var(--accent);
+      }
+    }
+
+    .navDropdown {
+      position: relative;
+
+      &__trigger {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 0.9rem;
+        font-family: inherit;
+        padding: 0.25rem 0;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.15s, border-color 0.15s;
+
+        &:hover {
+          color: var(--text-primary);
+          border-bottom-color: var(--accent);
+        }
+      }
+
+      &.is-open > .navDropdown__trigger {
+        color: var(--text-primary);
+        border-bottom-color: var(--accent);
+      }
+
+      &__menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 10rem;
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: $default-radius;
+        box-shadow: var(--shadow-md);
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        z-index: 150;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(4px);
+        transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+
+        a {
+          padding: 0.45rem 0.6rem;
+          border-radius: calc(#{$default-radius} - 2px);
+          border-bottom: none;
+
+          &:hover,
+          &.router-link-active {
+            background-color: var(--bg-surface-hover);
+            border-bottom: none;
+          }
+        }
+      }
+
+      &.is-open > .navDropdown__menu {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
       }
     }
   }
@@ -176,8 +273,18 @@ a {
   }
   #nav {
     padding: 0 1rem;
+    height: auto;
+    min-height: 3.5rem;
     .nav__links {
+      flex-wrap: wrap;
       gap: 1rem;
+
+      .navDropdown {
+        &__menu {
+          left: auto;
+          right: 0;
+        }
+      }
     }
   }
 }
@@ -231,6 +338,7 @@ export default {
       cornerColor: "#ffffff",
       cornerPosition: "right",
       isDark: true,
+      activeDropdown: null,
     };
   },
   setup() {
@@ -258,6 +366,18 @@ export default {
         "data-theme",
         prefersDark ? "dark" : "light"
       );
+    },
+    openDropdown(name) {
+      this.activeDropdown = name;
+    },
+    closeDropdown(name) {
+      if (this.activeDropdown === name) this.activeDropdown = null;
+    },
+    handleDropdownFocusOut(event, name) {
+      const nextTarget = event.relatedTarget;
+      if (!nextTarget || !event.currentTarget.contains(nextTarget)) {
+        this.closeDropdown(name);
+      }
     },
   },
   computed: {

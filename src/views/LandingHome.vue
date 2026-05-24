@@ -7,53 +7,62 @@
     </template>
   </descriptor>
 
-  <div class="mediaHub">
-    <a class="mediaHub__card" href="/image">
-      <span class="mediaHub__icon">🖼️</span>
-      <h2>Image Converter</h2>
-      <p>Convert JPG, PNG, GIF, WEBP, TIFF, SVG and many more image formats.</p>
-    </a>
-    <a class="mediaHub__card" href="/audio">
-      <span class="mediaHub__icon">🎵</span>
-      <h2>Audio Converter</h2>
-      <p>Convert MP3, WAV, OGG, FLAC, AAC, M4A, Opus and more in-browser.</p>
-    </a>
-    <a class="mediaHub__card" href="/video">
-      <span class="mediaHub__icon">🎬</span>
-      <h2>Video Converter</h2>
-      <p>Convert MP4, WebM, MOV, AVI, MKV and other common video formats.</p>
-    </a>
-    <a class="mediaHub__card" href="/document">
-      <span class="mediaHub__icon">📄</span>
-      <h2>Document Converter</h2>
-      <p>Convert Markdown, HTML, DOCX, ODT, LaTeX, EPUB, RST, Org-mode and 30+ more document formats.</p>
-    </a>
-    <a class="mediaHub__card" href="/archive">
-      <span class="mediaHub__icon">🗜️</span>
-      <h2>Archive Converter</h2>
-      <p>Convert ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO archives in-browser.</p>
-    </a>
-    <a class="mediaHub__card" href="/compression">
-      <span class="mediaHub__icon">🧰</span>
-      <h2>Image Compression</h2>
-      <p>Compress JPG, PNG, WEBP and AVIF files locally with before/after preview.</p>
-    </a>
-    <a class="mediaHub__card" href="/merge">
-      <span class="mediaHub__icon">🧩</span>
-      <h2>File Merge Tool</h2>
-      <p>Merge audio, video, archive and supported document files into one downloadable output.</p>
-    </a>
-    <a class="mediaHub__card" href="/ocr">
-      <span class="mediaHub__icon">🔍</span>
-      <h2>OCR Tool</h2>
-      <p>Extract text from images and PDFs using Tesseract OCR. Export as TXT, DOCX, PDF, XLSX, CSV, EPUB and more.</p>
-    </a>
-    <a class="mediaHub__card" href="/font">
-      <span class="mediaHub__icon">🔤</span>
-      <h2>Font Converter</h2>
-      <p>Convert TTF, OTF, WOFF, WOFF2, EOT and SVG fonts directly in your browser.</p>
-    </a>
-  </div>
+  <section class="mediaSection">
+    <h2 class="mediaSection__title">Convert</h2>
+    <div class="mediaHub">
+      <a class="mediaHub__card" href="/image">
+        <span class="mediaHub__icon">🖼️</span>
+        <h2>Image Converter</h2>
+        <p>Convert JPG, PNG, GIF, WEBP, TIFF, SVG and many more image formats.</p>
+      </a>
+      <a class="mediaHub__card" href="/audio">
+        <span class="mediaHub__icon">🎵</span>
+        <h2>Audio Converter</h2>
+        <p>Convert MP3, WAV, OGG, FLAC, AAC, M4A, Opus and more in-browser.</p>
+      </a>
+      <a class="mediaHub__card" href="/video">
+        <span class="mediaHub__icon">🎬</span>
+        <h2>Video Converter</h2>
+        <p>Convert MP4, WebM, MOV, AVI, MKV and other common video formats.</p>
+      </a>
+      <a class="mediaHub__card" href="/document">
+        <span class="mediaHub__icon">📄</span>
+        <h2>Document Converter</h2>
+        <p>Convert Markdown, HTML, DOCX, ODT, LaTeX, EPUB, RST, Org-mode and 30+ more document formats.</p>
+      </a>
+      <a class="mediaHub__card" href="/archive">
+        <span class="mediaHub__icon">🗜️</span>
+        <h2>Archive Converter</h2>
+        <p>Convert ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO archives in-browser.</p>
+      </a>
+      <a class="mediaHub__card" href="/font">
+        <span class="mediaHub__icon">🔤</span>
+        <h2>Font Converter</h2>
+        <p>Convert TTF, OTF, WOFF, WOFF2, EOT and SVG fonts directly in your browser.</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="mediaSection">
+    <h2 class="mediaSection__title">Tools</h2>
+    <div class="mediaHub">
+      <a class="mediaHub__card" href="/compression">
+        <span class="mediaHub__icon">🧰</span>
+        <h2>Image Compression</h2>
+        <p>Compress JPG, PNG, WEBP and AVIF files locally with before/after preview.</p>
+      </a>
+      <a class="mediaHub__card" href="/merge">
+        <span class="mediaHub__icon">🧩</span>
+        <h2>File Merge Tool</h2>
+        <p>Merge audio, video, archive and supported document files into one downloadable output.</p>
+      </a>
+      <a class="mediaHub__card" href="/ocr">
+        <span class="mediaHub__icon">🔍</span>
+        <h2>OCR Tool</h2>
+        <p>Extract text from images and PDFs using Tesseract OCR. Export as TXT, DOCX, PDF, XLSX, CSV, EPUB and more.</p>
+      </a>
+    </div>
+  </section>
 
   <div class="infomationContainer">
     <information>
@@ -189,6 +198,17 @@ export default {
   }
 }
 
+.mediaSection {
+  margin-bottom: 1rem;
+
+  &__title {
+    @include mid-width;
+    margin: 0 auto 0.8rem;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+  }
+}
+
 @media only screen and (max-width: 90rem) {
   .mediaHub {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -198,6 +218,10 @@ export default {
 @media only screen and (max-width: 55rem) {
   .mediaHub {
     grid-template-columns: 1fr;
+    padding: 0 1.25rem;
+  }
+
+  .mediaSection__title {
     padding: 0 1.25rem;
   }
 }
