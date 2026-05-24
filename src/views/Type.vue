@@ -211,6 +211,7 @@ export default {
       if (path.startsWith('/video')) return 'video';
       if (path.startsWith('/document')) return 'document';
       if (path.startsWith('/archive')) return 'archive';
+      if (path.startsWith('/font')) return 'font';
       return 'image';
     },
     mediaHomePath() {
@@ -221,6 +222,7 @@ export default {
       if (this.mediaType === 'video') return 'videoFormats';
       if (this.mediaType === 'document') return 'documentFormats';
       if (this.mediaType === 'archive') return 'archiveFormats';
+      if (this.mediaType === 'font') return 'fontFormats';
       return 'formats';
     },
     formatInofo() {

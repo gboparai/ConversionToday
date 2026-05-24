@@ -9,6 +9,7 @@ const AudioHome = () => import('../views/AudioHome.vue')
 const VideoHome = () => import('../views/VideoHome.vue')
 const DocumentHome = () => import('../views/DocumentHome.vue')
 const ArchiveHome = () => import('../views/ArchiveHome.vue')
+const FontHome = () => import('../views/FontHome.vue')
 const Compression = () => import('../views/Compression.vue')
 const CompressionHome = () => import('../views/CompressionHome.vue')
 const Merge = () => import('../views/Merge.vue')
@@ -120,6 +121,22 @@ const routes = [
   {
     path: '/archive/:format/:format2',
     name: 'ArchiveConversion',
+    component: Convert
+  },
+  // ── Font routes ───────────────────────────────────────────────────────────
+  {
+    path: '/font',
+    name: 'FontHome',
+    component: FontHome
+  },
+  {
+    path: '/font/:format',
+    name: 'FontFormat',
+    component: Type
+  },
+  {
+    path: '/font/:format/:format2',
+    name: 'FontConversion',
     component: Convert
   },
   {

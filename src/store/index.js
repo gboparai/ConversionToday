@@ -4,6 +4,7 @@ import AudioWorker from 'worker-loader!@/js/audio-worker';
 import VideoWorker from 'worker-loader!@/js/video-worker';
 import DocWorker from 'worker-loader!@/js/doc-worker';
 import ArchiveWorker from 'worker-loader!@/js/archive-worker';
+import FontWorker from 'worker-loader!@/js/font-worker';
 import MergeWorker from 'worker-loader!@/js/merge-worker';
 import { FILE_STATUS } from '@/js/constants';
 import { MagickFormat } from "@imagemagick/magick-wasm/magick-format";
@@ -1438,6 +1439,67 @@ export default createStore({
             },
         ],
 
+        // ── Font ─────────────────────────────────────────────────────────────
+        fontFiles: [],
+        fontNextIndex: 0,
+        fontWorker: null,
+        fontConfig: { format: null, inputFormat: null },
+        fontFormats: [
+            {
+                name: 'ttf',
+                extension: 'ttf',
+                title: 'TrueType Font',
+                description: 'A widely supported outline font format used on desktop and web platforms.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'font/ttf',
+            },
+            {
+                name: 'otf',
+                extension: 'otf',
+                title: 'OpenType Font',
+                description: 'OpenType font format with advanced typographic capabilities and broad desktop support.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'font/otf',
+            },
+            {
+                name: 'woff',
+                extension: 'woff',
+                title: 'Web Open Font Format',
+                description: 'A compressed web font format used by all modern browsers.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'font/woff',
+            },
+            {
+                name: 'woff2',
+                extension: 'woff2',
+                title: 'Web Open Font Format 2',
+                description: 'The modern highly-compressed web font format for fast font delivery.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'font/woff2',
+            },
+            {
+                name: 'eot',
+                extension: 'eot',
+                title: 'Embedded OpenType',
+                description: 'Legacy web font format used by older versions of Internet Explorer.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.ms-fontobject',
+            },
+            {
+                name: 'svg',
+                extension: 'svg',
+                title: 'SVG Font',
+                description: 'XML-based font format historically used on the web and supported by conversion engines.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'image/svg+xml',
+            },
+        ],
         // ── Merge ────────────────────────────────────────────────────────────
         mergeFiles: [],
         mergeNextIndex: 0,
@@ -1662,6 +1724,52 @@ export default createStore({
             state.archiveConfig.inputFormat = format;
         },
 
+        // ── Font mutations ───────────────────────────────────────────────────
+        addFontFile(state, fileObject) {
+            state.fontFiles.push(fileObject);
+        },
+        clearFontFiles(state) {
+            state.fontFiles = [];
+            state.fontNextIndex = 0;
+        },
+        setFontData(state, { id, data }) {
+            let file = state.fontFiles.find(f => f.id === id);
+            if (!file) return;
+            file.output.blob = data.output;
+            file.output.config = data.config;
+        },
+        setFontUrl(state, { id, url }) {
+            let file = state.fontFiles.find(f => f.id === id);
+            if (!file) return;
+            file.output.url = url;
+        },
+        setFontName(state, { id, name }) {
+            let file = state.fontFiles.find(f => f.id === id);
+            if (!file) return;
+            file.output.name = name;
+        },
+        setFontStatus(state, { id, status }) {
+            let file = state.fontFiles.find(f => f.id === id);
+            if (!file) return;
+            file.status = status;
+        },
+        setFontProgress(state, { id, progress }) {
+            let file = state.fontFiles.find(f => f.id === id);
+            if (!file) return;
+            file.progress = Math.max(0, Math.min(100, progress));
+        },
+        removeFontFile(state, id) {
+            state.fontFiles = state.fontFiles.filter(f => f.id !== id);
+        },
+        incrementFontId(state) {
+            state.fontNextIndex++;
+        },
+        setFontFormat(state, format) {
+            state.fontConfig.format = format;
+        },
+        setFontInputFormat(state, format) {
+            state.fontConfig.inputFormat = format;
+        },
         // ── Merge mutations ──────────────────────────────────────────────────
         setMergeFamily(state, family) {
             state.mergeConfig.family = family;
@@ -2133,6 +2241,89 @@ export default createStore({
             context.commit('setArchiveStatus', { id, status: FILE_STATUS.processing });
         },
 
+        // ── Font actions ─────────────────────────────────────────────────────
+        loadFontWorker(context) {
+            if (context.state.fontWorker) return;
+            const worker = new FontWorker();
+            context.state.fontWorker = worker;
+            worker.postMessage({ action: 'load' });
+            worker.onmessage = (e) => {
+                const { status, id } = e.data;
+                let processMore = false;
+                if (status === 'progress') {
+                    context.commit('setFontProgress', { id, progress: e.data.progress });
+                } else if (status === 'processed') {
+                    context.commit('setFontProgress', { id, progress: 100 });
+                    context.commit('setFontStatus', { id, status: FILE_STATUS.processed });
+                    context.commit('setFontData', { id, data: e.data });
+                    processMore = true;
+                } else if (status === 'failed') {
+                    context.commit('setFontStatus', { id, status: FILE_STATUS.failed });
+                    processMore = true;
+                }
+                if (processMore) context.dispatch('processAllWaitingFont');
+            };
+        },
+        clearFontFiles(context) {
+            context.commit('clearFontFiles');
+        },
+        setFontFormat(context, format) {
+            context.commit('setFontFormat', format);
+        },
+        setFontInputFormat(context, format) {
+            context.commit('setFontInputFormat', format);
+        },
+        addFontFile(context, file) {
+            const fileObject = {
+                id: context.state.fontNextIndex,
+                ogFile: file,
+                name: file.name,
+                status: FILE_STATUS.initialized,
+                progress: 0,
+                output: { blob: null, name: null, url: null, config: null },
+                process: [],
+            };
+            context.commit('incrementFontId');
+            context.commit('addFontFile', fileObject);
+        },
+        async addFontFiles(context, files) {
+            for (let i = 0; i < files.length; i++) {
+                context.dispatch('addFontFile', files[i]);
+                await new Promise(r => setTimeout(r, 16));
+            }
+        },
+        processAllFontFiles(context) {
+            const notProcessed = context.state.fontFiles.filter(
+                f => f.status === FILE_STATUS.initialized
+            );
+            notProcessed.forEach(f => {
+                context.commit('setFontStatus', { id: f.id, status: FILE_STATUS.waiting });
+            });
+            context.dispatch('processAllWaitingFont');
+        },
+        processAllWaitingFont(context) {
+            const running = context.state.fontFiles.filter(
+                f => f.status === FILE_STATUS.processing
+            ).length;
+            const maxInFlight = 1;
+            for (let i = 0; i < maxInFlight - running; i++) {
+                const waiting = context.state.fontFiles.find(f => f.status === FILE_STATUS.waiting);
+                if (!waiting) break;
+                context.dispatch('processFontFile', waiting.id);
+            }
+        },
+        processFontFile(context, id) {
+            const file = context.state.fontFiles.find(f => f.id === id);
+            const config = clone(context.state.fontConfig);
+            context.state.fontWorker.postMessage({
+                action: 'process',
+                file: file.ogFile,
+                id: file.id,
+                config,
+            });
+            context.commit('setFontProgress', { id, progress: 0 });
+            context.commit('setFontStatus', { id, status: FILE_STATUS.processing });
+    },
         // ── Merge actions ────────────────────────────────────────────────────
         loadMergeWorker(context) {
             if (context.state.mergeWorker) return;

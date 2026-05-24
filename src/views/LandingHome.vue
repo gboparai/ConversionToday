@@ -43,6 +43,11 @@
       <h2>File Merge Tool</h2>
       <p>Merge audio, video, archive and supported document files into one downloadable output.</p>
     </a>
+    <a class="mediaHub__card" href="/font">
+      <span class="mediaHub__icon">🔤</span>
+      <h2>Font Converter</h2>
+      <p>Convert TTF, OTF, WOFF, WOFF2, EOT and SVG fonts directly in your browser.</p>
+    </a>
   </div>
 
   <div class="infomationContainer">
@@ -88,7 +93,7 @@ export default {
         {
           name: "description",
           content:
-             "Convert image, audio, video, document and archive files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Convert image, audio, video, document, archive and font files online for free with local browser-based processing. No uploads, limits or signups.",
         },
         { name: "twitter:card", content: "summary" },
         {
@@ -98,7 +103,7 @@ export default {
         {
           name: "twitter:description",
           content:
-             "Convert image, audio, video, document and archive files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Convert image, audio, video, document, archive and font files online for free with local browser-based processing. No uploads, limits or signups.",
         },
         {
           name: "twitter:image",
@@ -117,7 +122,7 @@ export default {
         {
           property: "og:description",
           content:
-             "Convert image, audio, video, document and archive files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Convert image, audio, video, document, archive and font files online for free with local browser-based processing. No uploads, limits or signups.",
         },
       ],
       link: [
@@ -176,6 +181,12 @@ export default {
     display: inline-block;
     font-size: 2rem;
     margin-bottom: 0.75rem;
+  }
+}
+
+@media only screen and (max-width: 90rem) {
+  .mediaHub {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

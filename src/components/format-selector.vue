@@ -140,6 +140,7 @@ export default {
       if (this.mediaType === 'video') return 'videoFormats';
       if (this.mediaType === 'document') return 'documentFormats';
       if (this.mediaType === 'archive') return 'archiveFormats';
+      if (this.mediaType === 'font') return 'fontFormats';
       return 'formats';
     },
     formatOptions() {

@@ -415,6 +415,7 @@ export default {
       if (path.startsWith('/video')) return 'video';
       if (path.startsWith('/document')) return 'document';
       if (path.startsWith('/archive')) return 'archive';
+      if (path.startsWith('/font')) return 'font';
       return 'image';
     },
     mediaHomePath() {
@@ -425,12 +426,19 @@ export default {
       if (this.mediaType === 'video') return 'Video Files';
       if (this.mediaType === 'document') return 'Documents';
       if (this.mediaType === 'archive') return 'Archives';
+      if (this.mediaType === 'font') return 'Font Files';
       return 'Images';
     },
     acceptMimeTypes() {
       if (this.mediaType === 'audio') return 'audio/*';
       if (this.mediaType === 'video') return 'video/*';
       if (this.mediaType === 'document') return '*/*';
+      if (this.mediaType === 'font') {
+        const extensions = this.$store.state.fontFormats
+          .map((format) => String(format.extension || '').trim().toLowerCase())
+          .filter((extension, index, list) => extension && list.indexOf(extension) === index);
+        return extensions.map((extension) => `.${extension}`).join(',');
+      }
       if (this.mediaType === 'archive') return '.zip,.7z,.rar,.tar,.tar.gz,.tgz,.tar.bz2,.tbz2,.tar.xz,.txz,.iso';
       return 'image/*';
     },
@@ -439,6 +447,7 @@ export default {
       if (this.mediaType === 'video') return 'videoFormats';
       if (this.mediaType === 'document') return 'documentFormats';
       if (this.mediaType === 'archive') return 'archiveFormats';
+      if (this.mediaType === 'font') return 'fontFormats';
       return 'formats';
     },
     files() {
@@ -446,6 +455,7 @@ export default {
       if (this.mediaType === 'video') return this.$store.state.videoFiles;
       if (this.mediaType === 'document') return this.$store.state.documentFiles;
       if (this.mediaType === 'archive') return this.$store.state.archiveFiles;
+      if (this.mediaType === 'font') return this.$store.state.fontFiles;
       return this.$store.state.files;
     },
     nonProcessed() {
@@ -470,7 +480,7 @@ export default {
       const query = this.conversionSearch.trim().toLowerCase();
       return this.$store.state[this.formatsKey]
         .filter((format) => {
-          if (format.name == this.$route.params.format) return false;
+          if (format.name == this.$route.params.format || format.canConvertTo === false) return false;
           if (!query) return true;
           const itemText = `${this.format} ${format.name}`.toLowerCase();
           return itemText.includes(query);
@@ -485,8 +495,8 @@ export default {
       const query = this.conversionSearch.trim().toLowerCase();
       return this.$store.state[this.formatsKey]
         .filter((format) => {
-          // Exclude output-only formats and input-only formats, and the currently selected output format.
-          if (format.canConvertFrom === false || format.canConvertTo === false || format.name == this.$route.params.format2) {
+          // Exclude input-disabled formats and the currently selected output format.
+          if (format.canConvertFrom === false || format.name == this.$route.params.format2) {
             return false;
           }
           if (!query) return true;
@@ -502,7 +512,7 @@ export default {
     formats1() {
       return this.$store.state[this.formatsKey].filter((format) => {
         return (
-          format.canConvertFrom !== false && format.canConvertTo !== false && format.name != this.$route.params.format2
+          format.canConvertFrom !== false && format.name != this.$route.params.format2
         );
       });
     },
@@ -521,6 +531,8 @@ export default {
         this.$store.dispatch("addDocumentFiles", e.target.files);
       } else if (this.mediaType === 'archive') {
         this.$store.dispatch("addArchiveFiles", e.target.files);
+      } else if (this.mediaType === 'font') {
+        this.$store.dispatch("addFontFiles", e.target.files);
       } else {
         this.$store.dispatch("addFiles", e.target.files);
       }
@@ -535,6 +547,8 @@ export default {
         this.$store.dispatch("addDocumentFiles", e.dataTransfer.files);
       } else if (this.mediaType === 'archive') {
         this.$store.dispatch("addArchiveFiles", e.dataTransfer.files);
+      } else if (this.mediaType === 'font') {
+        this.$store.dispatch("addFontFiles", e.dataTransfer.files);
       } else {
         this.$store.dispatch("addFiles", e.dataTransfer.files);
       }
@@ -563,6 +577,8 @@ export default {
         this.$store.dispatch("processAllDocumentFiles");
       } else if (this.mediaType === 'archive') {
         this.$store.dispatch("processAllArchiveFiles");
+      } else if (this.mediaType === 'font') {
+        this.$store.dispatch("processAllFontFiles");
       } else {
         this.$store.dispatch("processAllFiles", {
           format: this.selectedFormat,
@@ -615,6 +631,8 @@ export default {
         this.$store.dispatch("clearDocumentFiles");
       } else if (this.mediaType === 'archive') {
         this.$store.dispatch("clearArchiveFiles");
+      } else if (this.mediaType === 'font') {
+        this.$store.dispatch("clearFontFiles");
       } else {
         this.$store.dispatch("clearFiles");
       }
@@ -648,6 +666,10 @@ export default {
       this.$store.dispatch("setArchiveFormat", this.formatInofo2);
       this.$store.dispatch("setArchiveInputFormat", this.formatInofo);
       this.$store.dispatch("loadArchiveWorker");
+    } else if (this.mediaType === 'font') {
+      this.$store.dispatch("setFontFormat", this.formatInofo2);
+      this.$store.dispatch("setFontInputFormat", this.formatInofo);
+      this.$store.dispatch("loadFontWorker");
     } else {
       this.$store.dispatch("setFormat", this.formatInofo2);
       this.$store.dispatch("loadWorker");

@@ -138,8 +138,11 @@ const copies = [
     src: path.join(root, 'node_modules', '7z-wasm', '7zz.wasm'),
     dest: path.join(root, 'public', 'vendor', '7z', '7zz.wasm'),
   },
-
-  // jsquash codec wasm files (kept in a dedicated vendor subdirectory).
+  {
+    src: path.join(root, 'node_modules', 'fonteditor-core', 'woff2', 'woff2.wasm'),
+    dest: path.join(root, 'public', 'vendor', 'fonteditor', 'woff2.wasm'),
+  },
+   // jsquash codec wasm files (kept in a dedicated vendor subdirectory).
   {
     src: path.join(root, 'node_modules', '@jsquash', 'jpeg', 'codec', 'dec', 'mozjpeg_dec.wasm'),
     dest: path.join(root, 'public', 'vendor', 'jsquash', 'mozjpeg_dec.wasm'),
@@ -195,6 +198,5 @@ for (const { src, dest } of copies) {
 
 // Download typst fonts (skipped if already present)
 Promise.all(TYPST_FONTS.map(({ url, dest }) => downloadFile(url, dest)))
-  .then(() => console.log('Synced local FFmpeg, Pandoc, Typst assets and fonts to public/vendor.'))
+  .then(() => console.log('Synced local FFmpeg, Pandoc, archive, font runtime assets, Typst assets and fonts to public/vendor.'))
   .catch((err) => { console.error('Failed to download typst font:', err.message); process.exit(1); });
-
