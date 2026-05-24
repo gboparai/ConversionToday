@@ -4,6 +4,7 @@ import AudioWorker from 'worker-loader!@/js/audio-worker';
 import VideoWorker from 'worker-loader!@/js/video-worker';
 import DocWorker from 'worker-loader!@/js/doc-worker';
 import ArchiveWorker from 'worker-loader!@/js/archive-worker';
+import MergeWorker from 'worker-loader!@/js/merge-worker';
 import { FILE_STATUS } from '@/js/constants';
 import { MagickFormat } from "@imagemagick/magick-wasm/magick-format";
 
@@ -1436,6 +1437,17 @@ export default createStore({
                 mimeType: 'application/x-iso9660-image',
             },
         ],
+
+        // ── Merge ────────────────────────────────────────────────────────────
+        mergeFiles: [],
+        mergeNextIndex: 0,
+        mergeWorker: null,
+        mergeRunId: 0,
+        mergeConfig: { family: null, format: null },
+        mergeOutput: { blob: null, name: null, url: null, config: null },
+        mergeStatus: FILE_STATUS.initialized,
+        mergeProgress: 0,
+        mergeMessage: '',
     },
     mutations: {
 
@@ -1648,6 +1660,55 @@ export default createStore({
         },
         setArchiveInputFormat(state, format) {
             state.archiveConfig.inputFormat = format;
+        },
+
+        // ── Merge mutations ──────────────────────────────────────────────────
+        setMergeFamily(state, family) {
+            state.mergeConfig.family = family;
+        },
+        setMergeFormat(state, format) {
+            state.mergeConfig.format = format;
+        },
+        addMergeFile(state, fileObject) {
+            state.mergeFiles.push(fileObject);
+        },
+        incrementMergeNextIndex(state) {
+            state.mergeNextIndex++;
+        },
+        setMergeFiles(state, files) {
+            state.mergeFiles = files;
+        },
+        removeMergeFile(state, id) {
+            state.mergeFiles = state.mergeFiles.filter((file) => file.id !== id);
+        },
+        clearMergeFiles(state) {
+            state.mergeFiles = [];
+            state.mergeNextIndex = 0;
+            state.mergeStatus = FILE_STATUS.initialized;
+            state.mergeProgress = 0;
+            state.mergeMessage = '';
+            state.mergeOutput = { blob: null, name: null, url: null, config: null };
+        },
+        clearMergeOutput(state) {
+            state.mergeOutput = { blob: null, name: null, url: null, config: null };
+        },
+        setMergeStatus(state, status) {
+            state.mergeStatus = status;
+        },
+        setMergeProgress(state, progress) {
+            state.mergeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+        },
+        setMergeMessage(state, message) {
+            state.mergeMessage = message || '';
+        },
+        setMergeOutput(state, { blob, name, url, config }) {
+            state.mergeOutput = { blob, name, url, config };
+        },
+        incrementMergeRunId(state) {
+            state.mergeRunId++;
+        },
+        setMergeWorker(state, worker) {
+            state.mergeWorker = worker;
         },
     },
     actions: {
@@ -2070,6 +2131,118 @@ export default createStore({
             });
             context.commit('setArchiveProgress', { id, progress: 0 });
             context.commit('setArchiveStatus', { id, status: FILE_STATUS.processing });
+        },
+
+        // ── Merge actions ────────────────────────────────────────────────────
+        loadMergeWorker(context) {
+            if (context.state.mergeWorker) return;
+            const worker = new MergeWorker();
+            context.commit('setMergeWorker', worker);
+            worker.postMessage({ action: 'load' });
+            worker.onmessage = (e) => {
+                const { status, id } = e.data;
+                if ((status === 'progress' || status === 'processed' || status === 'failed') && id !== context.state.mergeRunId) {
+                    return;
+                }
+                if (status === 'progress') {
+                    context.commit('setMergeProgress', e.data.progress);
+                    context.commit('setMergeMessage', e.data.message);
+                    return;
+                }
+                if (status === 'processed') {
+                    const previousUrl = context.state.mergeOutput.url;
+                    if (previousUrl) URL.revokeObjectURL(previousUrl);
+                    const url = URL.createObjectURL(e.data.output);
+                    context.commit('setMergeOutput', {
+                        blob: e.data.output,
+                        name: e.data.outputName,
+                        url,
+                        config: e.data.config,
+                    });
+                    context.commit('setMergeProgress', 100);
+                    context.commit('setMergeMessage', 'Done');
+                    context.commit('setMergeStatus', FILE_STATUS.processed);
+                    return;
+                }
+                if (status === 'failed') {
+                    context.commit('setMergeStatus', FILE_STATUS.failed);
+                    context.commit('setMergeMessage', e.data.message || 'Merge failed');
+                }
+            };
+        },
+        clearMergeFiles(context) {
+            const previousUrl = context.state.mergeOutput.url;
+            if (previousUrl) URL.revokeObjectURL(previousUrl);
+            if (context.state.mergeStatus === FILE_STATUS.processing) {
+                context.commit('incrementMergeRunId');
+            }
+            context.commit('clearMergeFiles');
+        },
+        resetMergeResult(context) {
+            const previousUrl = context.state.mergeOutput.url;
+            if (previousUrl) URL.revokeObjectURL(previousUrl);
+            if (context.state.mergeStatus === FILE_STATUS.processing) {
+                context.commit('incrementMergeRunId');
+            }
+            context.commit('clearMergeOutput');
+            context.commit('setMergeStatus', FILE_STATUS.initialized);
+            context.commit('setMergeProgress', 0);
+            context.commit('setMergeMessage', '');
+        },
+        setMergeFamily(context, family) {
+            context.commit('setMergeFamily', family);
+        },
+        setMergeFormat(context, format) {
+            context.commit('setMergeFormat', format);
+        },
+        addMergeFile(context, fileObject) {
+            context.commit('addMergeFile', {
+                id: context.state.mergeNextIndex,
+                ogFile: fileObject.file,
+                name: fileObject.file.name,
+                inputFormat: fileObject.inputFormat || null,
+                inputExtension: fileObject.inputExtension || null,
+            });
+            context.commit('incrementMergeNextIndex');
+        },
+        async addMergeFiles(context, files) {
+            context.dispatch('resetMergeResult');
+            for (let i = 0; i < files.length; i++) {
+                context.dispatch('addMergeFile', files[i]);
+                await new Promise((resolve) => setTimeout(resolve, 16));
+            }
+        },
+        reorderMergeFiles(context, ids) {
+            context.dispatch('resetMergeResult');
+            const byId = new Map(context.state.mergeFiles.map((file) => [file.id, file]));
+            const reordered = ids.map((id) => byId.get(id)).filter(Boolean);
+            context.commit('setMergeFiles', reordered);
+        },
+        removeMergeFile(context, id) {
+            context.dispatch('resetMergeResult');
+            context.commit('removeMergeFile', id);
+        },
+        async processMerge(context) {
+            if (!context.state.mergeFiles.length) return;
+            context.dispatch('loadMergeWorker');
+            const previousUrl = context.state.mergeOutput.url;
+            if (previousUrl) URL.revokeObjectURL(previousUrl);
+            context.commit('clearMergeOutput');
+            context.commit('setMergeStatus', FILE_STATUS.processing);
+            context.commit('setMergeProgress', 0);
+            context.commit('setMergeMessage', 'Preparing');
+            context.commit('incrementMergeRunId');
+            context.state.mergeWorker.postMessage({
+                action: 'merge',
+                id: context.state.mergeRunId,
+                config: clone(context.state.mergeConfig),
+                files: context.state.mergeFiles.map((file) => ({
+                    name: file.name,
+                    inputFormat: file.inputFormat,
+                    inputExtension: file.inputExtension,
+                    file: file.ogFile,
+                })),
+            });
         },
     },
     modules: {

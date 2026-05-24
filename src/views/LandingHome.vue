@@ -38,6 +38,11 @@
       <h2>Image Compression</h2>
       <p>Compress JPG, PNG, WEBP and AVIF files locally with before/after preview.</p>
     </a>
+    <a class="mediaHub__card" href="/merge">
+      <span class="mediaHub__icon">🧩</span>
+      <h2>File Merge Tool</h2>
+      <p>Merge audio, video, archive and supported document files into one downloadable output.</p>
+    </a>
   </div>
 
   <div class="infomationContainer">
