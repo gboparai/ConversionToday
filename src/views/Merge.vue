@@ -23,16 +23,6 @@
       <template #header>{{ selectedFormat.title }}</template>
       <template #description>{{ selectedFormat.description }}</template>
     </card>
-    <div class="mergeConfig">
-      <h3>Output Format</h3>
-      <searchable-select
-        :options="formatOptions"
-        :model-value="selectedFormat.name"
-        placeholder="Select output format"
-        @change="handleFormatSelect"
-      />
-      <p>{{ familyConfig.supportText }}</p>
-    </div>
   </div>
 
   <label class="fileInput">
@@ -52,15 +42,6 @@
     <button class="batchBar__button" :disabled="files.length <= 1 || isProcessing" @click="processMerge">
       <div>Merge Files</div>
     </button>
-    <a
-      class="batchBar__button batchBar__button--link"
-      :class="{ 'batchBar__button--disabled': !hasOutput }"
-      :href="hasOutput ? output.url : null"
-      :download="hasOutput ? output.name : null"
-      @click.prevent="downloadOutput"
-    >
-      <div>Download</div>
-    </a>
     <button class="batchBar__button" :disabled="files.length <= 0 && !hasOutput" @click="clearAll">
       <div>Clear All</div>
     </button>
@@ -81,10 +62,18 @@
     <p>{{ mergeMessageText }}</p>
   </div>
 
+  <div class="downloadCard" v-if="hasOutput">
+    <div>
+      <strong>{{ output.name }}</strong>
+      <p>Your merged {{ familyConfig.label.toLowerCase() }} file is ready.</p>
+    </div>
+    <a :href="output.url" :download="output.name">Download</a>
+  </div>
+
   <div class="files">
-    <p v-if="files.length > 1" class="queueHint">Drag files to change the merge order, or use the Up and Down buttons for keyboard-friendly reordering.</p>
+    <p v-if="files.length > 1" class="queueHint">Drag files to change the merge order.</p>
     <div
-      v-for="(file, index) in files"
+      v-for="file in files"
       :key="file.id"
       class="fileRow"
       :class="{ 'fileRow--dragging': draggedId === file.id }"
@@ -95,29 +84,40 @@
       >
       <span class="fileRow__handle" aria-hidden="true">⋮⋮</span>
       <div class="fileRow__copy">
-        <div class="fileRow__name">{{ index + 1 }}. {{ file.name }}</div>
-        <div v-if="file.inputFormat" class="fileRow__meta">{{ file.inputFormat.toUpperCase() }}</div>
+        <div class="fileRow__name">{{ file.name }}</div>
       </div>
-      <div class="fileRow__order">
-        <button type="button" :disabled="isProcessing || index === 0" @click="moveFile(file.id, -1)">
-          Up
-        </button>
-        <button type="button" :disabled="isProcessing || index === files.length - 1" @click="moveFile(file.id, 1)">
-          Down
-        </button>
-      </div>
-      <button class="fileRow__remove" type="button" :disabled="isProcessing" @click="removeFile(file.id)">
-        Remove
+      <button
+        class="iconButton iconButton--remove"
+        type="button"
+        :disabled="isProcessing"
+        @click="removeFile(file.id)"
+        title="Remove"
+        aria-label="Remove file"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
       </button>
     </div>
   </div>
 
-  <div class="downloadCard" v-if="hasOutput">
-    <div>
-      <strong>{{ output.name }}</strong>
-      <p>Your merged {{ familyConfig.label.toLowerCase() }} file is ready.</p>
-    </div>
-    <a :href="output.url" :download="output.name">Download</a>
+  <div class="informationContainer">
+    <information>
+      <template #header>Order-Accurate Merge</template>
+      <template #description>
+        Queue order is respected exactly, so your final output follows the same sequence you set by dragging.
+      </template>
+    </information>
+    <information>
+      <template #header>Single Output File</template>
+      <template #description>
+        Merge many inputs into one downloadable file, so sharing and storage are simpler.
+      </template>
+    </information>
+    <information>
+      <template #header>Private Browser Processing</template>
+      <template #description>
+        Files are processed locally in your browser instead of being uploaded to a remote server.
+      </template>
+    </information>
   </div>
 
   <div class="informationContainer">
@@ -140,13 +140,18 @@
       </template>
     </information>
   </div>
+
+  <div class="faqSection">
+    <h3 class="faqSection__title">Merge FAQ</h3>
+    <faq :faqs="faqs" @toggle="toggleFaq" />
+  </div>
 </template>
 
 <script>
 import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
+import Faq from "@/components/faq.vue";
 import Information from "@/components/information.vue";
-import SearchableSelect from "@/components/searchable-select.vue";
 import { FILE_STATUS } from "@/js/constants";
 import { useMeta } from "vue-meta";
 
@@ -243,9 +248,36 @@ const FAMILY_CONFIG = {
   },
 };
 
+function buildMergeFaqs(familyLabel) {
+  return [
+    {
+      question: `How does ${familyLabel.toLowerCase()} merge work?`,
+      answer:
+        "Your queued files are processed locally in the browser and combined into a single output file in the order shown in the list.",
+      open: false,
+    },
+    {
+      question: "Are my files uploaded to a server?",
+      answer: "No. Merge processing runs in-browser, so your files stay on your device during the merge.",
+      open: false,
+    },
+    {
+      question: "Can I reorder files before merging?",
+      answer: "Yes. Drag items in the queue to set the exact order, then start the merge.",
+      open: false,
+    },
+    {
+      question: "Why are some files skipped?",
+      answer:
+        "Each merge family accepts specific input types. Unsupported files are skipped to prevent invalid output.",
+      open: false,
+    },
+  ];
+}
+
 export default {
   name: "Merge",
-  components: { Card, Descriptor, Information, SearchableSelect },
+  components: { Card, Descriptor, Faq, Information },
   setup() {
     useMeta({
       title: "Free File Merge Tool - Conversion Today",
@@ -266,6 +298,7 @@ export default {
       unsupportedCount: 0,
       draggedId: null,
       syncedRouteKey: null,
+      faqs: buildMergeFaqs(FAMILY_CONFIG.archive.label),
     };
   },
   computed: {
@@ -284,7 +317,12 @@ export default {
     storeFormats() {
       const storeFormats = this.$store.state[this.familyConfig.storeKey] || [];
       const customFormats = this.familyConfig.customFormats || [];
-      return [...storeFormats, ...customFormats];
+      const merged = [...storeFormats, ...customFormats];
+      const byName = new Map();
+      merged.forEach((format) => {
+        byName.set(format.name, format);
+      });
+      return Array.from(byName.values());
     },
     availableFormats() {
       return this.storeFormats.filter((format) =>
@@ -296,12 +334,6 @@ export default {
         this.availableFormats.find((format) => format.name === this.$route.params.format) ||
         this.availableFormats[0]
       );
-    },
-    formatOptions() {
-      return this.availableFormats.map((format) => ({
-        value: format.name,
-        label: `${format.name.toUpperCase()} — ${format.title}`,
-      }));
     },
     acceptAttr() {
       return this.familyConfig.accept;
@@ -381,6 +413,7 @@ export default {
           this.$store.dispatch("clearMergeFiles");
           this.unsupportedCount = 0;
         }
+        this.faqs = buildMergeFaqs(this.familyConfig.label);
         this.syncedRouteKey = routeKey;
       },
     },
@@ -425,6 +458,9 @@ export default {
     addFiles(list) {
       const accepted = [];
       let skipped = 0;
+      const expectedDocumentFormat = this.selectedFamily === "document"
+        ? this.selectedFormat.name
+        : null;
       for (let i = 0; i < list.length; i++) {
         const file = list[i];
         if (this.selectedFamily === "archive") {
@@ -441,6 +477,10 @@ export default {
         }
         const inputFormat = this.detectDocumentFormat(file);
         if (inputFormat) {
+          if (expectedDocumentFormat && inputFormat !== expectedDocumentFormat) {
+            skipped++;
+            continue;
+          }
           accepted.push({
             file,
             inputFormat,
@@ -456,6 +496,15 @@ export default {
       this.unsupportedCount += skipped;
     },
     processMerge() {
+      if (this.selectedFamily === "document" && this.files.length > 0) {
+        const requiredFormat = this.selectedFormat.name;
+        const mixedFormats = this.files.some((file) => file.inputFormat !== requiredFormat);
+        if (mixedFormats) {
+          this.$store.commit("setMergeStatus", FILE_STATUS.failed);
+          this.$store.commit("setMergeMessage", "All document inputs must match the selected format.");
+          return;
+        }
+      }
       this.$store.dispatch("processMerge");
     },
     clearAll() {
@@ -463,27 +512,8 @@ export default {
       this.unsupportedCount = 0;
       this.draggedId = null;
     },
-    downloadOutput() {
-      if (!this.hasOutput) return;
-      const link = document.createElement("a");
-      link.href = this.output.url;
-      link.download = this.output.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    },
     removeFile(id) {
       this.$store.dispatch("removeMergeFile", id);
-    },
-    moveFile(id, offset) {
-      if (this.isProcessing) return;
-      const ids = this.files.map((file) => file.id);
-      const index = ids.indexOf(id);
-      const nextIndex = index + offset;
-      if (index === -1 || nextIndex < 0 || nextIndex >= ids.length) return;
-      const [moved] = ids.splice(index, 1);
-      ids.splice(nextIndex, 0, moved);
-      this.$store.dispatch("reorderMergeFiles", ids);
     },
     dragStart(id) {
       if (this.isProcessing) return;
@@ -505,6 +535,12 @@ export default {
       ids.splice(targetIndex, 0, moved);
       this.$store.dispatch("reorderMergeFiles", ids);
       this.draggedId = null;
+    },
+    toggleFaq(index) {
+      this.faqs = this.faqs.map((faq, faqIndex) => ({
+        ...faq,
+        open: faqIndex === index ? !faq.open : faq.open,
+      }));
     },
   },
 };
@@ -612,41 +648,31 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 
   &__button {
     flex: 1;
-    min-width: 140px;
+    min-width: 150px;
     border: 1px solid var(--border);
     background-color: var(--bg-surface);
-    color: var(--text-primary);
     border-radius: $default-radius;
+    color: var(--text-primary);
     font-family: inherit;
     font-size: 0.9rem;
     font-weight: 700;
     padding: 0;
     cursor: pointer;
     box-shadow: var(--shadow-sm);
-    text-decoration: none;
 
     > div {
       background-color: var(--bg-secondary);
-      padding: 0.6rem 1rem;
+      padding: 0.55rem 1rem;
       border-radius: $default-radius;
-      transition: background-color 0.15s, transform 0.15s;
     }
 
-    &:not([disabled]):hover > div,
-    &:not(.batchBar__button--disabled):hover > div {
-      background-color: var(--bg-surface-hover);
-      transform: translateY(-2px);
-    }
-
-    &[disabled],
-    &--disabled {
+    &:disabled {
       opacity: 0.45;
       cursor: not-allowed;
-      pointer-events: none;
     }
   }
 }
@@ -702,18 +728,17 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
 }
 
 .fileRow {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.75rem 1rem;
+  gap: 0.7rem;
+  padding: 0.6rem 0.8rem;
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: $default-radius;
-  box-shadow: var(--shadow-sm);
 
   &--dragging {
     opacity: 0.65;
@@ -732,51 +757,39 @@ export default {
 
   &__name {
     color: var(--text-primary);
-    font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
 
-  &__meta {
-    margin-top: 0.2rem;
-    color: var(--text-secondary);
-    font-size: 0.8rem;
+.iconButton {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: currentColor;
   }
 
-  &__remove {
-    border: none;
-    background-color: var(--negative);
+  &--remove {
+    background: var(--negative);
     color: #fff;
-    border-radius: 999px;
-    padding: 0.45rem 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-
-    &[disabled] {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
   }
 
-  &__order {
-    display: flex;
-    gap: 0.4rem;
-
-    button {
-      border: 1px solid var(--border);
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      border-radius: 999px;
-      padding: 0.4rem 0.7rem;
-      font-weight: 700;
-      cursor: pointer;
-
-      &[disabled] {
-        opacity: 0.45;
-        cursor: not-allowed;
-      }
-    }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
@@ -805,6 +818,19 @@ export default {
   }
 }
 
+.faqSection {
+  @include mid-width;
+  margin-top: 1.75rem;
+  margin-bottom: 2rem;
+
+  &__title {
+    text-align: center;
+    font-size: 1.75rem;
+    margin: 0 0 1rem;
+    color: var(--text-primary);
+  }
+}
+
 @media only screen and (max-width: 55rem) {
   .downloadCard,
   .fileRow {
@@ -812,7 +838,6 @@ export default {
     align-items: flex-start;
   }
 
-  .fileRow__remove,
   .downloadCard a {
     width: 100%;
   }
