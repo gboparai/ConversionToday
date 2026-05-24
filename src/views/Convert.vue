@@ -475,7 +475,7 @@ export default {
       const query = this.conversionSearch.trim().toLowerCase();
       return this.$store.state[this.formatsKey]
         .filter((format) => {
-          if (format.name == this.$route.params.format) return false;
+          if (format.name == this.$route.params.format || format.canConvertTo === false) return false;
           if (!query) return true;
           const itemText = `${this.format} ${format.name}`.toLowerCase();
           return itemText.includes(query);
@@ -490,8 +490,8 @@ export default {
       const query = this.conversionSearch.trim().toLowerCase();
       return this.$store.state[this.formatsKey]
         .filter((format) => {
-          // Exclude output-only formats and input-only formats, and the currently selected output format.
-          if (format.canConvertFrom === false || format.canConvertTo === false || format.name == this.$route.params.format2) {
+          // Exclude input-disabled formats and the currently selected output format.
+          if (format.canConvertFrom === false || format.name == this.$route.params.format2) {
             return false;
           }
           if (!query) return true;
@@ -507,7 +507,7 @@ export default {
     formats1() {
       return this.$store.state[this.formatsKey].filter((format) => {
         return (
-          format.canConvertFrom !== false && format.canConvertTo !== false && format.name != this.$route.params.format2
+          format.canConvertFrom !== false && format.name != this.$route.params.format2
         );
       });
     },

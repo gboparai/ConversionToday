@@ -6,14 +6,6 @@
     </template>
   </descriptor>
 
-  <div class="mediaTypeNav">
-    <a class="mediaTypeNav__card" href="/image">🖼️ Image</a>
-    <a class="mediaTypeNav__card" href="/audio">🎵 Audio</a>
-    <a class="mediaTypeNav__card" href="/video">🎬 Video</a>
-    <a class="mediaTypeNav__card" href="/document">📄 Document</a>
-    <a class="mediaTypeNav__card" href="/archive">🗜️ Archive</a>
-    <a class="mediaTypeNav__card mediaTypeNav__card--active" href="/font">🔤 Font</a>
-  </div>
 
   <format-selector :isFrom="true" path="font" name="from" mediaType="font"></format-selector>
   <div class="infomationContainer">
