@@ -14,6 +14,8 @@ const Compression = () => import('../views/Compression.vue')
 const CompressionHome = () => import('../views/CompressionHome.vue')
 const Merge = () => import('../views/Merge.vue')
 const MergeHome = () => import('../views/MergeHome.vue')
+const Compress = () => import('../views/Compress.vue')
+const CompressHome = () => import('../views/CompressHome.vue')
 const OcrHome = () => import('../views/OcrHome.vue')
 const Ocr = () => import('../views/Ocr.vue')
 
@@ -49,6 +51,16 @@ const routes = [
     path: '/merge/:family/:format',
     name: 'Merge',
     component: Merge
+  },
+  {
+    path: '/compress',
+    name: 'CompressHome',
+    component: CompressHome
+  },
+  {
+    path: '/compress/:format',
+    name: 'Compress',
+    component: Compress
   },
   // ── Image routes ────────────────────────────────────────────────────────
   {
