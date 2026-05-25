@@ -33,7 +33,7 @@
         <button type="button" class="navDropdown__trigger">Tools</button>
         <div class="navDropdown__menu" @click="closeAllDropdowns">
           <router-link to="/compression">Compression</router-link>
-          <router-link to="/compress">Compress</router-link>
+          <router-link to="/compress">Archive Compress</router-link>
           <router-link to="/merge">Merge</router-link>
           <router-link to="/ocr">OCR</router-link>
         </div>

@@ -35,10 +35,6 @@
     </button>
   </div>
 
-  <p v-if="unsupportedCount > 0" class="notice">
-    {{ unsupportedCount }} file(s) were skipped.
-  </p>
-
   <div v-if="isProcessing || hasOutput || mergeStatus === FILE_STATUS.failed" class="progressCard">
     <div class="progressCard__top">
       <strong>{{ statusHeading }}</strong>
@@ -52,10 +48,10 @@
 
   <div class="downloadCard" v-if="hasOutput">
     <div>
-      <strong>{{ output.name }}</strong>
+      <strong>{{ outputDownloadName }}</strong>
       <p>Your compressed archive is ready.</p>
     </div>
-    <a :href="output.url" :download="output.name">Download</a>
+    <a :href="output.url" :download="outputDownloadName">Download</a>
   </div>
 
   <div class="files">
@@ -184,7 +180,6 @@ export default {
   data() {
     return {
       FILE_STATUS,
-      unsupportedCount: 0,
       syncedRouteKey: null,
       faqs: buildFaqs("zip"),
     };
@@ -221,6 +216,23 @@ export default {
     hasOutput() {
       return !!(this.output && this.output.url && this.output.name);
     },
+    outputDownloadName() {
+      if (!this.hasOutput) return "";
+      const extension = (this.selectedFormat && this.selectedFormat.name) || "zip";
+      const lowerName = this.output.name.toLowerCase();
+      const lowerExtension = extension.toLowerCase();
+      let baseName = this.output.name;
+
+      if (lowerName.endsWith(`.${lowerExtension}`)) {
+        baseName = this.output.name.slice(0, -(lowerExtension.length + 1));
+      } else {
+        baseName = this.output.name.replace(/\.[^/.]+$/, "");
+      }
+
+      baseName = baseName.replace(/-merged$/i, "");
+      if (!baseName) baseName = "archive";
+      return `${baseName}-compressed.${extension}`;
+    },
     isProcessing() {
       return this.mergeStatus === FILE_STATUS.processing;
     },
@@ -252,7 +264,6 @@ export default {
         this.$store.dispatch("setMergeFormat", this.selectedFormat);
         if (this.syncedRouteKey && this.syncedRouteKey !== routeKey) {
           this.$store.dispatch("clearMergeFiles");
-          this.unsupportedCount = 0;
         }
         this.faqs = buildFaqs(this.selectedFormat.name);
         this.syncedRouteKey = routeKey;
@@ -272,26 +283,21 @@ export default {
     },
     addFiles(list) {
       const accepted = [];
-      let skipped = 0;
       for (let i = 0; i < list.length; i++) {
         const file = list[i];
         if (file) {
           accepted.push({ file });
-        } else {
-          skipped++;
         }
       }
       if (accepted.length) {
         this.$store.dispatch("addMergeFiles", accepted);
       }
-      this.unsupportedCount += skipped;
     },
     processCompress() {
       this.$store.dispatch("processMerge");
     },
     clearAll() {
       this.$store.dispatch("clearMergeFiles");
-      this.unsupportedCount = 0;
     },
     removeFile(id) {
       this.$store.dispatch("removeMergeFile", id);
