@@ -29,9 +29,19 @@ module.exports = {
         themeColor: '#545454',
     },
     configureWebpack: () => {
-        if (process.env.NODE_ENV !== 'production') return;
-        return {
-            plugins: [
+        const config = {
+            resolve: {
+                fallback: {
+                    path: false,
+                    fs: false,
+                    child_process: false,
+                    crypto: false,
+                },
+            },
+        };
+
+        if (process.env.NODE_ENV === 'production') {
+            config.plugins = [
                 new PrerenderSPAPlugin({
                     // The path to generate the file can also be consistent with the webpakc package.
                     // This directory can only have one level, if the directory level is higher than one level, there will be no error prompt when it is generated, and it will only stick when it is pre-rendered.
@@ -51,7 +61,9 @@ module.exports = {
                         renderAfterDocumentEvent: 'render-event'
                     })
                 }),
-            ],
-        };
+            ];
+        }
+
+        return config;
     }
 }

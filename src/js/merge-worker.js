@@ -1,4 +1,4 @@
-import { createPandocInstance } from 'pandoc-wasm/src/core.js';
+import { createPandocInstance } from '../../node_modules/pandoc-wasm/src/core.js';
 import { ISOWriter } from '@gcu/iso9660';
 import { PDFDocument } from 'pdf-lib';
 
