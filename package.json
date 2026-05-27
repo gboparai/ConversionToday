@@ -7,9 +7,11 @@
     "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
     "serve:https": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve --https",
     "serve:https:lan": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve --https --host 0.0.0.0",
+    "prebuild": "npm run generate:sitemap",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "lint": "vue-cli-service lint",
     "publish": "git subtree push --prefix dist origin gh-pages",
+    "generate:sitemap": "node build-utils/generateSitemap.js",
     "sync:runtime-assets": "node scripts/sync-runtime-assets.js",
     "postinstall": "npm run sync:runtime-assets"
   },
