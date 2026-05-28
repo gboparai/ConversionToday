@@ -74,6 +74,23 @@ function generatePrerenderRoutes() {
   routes.push('/ocr');
   ocrOutputFormats.forEach(fmt => routes.push(`/ocr/${fmt}`));
 
+  // PDF ↔ Image routes
+  const pdfImageInputs = ['pdf', 'jpg', 'jpeg', 'png', 'webp'];
+  const pdfImageOutputsByInput = {
+    pdf:  ['png', 'jpg', 'jpeg', 'webp'],
+    jpg:  ['pdf'],
+    jpeg: ['pdf'],
+    png:  ['pdf'],
+    webp: ['pdf'],
+  };
+  routes.push('/pdf-image');
+  pdfImageInputs.forEach(input => {
+    routes.push(`/pdf-image/${input}`);
+    pdfImageOutputsByInput[input].forEach(output => {
+      routes.push(`/pdf-image/${input}/${output}`);
+    });
+  });
+
   return routes;
 }
 

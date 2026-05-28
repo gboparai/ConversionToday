@@ -427,6 +427,9 @@ export default {
       this.normalizeRoute();
       if (!wasNormalize) this.clearAll();
     },
+    pageOrientation() { this.revokePdfOutput(); this.resetStatus(); },
+    pageSize()        { this.revokePdfOutput(); this.resetStatus(); },
+    pageMargin()      { this.revokePdfOutput(); this.resetStatus(); },
   },
   mounted() {
     this.normalizeRoute();
@@ -553,6 +556,8 @@ export default {
       newList.splice(to, 0, moved);
       this.imageFiles = newList;
       this.draggedId = null;
+      this.revokePdfOutput();
+      this.resetStatus();
     },
     fileExtension(name) {
       const parts = String(name || "").toLowerCase().split(".");
