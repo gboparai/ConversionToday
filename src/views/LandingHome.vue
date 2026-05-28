@@ -61,6 +61,11 @@
         <h2>File Merge Tool</h2>
         <p>Merge audio, video, archive and supported document files into one downloadable output.</p>
       </a>
+      <a class="mediaHub__card" href="/pdf-image">
+        <span class="mediaHub__icon">📑</span>
+        <h2>PDF ↔ Image Tool</h2>
+        <p>Create one PDF from ordered JPG/PNG/WEBP files, or extract PDF pages to JPG, PNG or WEBP.</p>
+      </a>
       <a class="mediaHub__card" href="/ocr">
         <span class="mediaHub__icon">🔍</span>
         <h2>OCR Tool</h2>

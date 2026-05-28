@@ -35,6 +35,7 @@
           <router-link to="/compression">Compression</router-link>
           <router-link to="/compress">Archive Compress</router-link>
           <router-link to="/merge">Merge</router-link>
+          <router-link to="/pdf-image">PDF ↔ Image</router-link>
           <router-link to="/ocr">OCR</router-link>
         </div>
       </div>
