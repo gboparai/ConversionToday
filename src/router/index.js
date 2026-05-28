@@ -18,7 +18,9 @@ const Compress = () => import('../views/Compress.vue')
 const CompressHome = () => import('../views/CompressHome.vue')
 const OcrHome = () => import('../views/OcrHome.vue')
 const Ocr = () => import('../views/Ocr.vue')
-const PdfImageTool = () => import('../views/PdfImageTool.vue')
+const PdfImageHome = () => import('../views/PdfImageHome.vue')
+const PdfImageType = () => import('../views/PdfImageType.vue')
+const PdfImage = () => import('../views/PdfImage.vue')
 
 const routes = [
   {
@@ -162,8 +164,18 @@ const routes = [
   },
   {
     path: '/pdf-image',
-    name: 'PdfImageTool',
-    component: PdfImageTool
+    name: 'PdfImageHome',
+    component: PdfImageHome
+  },
+  {
+    path: '/pdf-image/:format',
+    name: 'PdfImageType',
+    component: PdfImageType
+  },
+  {
+    path: '/pdf-image/:format/:format2',
+    name: 'PdfImage',
+    component: PdfImage
   },
   {
     path: '/ocr/:outputFormat',
