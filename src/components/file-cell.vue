@@ -163,6 +163,7 @@
 
 <script>
 import { FILE_STATUS } from "@/js/constants";
+import { getMediaTypeConfig } from "@/js/media-types";
 export default {
   name: "fileCell",
   props: {
@@ -176,6 +177,9 @@ export default {
     FILE_STATUS() {
       return FILE_STATUS;
     },
+    mtConfig() {
+      return getMediaTypeConfig(this.mediaType);
+    },
     blobURL() {
       let url = null;
       if (
@@ -184,13 +188,7 @@ export default {
       ) {
         url = URL.createObjectURL(this.file.output.blob);
       }
-      const mutation = this.mediaType === 'audio' ? 'setAudioUrl'
-                     : this.mediaType === 'video' ? 'setVideoUrl'
-                     : this.mediaType === 'document' ? 'setDocumentUrl'
-                     : this.mediaType === 'archive' ? 'setArchiveUrl'
-                     : this.mediaType === 'font' ? 'setFontUrl'
-                     : 'setUrl';
-      this.$store.commit(mutation, { id: this.file.id, url: url });
+      this.$store.commit(this.mtConfig.setUrl, { id: this.file.id, url: url });
       return url;
     },
     newFileName() {
@@ -201,13 +199,7 @@ export default {
           "." +
           this.file.output.config.format.extension;
       }
-      const mutation = this.mediaType === 'audio' ? 'setAudioName'
-                     : this.mediaType === 'video' ? 'setVideoName'
-                     : this.mediaType === 'document' ? 'setDocumentName'
-                     : this.mediaType === 'archive' ? 'setArchiveName'
-                     : this.mediaType === 'font' ? 'setFontName'
-                     : 'setName';
-      this.$store.commit(mutation, { id: this.file.id, name: name });
+      this.$store.commit(this.mtConfig.setName, { id: this.file.id, name: name });
       return name;
     },
     statusLabel() {
@@ -234,13 +226,7 @@ export default {
   },
   methods: {
     removeFile() {
-      const mutation = this.mediaType === 'audio' ? 'removeAudioFile'
-                     : this.mediaType === 'video' ? 'removeVideoFile'
-                     : this.mediaType === 'document' ? 'removeDocumentFile'
-                     : this.mediaType === 'archive' ? 'removeArchiveFile'
-                     : this.mediaType === 'font' ? 'removeFontFile'
-                     : 'removeFile';
-      this.$store.commit(mutation, this.file.id);
+      this.$store.commit(this.mtConfig.removeFile, this.file.id);
     },
   },
 };

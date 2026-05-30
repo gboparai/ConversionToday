@@ -96,6 +96,7 @@ import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
 import Information from "@/components/information.vue";
 import Faq from "@/components/faq";
+import { getMediaTypeFromPath, getMediaTypeConfig } from "@/js/media-types";
 import { useMeta } from "vue-meta";
 export default {
   name: "Type",
@@ -206,24 +207,16 @@ export default {
   },
   computed: {
     mediaType() {
-      const path = this.$route.path;
-      if (path.startsWith('/audio')) return 'audio';
-      if (path.startsWith('/video')) return 'video';
-      if (path.startsWith('/document')) return 'document';
-      if (path.startsWith('/archive')) return 'archive';
-      if (path.startsWith('/font')) return 'font';
-      return 'image';
+      return getMediaTypeFromPath(this.$route.path);
+    },
+    mtConfig() {
+      return getMediaTypeConfig(this.mediaType);
     },
     mediaHomePath() {
       return `/${this.mediaType}`;
     },
     formatsKey() {
-      if (this.mediaType === 'audio') return 'audioFormats';
-      if (this.mediaType === 'video') return 'videoFormats';
-      if (this.mediaType === 'document') return 'documentFormats';
-      if (this.mediaType === 'archive') return 'archiveFormats';
-      if (this.mediaType === 'font') return 'fontFormats';
-      return 'formats';
+      return this.mtConfig.formatsKey;
     },
     formatInofo() {
       return this.$store.state[this.formatsKey].find((formatObj) => {

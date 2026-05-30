@@ -7,9 +7,12 @@
     "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
     "serve:https": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve --https",
     "serve:https:lan": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve --https --host 0.0.0.0",
+    "prebuild": "npm run generate:sitemap",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "lint": "vue-cli-service lint",
     "publish": "git subtree push --prefix dist origin gh-pages",
+    "generate:sitemap": "node build-utils/generateSitemap.js",
+    "test": "jest",
     "sync:runtime-assets": "node scripts/sync-runtime-assets.js",
     "postinstall": "npm run sync:runtime-assets"
   },
@@ -45,6 +48,7 @@
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@vue/cli-plugin-babel": "^5.0.9",
     "@vue/cli-plugin-eslint": "^5.0.9",
     "@vue/cli-plugin-pwa": "^5.0.9",
@@ -55,6 +59,22 @@
     "@babel/eslint-parser": "^7.26.8",
     "eslint": "^8.57.1",
     "eslint-plugin-vue": "^9.32.0",
+=======
+    "@babel/preset-env": "^7.29.7",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-pwa": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0",
+    "babel-eslint": "^10.1.0",
+    "babel-jest": "^30.4.1",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.0.0-0",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+>>>>>>> origin/master
     "prerender-spa-plugin": "^3.4.0",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
