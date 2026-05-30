@@ -318,6 +318,7 @@ import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
 import List from "@/components/list.vue";
 import { FILE_STATUS } from "@/js/constants";
+import { getMediaTypeFromPath, getMediaTypeConfig } from "@/js/media-types";
 import Information from "@/components/information.vue";
 import { useMeta } from "vue-meta";
 import JSZip from "jszip";
@@ -410,53 +411,30 @@ export default {
   },
   computed: {
     mediaType() {
-      const path = this.$route.path;
-      if (path.startsWith('/audio')) return 'audio';
-      if (path.startsWith('/video')) return 'video';
-      if (path.startsWith('/document')) return 'document';
-      if (path.startsWith('/archive')) return 'archive';
-      if (path.startsWith('/font')) return 'font';
-      return 'image';
+      return getMediaTypeFromPath(this.$route.path);
+    },
+    mtConfig() {
+      return getMediaTypeConfig(this.mediaType);
     },
     mediaHomePath() {
       return `/${this.mediaType}`;
     },
     mediaTypeLabel() {
-      if (this.mediaType === 'audio') return 'Audio Files';
-      if (this.mediaType === 'video') return 'Video Files';
-      if (this.mediaType === 'document') return 'Documents';
-      if (this.mediaType === 'archive') return 'Archives';
-      if (this.mediaType === 'font') return 'Font Files';
-      return 'Images';
+      return this.mtConfig.label;
     },
     acceptMimeTypes() {
-      if (this.mediaType === 'audio') return 'audio/*';
-      if (this.mediaType === 'video') return 'video/*';
-      if (this.mediaType === 'document') return '*/*';
-      if (this.mediaType === 'font') {
-        const extensions = this.$store.state.fontFormats
-          .map((format) => String(format.extension || '').trim().toLowerCase())
-          .filter((extension, index, list) => extension && list.indexOf(extension) === index);
-        return extensions.map((extension) => `.${extension}`).join(',');
-      }
-      if (this.mediaType === 'archive') return '.zip,.7z,.rar,.tar,.tar.gz,.tgz,.tar.bz2,.tbz2,.tar.xz,.txz,.iso';
-      return 'image/*';
+      if (this.mtConfig.acceptMimeTypes) return this.mtConfig.acceptMimeTypes;
+      // Font type: compute dynamically from formats
+      const extensions = this.$store.state[this.mtConfig.formatsKey]
+        .map((format) => String(format.extension || '').trim().toLowerCase())
+        .filter((extension, index, list) => extension && list.indexOf(extension) === index);
+      return extensions.map((extension) => `.${extension}`).join(',');
     },
     formatsKey() {
-      if (this.mediaType === 'audio') return 'audioFormats';
-      if (this.mediaType === 'video') return 'videoFormats';
-      if (this.mediaType === 'document') return 'documentFormats';
-      if (this.mediaType === 'archive') return 'archiveFormats';
-      if (this.mediaType === 'font') return 'fontFormats';
-      return 'formats';
+      return this.mtConfig.formatsKey;
     },
     files() {
-      if (this.mediaType === 'audio') return this.$store.state.audioFiles;
-      if (this.mediaType === 'video') return this.$store.state.videoFiles;
-      if (this.mediaType === 'document') return this.$store.state.documentFiles;
-      if (this.mediaType === 'archive') return this.$store.state.archiveFiles;
-      if (this.mediaType === 'font') return this.$store.state.fontFiles;
-      return this.$store.state.files;
+      return this.$store.state[this.mtConfig.filesKey];
     },
     nonProcessed() {
       return this.files.filter(
@@ -523,35 +501,11 @@ export default {
   },
   methods: {
     input(e) {
-      if (this.mediaType === 'audio') {
-        this.$store.dispatch("addAudioFiles", e.target.files);
-      } else if (this.mediaType === 'video') {
-        this.$store.dispatch("addVideoFiles", e.target.files);
-      } else if (this.mediaType === 'document') {
-        this.$store.dispatch("addDocumentFiles", e.target.files);
-      } else if (this.mediaType === 'archive') {
-        this.$store.dispatch("addArchiveFiles", e.target.files);
-      } else if (this.mediaType === 'font') {
-        this.$store.dispatch("addFontFiles", e.target.files);
-      } else {
-        this.$store.dispatch("addFiles", e.target.files);
-      }
+      this.$store.dispatch(this.mtConfig.addFiles, e.target.files);
     },
     fileDrop(e) {
       e.preventDefault();
-      if (this.mediaType === 'audio') {
-        this.$store.dispatch("addAudioFiles", e.dataTransfer.files);
-      } else if (this.mediaType === 'video') {
-        this.$store.dispatch("addVideoFiles", e.dataTransfer.files);
-      } else if (this.mediaType === 'document') {
-        this.$store.dispatch("addDocumentFiles", e.dataTransfer.files);
-      } else if (this.mediaType === 'archive') {
-        this.$store.dispatch("addArchiveFiles", e.dataTransfer.files);
-      } else if (this.mediaType === 'font') {
-        this.$store.dispatch("addFontFiles", e.dataTransfer.files);
-      } else {
-        this.$store.dispatch("addFiles", e.dataTransfer.files);
-      }
+      this.$store.dispatch(this.mtConfig.addFiles, e.dataTransfer.files);
       this.fileInDropZone = false;
     },
     fileOver(e) {
@@ -569,21 +523,7 @@ export default {
       e.stopPropagation();
     },
     process() {
-      if (this.mediaType === 'audio') {
-        this.$store.dispatch("processAllAudioFiles");
-      } else if (this.mediaType === 'video') {
-        this.$store.dispatch("processAllVideoFiles");
-      } else if (this.mediaType === 'document') {
-        this.$store.dispatch("processAllDocumentFiles");
-      } else if (this.mediaType === 'archive') {
-        this.$store.dispatch("processAllArchiveFiles");
-      } else if (this.mediaType === 'font') {
-        this.$store.dispatch("processAllFontFiles");
-      } else {
-        this.$store.dispatch("processAllFiles", {
-          format: this.selectedFormat,
-        });
-      }
+      this.$store.dispatch(this.mtConfig.processAll);
     },
     downloadAll() {
       this.files.forEach((file) => {
@@ -623,19 +563,7 @@ export default {
       URL.revokeObjectURL(url);
     },
     clearAll() {
-      if (this.mediaType === 'audio') {
-        this.$store.dispatch("clearAudioFiles");
-      } else if (this.mediaType === 'video') {
-        this.$store.dispatch("clearVideoFiles");
-      } else if (this.mediaType === 'document') {
-        this.$store.dispatch("clearDocumentFiles");
-      } else if (this.mediaType === 'archive') {
-        this.$store.dispatch("clearArchiveFiles");
-      } else if (this.mediaType === 'font') {
-        this.$store.dispatch("clearFontFiles");
-      } else {
-        this.$store.dispatch("clearFiles");
-      }
+      this.$store.dispatch(this.mtConfig.clearFiles);
     },
     handleChangeFormat1(event) {
       window.location.href = `/${this.mediaType}/${event.target.value}/${this.format2}`;
@@ -652,28 +580,11 @@ export default {
     List,
   },
   mounted() {
-    if (this.mediaType === 'audio') {
-      this.$store.dispatch("setAudioFormat", this.formatInofo2);
-      this.$store.dispatch("loadAudioWorker");
-    } else if (this.mediaType === 'video') {
-      this.$store.dispatch("setVideoFormat", this.formatInofo2);
-      this.$store.dispatch("loadVideoWorker");
-    } else if (this.mediaType === 'document') {
-      this.$store.dispatch("setDocumentFormat", this.formatInofo2);
-      this.$store.dispatch("setDocumentInputFormat", this.formatInofo);
-      this.$store.dispatch("loadDocumentWorker");
-    } else if (this.mediaType === 'archive') {
-      this.$store.dispatch("setArchiveFormat", this.formatInofo2);
-      this.$store.dispatch("setArchiveInputFormat", this.formatInofo);
-      this.$store.dispatch("loadArchiveWorker");
-    } else if (this.mediaType === 'font') {
-      this.$store.dispatch("setFontFormat", this.formatInofo2);
-      this.$store.dispatch("setFontInputFormat", this.formatInofo);
-      this.$store.dispatch("loadFontWorker");
-    } else {
-      this.$store.dispatch("setFormat", this.formatInofo2);
-      this.$store.dispatch("loadWorker");
+    this.$store.dispatch(this.mtConfig.setFormat, this.formatInofo2);
+    if (this.mtConfig.setInputFormat) {
+      this.$store.dispatch(this.mtConfig.setInputFormat, this.formatInofo);
     }
+    this.$store.dispatch(this.mtConfig.loadWorker);
 
     document.body.addEventListener("drop", this.fileDrop);
     document.body.addEventListener("dragover", this.fileOver);
