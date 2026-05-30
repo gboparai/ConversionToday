@@ -34,6 +34,8 @@ const STORE_PATH = path.resolve(__dirname, '../src/store/index.js');
 const OCR_VIEW_PATH = path.resolve(__dirname, '../src/views/Ocr.vue');
 const MERGE_VIEW_PATH = path.resolve(__dirname, '../src/views/Merge.vue');
 const ROUTER_PATH = path.resolve(__dirname, '../src/router/index.js');
+const COMPRESSION_VIEW_PATH = path.resolve(__dirname, '../src/views/Compression.vue');
+const PDF_IMAGE_VIEW_PATH = path.resolve(__dirname, '../src/views/PdfImage.vue');
 
 function extractBalanced(source, start, openChar, closeChar) {
   let depth = 0;
@@ -102,7 +104,7 @@ function parseFormatObjects(arrayLiteral, extraKeys = []) {
         canConvertTo: /canConvertTo:\s*true/.test(obj),
       };
       extraKeys.forEach((key) => {
-        const match = obj.match(new RegExp(`${key}:\\s*[\"']([^\"']+)[\"']`));
+        const match = obj.match(new RegExp(`${key}:\\s*["']([^"']+)["']`));
         if (match) result[key] = match[1];
       });
       return result;
@@ -133,6 +135,20 @@ function parseRouterPaths() {
   return [...source.matchAll(/path:\s*'([^']+)'/g)].map((match) => match[1]);
 }
 
+function parsePdfImagePairs() {
+  const source = fs.readFileSync(PDF_IMAGE_VIEW_PATH, 'utf8');
+  const inputFormatsLiteral = extractConstArrayLiteral(source, 'INPUT_FORMATS');
+  const objectLiterals = inputFormatsLiteral.match(/\{[\s\S]*?\}/g) || [];
+  return objectLiterals
+    .map((obj) => {
+      const input = (obj.match(/name:\s*["']([^"']+)["']/) || [])[1];
+      const outputFormatsLiteral = (obj.match(/outputFormats:\s*(\[[^\]]*\])/) || [])[1];
+      if (!input || !outputFormatsLiteral) return null;
+      return { input, outputs: parseQuotedList(outputFormatsLiteral) };
+    })
+    .filter(Boolean);
+}
+
 const IMAGE_FORMATS = parseStoreFormats('formats');
 const AUDIO_FORMATS = parseStoreFormats('audioFormats');
 const VIDEO_FORMATS = parseStoreFormats('videoFormats');
@@ -144,21 +160,17 @@ const ocrViewSource = fs.readFileSync(OCR_VIEW_PATH, 'utf8');
 const OCR_INPUT_FORMATS = parseFormatObjects(extractConstArrayLiteral(ocrViewSource, 'OCR_INPUT_FORMATS'), ['inputType']);
 const OCR_OUTPUT_FORMATS = parseFormatObjects(extractConstArrayLiteral(ocrViewSource, 'OCR_OUTPUT_FORMATS')).map((format) => format.name);
 
-const PDF_IMAGE_PAIRS = [
-  { input: 'pdf', outputs: ['png', 'jpg', 'jpeg', 'webp'] },
-  { input: 'jpg', outputs: ['pdf'] },
-  { input: 'jpeg', outputs: ['pdf'] },
-  { input: 'png', outputs: ['pdf'] },
-  { input: 'webp', outputs: ['pdf'] },
-];
+const PDF_IMAGE_PAIRS = parsePdfImagePairs();
 
 const MERGE_FAMILIES = parseMergeFamilies();
 
 const ROUTER_DEFINED_PATHS = parseRouterPaths();
 
-const COMPRESSION_FORMATS = ['jpg', 'png', 'webp', 'avif'];
+const COMPRESSION_FORMATS = parseFormatObjects(
+  extractConstArrayLiteral(fs.readFileSync(COMPRESSION_VIEW_PATH, 'utf8'), 'COMPRESSION_FORMATS'),
+).map((format) => format.name);
 
-const COMPRESS_FORMATS = ['zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'iso'];
+const COMPRESS_FORMATS = ARCHIVE_FORMATS.filter((format) => format.canConvertTo).map((format) => format.name);
 
 // ─── Test Suites ─────────────────────────────────────────────────────────────
 
