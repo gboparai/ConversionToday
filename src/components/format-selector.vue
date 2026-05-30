@@ -113,6 +113,7 @@
 
 <script>
 import SearchableSelect from "@/components/searchable-select.vue";
+import { getMediaTypeConfig } from "@/js/media-types";
 export default {
   name: "formatSelector",
   components: { SearchableSelect },
@@ -136,12 +137,7 @@ export default {
       return list.filter((f) => f.canConvertTo !== false);
     },
     formatsKey() {
-      if (this.mediaType === 'audio') return 'audioFormats';
-      if (this.mediaType === 'video') return 'videoFormats';
-      if (this.mediaType === 'document') return 'documentFormats';
-      if (this.mediaType === 'archive') return 'archiveFormats';
-      if (this.mediaType === 'font') return 'fontFormats';
-      return 'formats';
+      return getMediaTypeConfig(this.mediaType).formatsKey;
     },
     formatOptions() {
       return this.formats.map((f) => ({ value: f.name, label: f.name.toUpperCase() }));
