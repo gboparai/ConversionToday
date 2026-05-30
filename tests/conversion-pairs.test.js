@@ -27,199 +27,121 @@ function fixtureSize(filename) {
   return fs.statSync(path.join(FIXTURES_DIR, filename)).size;
 }
 
-// ─── Format Definitions (mirroring src/store/index.js) ───────────────────────
+// ─── Format Definitions (loaded from app source files) ───────────────────────
 
-const IMAGE_FORMATS = [
-  { name: 'jpg', extension: 'jpg', canConvertFrom: true, canConvertTo: true },
-  { name: 'jpeg', extension: 'jpeg', canConvertFrom: true, canConvertTo: true },
-  { name: 'png', extension: 'png', canConvertFrom: true, canConvertTo: true },
-  { name: 'tiff', extension: 'tiff', canConvertFrom: true, canConvertTo: true },
-  { name: 'webp', extension: 'webp', canConvertFrom: true, canConvertTo: true },
-  { name: 'gif', extension: 'gif', canConvertFrom: true, canConvertTo: true },
-  { name: 'bmp', extension: 'bmp', canConvertFrom: true, canConvertTo: true },
-  { name: 'svg', extension: 'svg', canConvertFrom: false, canConvertTo: true },
-  { name: 'psd', extension: 'psd', canConvertFrom: true, canConvertTo: true },
-  { name: 'ai', extension: 'ai', canConvertFrom: false, canConvertTo: true },
-  { name: 'eps', extension: 'eps', canConvertFrom: false, canConvertTo: true },
-  { name: 'svgz', extension: 'svgz', canConvertFrom: false, canConvertTo: true },
-  { name: 'dcx', extension: 'dcx', canConvertFrom: true, canConvertTo: true },
-  { name: 'dds', extension: 'dds', canConvertFrom: true, canConvertTo: true },
-  { name: 'dpx', extension: 'dpx', canConvertFrom: true, canConvertTo: true },
-  { name: 'exr', extension: 'ext', canConvertFrom: true, canConvertTo: true },
-  { name: 'fits', extension: 'fits', canConvertFrom: true, canConvertTo: true },
-  { name: 'jfif', extension: 'jfif', canConvertFrom: true, canConvertTo: true },
-  { name: 'jpc', extension: 'jpc', canConvertFrom: true, canConvertTo: true },
-  { name: 'jpe', extension: 'jpe', canConvertFrom: true, canConvertTo: true },
-  { name: 'jps', extension: 'jps', canConvertFrom: true, canConvertTo: true },
-  { name: 'jpm', extension: 'jpm', canConvertFrom: true, canConvertTo: true },
-  { name: 'jng', extension: 'jng', canConvertFrom: true, canConvertTo: true },
-  { name: 'j2c', extension: 'j2c', canConvertFrom: true, canConvertTo: true },
-  { name: 'j2k', extension: 'j2k', canConvertFrom: true, canConvertTo: true },
-  { name: 'miff', extension: 'miff', canConvertFrom: true, canConvertTo: true },
-  { name: 'mng', extension: 'mng', canConvertFrom: true, canConvertTo: true },
-  { name: 'palm', extension: 'palm', canConvertFrom: false, canConvertTo: true },
-  { name: 'pam', extension: 'pam', canConvertFrom: true, canConvertTo: true },
-  { name: 'pbm', extension: 'pbm', canConvertFrom: true, canConvertTo: true },
-  { name: 'pcd', extension: 'pcd', canConvertFrom: true, canConvertTo: true },
-  { name: 'pcds', extension: 'pcds', canConvertFrom: true, canConvertTo: false },
-  { name: 'pcl', extension: 'pcl', canConvertFrom: true, canConvertTo: true },
-  { name: 'pcx', extension: 'pcx', canConvertFrom: true, canConvertTo: true },
-  { name: 'pfa', extension: 'pfa', canConvertFrom: true, canConvertTo: true },
-  { name: 'pgm', extension: 'pgm', canConvertFrom: true, canConvertTo: true },
-  { name: 'psb', extension: 'psb', canConvertFrom: true, canConvertTo: true },
-  { name: 'ptif', extension: 'ptif', canConvertFrom: true, canConvertTo: true },
-  { name: 'p7', extension: 'p7', canConvertFrom: true, canConvertTo: true },
-  { name: 'ras', extension: 'ras', canConvertFrom: true, canConvertTo: true },
-  { name: 'sgi', extension: 'sgi', canConvertFrom: true, canConvertTo: true },
-  { name: 'sun', extension: 'sun', canConvertFrom: true, canConvertTo: true },
-  { name: 'tga', extension: 'tga', canConvertFrom: false, canConvertTo: true },
-  { name: 'vda', extension: 'vda', canConvertFrom: false, canConvertTo: true },
-  { name: 'vicar', extension: 'vicar', canConvertFrom: true, canConvertTo: true },
-  { name: 'viff', extension: 'viff', canConvertFrom: true, canConvertTo: true },
-  { name: 'vips', extension: 'vips', canConvertFrom: true, canConvertTo: true },
-  { name: 'xbm', extension: 'xbm', canConvertFrom: true, canConvertTo: true },
-  { name: 'xpm', extension: 'xpm', canConvertFrom: true, canConvertTo: true },
-  { name: 'xv', extension: 'xv', canConvertFrom: true, canConvertTo: true },
-];
+const STORE_PATH = path.resolve(__dirname, '../src/store/index.js');
+const OCR_VIEW_PATH = path.resolve(__dirname, '../src/views/Ocr.vue');
+const MERGE_VIEW_PATH = path.resolve(__dirname, '../src/views/Merge.vue');
+const ROUTER_PATH = path.resolve(__dirname, '../src/router/index.js');
 
-const AUDIO_FORMATS = [
-  { name: 'mp3', extension: 'mp3', canConvertFrom: true, canConvertTo: true },
-  { name: 'wav', extension: 'wav', canConvertFrom: true, canConvertTo: true },
-  { name: 'ogg', extension: 'ogg', canConvertFrom: true, canConvertTo: true },
-  { name: 'flac', extension: 'flac', canConvertFrom: true, canConvertTo: true },
-  { name: 'aac', extension: 'aac', canConvertFrom: true, canConvertTo: true },
-  { name: 'm4a', extension: 'm4a', canConvertFrom: true, canConvertTo: true },
-  { name: 'opus', extension: 'opus', canConvertFrom: true, canConvertTo: true },
-  { name: 'webm', extension: 'webm', canConvertFrom: true, canConvertTo: true },
-  { name: 'wma', extension: 'wma', canConvertFrom: true, canConvertTo: true },
-  { name: 'alac', extension: 'alac', canConvertFrom: true, canConvertTo: true },
-  { name: 'ape', extension: 'ape', canConvertFrom: true, canConvertTo: true },
-];
+function extractBalanced(source, start, openChar, closeChar) {
+  let depth = 0;
+  let inString = null;
+  let escaped = false;
+  for (let i = start; i < source.length; i += 1) {
+    const ch = source[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch === '\\') {
+        escaped = true;
+      } else if (ch === inString) {
+        inString = null;
+      }
+      continue;
+    }
 
-const VIDEO_FORMATS = [
-  { name: 'mp4', extension: 'mp4', canConvertFrom: true, canConvertTo: true },
-  { name: 'webm', extension: 'webm', canConvertFrom: true, canConvertTo: true },
-  { name: 'mkv', extension: 'mkv', canConvertFrom: true, canConvertTo: true },
-  { name: 'mov', extension: 'mov', canConvertFrom: true, canConvertTo: true },
-  { name: 'avi', extension: 'avi', canConvertFrom: true, canConvertTo: true },
-  { name: 'wmv', extension: 'wmv', canConvertFrom: true, canConvertTo: true },
-  { name: 'flv', extension: 'flv', canConvertFrom: true, canConvertTo: true },
-  { name: '3gp', extension: '3gp', canConvertFrom: true, canConvertTo: true },
-  { name: 'mpeg', extension: 'mpeg', canConvertFrom: true, canConvertTo: true },
-  { name: 'm3u8', extension: 'm3u8', canConvertFrom: true, canConvertTo: true },
-  { name: 'ts', extension: 'ts', canConvertFrom: true, canConvertTo: true },
-  { name: 'ogv', extension: 'ogv', canConvertFrom: true, canConvertTo: true },
-];
+    if (ch === '"' || ch === "'" || ch === '`') {
+      inString = ch;
+      continue;
+    }
 
-const DOCUMENT_FORMATS = [
-  { name: 'markdown', extension: 'md', canConvertFrom: true, canConvertTo: true },
-  { name: 'gfm', extension: 'md', canConvertFrom: true, canConvertTo: true },
-  { name: 'commonmark', extension: 'md', canConvertFrom: true, canConvertTo: true },
-  { name: 'html', extension: 'html', canConvertFrom: true, canConvertTo: true },
-  { name: 'docx', extension: 'docx', canConvertFrom: true, canConvertTo: true },
-  { name: 'odt', extension: 'odt', canConvertFrom: true, canConvertTo: true },
-  { name: 'rst', extension: 'rst', canConvertFrom: true, canConvertTo: true },
-  { name: 'latex', extension: 'tex', canConvertFrom: true, canConvertTo: true },
-  { name: 'org', extension: 'org', canConvertFrom: true, canConvertTo: true },
-  { name: 'mediawiki', extension: 'wiki', canConvertFrom: true, canConvertTo: true },
-  { name: 'textile', extension: 'textile', canConvertFrom: true, canConvertTo: true },
-  { name: 'asciidoc', extension: 'adoc', canConvertFrom: true, canConvertTo: true },
-  { name: 'epub', extension: 'epub', canConvertFrom: true, canConvertTo: true },
-  { name: 'rtf', extension: 'rtf', canConvertFrom: true, canConvertTo: true },
-  { name: 'ipynb', extension: 'ipynb', canConvertFrom: true, canConvertTo: true },
-  { name: 'jira', extension: 'jira', canConvertFrom: true, canConvertTo: true },
-  { name: 'json', extension: 'json', canConvertFrom: true, canConvertTo: true },
-  { name: 'typst', extension: 'typ', canConvertFrom: true, canConvertTo: true },
-  { name: 'docbook', extension: 'xml', canConvertFrom: true, canConvertTo: true },
-  { name: 'opml', extension: 'opml', canConvertFrom: true, canConvertTo: true },
-  { name: 'fb2', extension: 'fb2', canConvertFrom: true, canConvertTo: true },
-  { name: 'muse', extension: 'muse', canConvertFrom: true, canConvertTo: true },
-  { name: 'djot', extension: 'dj', canConvertFrom: true, canConvertTo: true },
-  { name: 'native', extension: 'hs', canConvertFrom: true, canConvertTo: true },
-  { name: 'man', extension: 'man', canConvertFrom: true, canConvertTo: true },
-  { name: 'bibtex', extension: 'bib', canConvertFrom: true, canConvertTo: true },
-  { name: 'biblatex', extension: 'bib', canConvertFrom: true, canConvertTo: true },
-  { name: 'csl-json', extension: 'json', canConvertFrom: true, canConvertTo: true },
-  { name: 'csl-yaml', extension: 'yaml', canConvertFrom: true, canConvertTo: true },
-  { name: 'dokuwiki', extension: 'doku', canConvertFrom: true, canConvertTo: true },
-  { name: 'haddock', extension: 'hs', canConvertFrom: true, canConvertTo: true },
-  { name: 'creole', extension: 'creole', canConvertFrom: true, canConvertTo: false },
-  { name: 'twiki', extension: 'twiki', canConvertFrom: true, canConvertTo: false },
-  { name: 'tikiwiki', extension: 'tiki', canConvertFrom: true, canConvertTo: false },
-  { name: 'vimwiki', extension: 'wiki', canConvertFrom: true, canConvertTo: false },
-  { name: 'ris', extension: 'ris', canConvertFrom: true, canConvertTo: false },
-  { name: 'csv', extension: 'csv', canConvertFrom: true, canConvertTo: true },
-  { name: 'tsv', extension: 'tsv', canConvertFrom: true, canConvertTo: true },
-  { name: 'xlsx', extension: 'xlsx', canConvertFrom: true, canConvertTo: true },
-  { name: 'xls', extension: 'xls', canConvertFrom: true, canConvertTo: true },
-  { name: 'ods', extension: 'ods', canConvertFrom: true, canConvertTo: true },
-  { name: 'pod', extension: 'pod', canConvertFrom: true, canConvertTo: true },
-  { name: 'mdoc', extension: 'mdoc', canConvertFrom: true, canConvertTo: false },
-  { name: 'txt2tags', extension: 't2t', canConvertFrom: true, canConvertTo: true },
-  { name: 'endnote-xml', extension: 'xml', canConvertFrom: true, canConvertTo: false },
-  // Output-only formats
-  { name: 'beamer', extension: 'tex', canConvertFrom: false, canConvertTo: true },
-  { name: 'pdf', extension: 'pdf', canConvertFrom: false, canConvertTo: true },
-  { name: 'revealjs', extension: 'html', canConvertFrom: false, canConvertTo: true },
-  { name: 'slidy', extension: 'html', canConvertFrom: false, canConvertTo: true },
-  { name: 'dzslides', extension: 'html', canConvertFrom: false, canConvertTo: true },
-  { name: 's5', extension: 'html', canConvertFrom: false, canConvertTo: true },
-  { name: 'pptx', extension: 'pptx', canConvertFrom: false, canConvertTo: true },
-  { name: 'plain', extension: 'txt', canConvertFrom: false, canConvertTo: true },
-  { name: 'texinfo', extension: 'texi', canConvertFrom: false, canConvertTo: true },
-  { name: 'context', extension: 'tex', canConvertFrom: false, canConvertTo: true },
-  { name: 'icml', extension: 'icml', canConvertFrom: false, canConvertTo: true },
-  { name: 'jats', extension: 'xml', canConvertFrom: false, canConvertTo: true },
-  { name: 'tei', extension: 'xml', canConvertFrom: false, canConvertTo: true },
-  { name: 'ms', extension: 'ms', canConvertFrom: false, canConvertTo: true },
-  { name: 'xwiki', extension: 'txt', canConvertFrom: false, canConvertTo: true },
-  { name: 'zimwiki', extension: 'txt', canConvertFrom: false, canConvertTo: true },
-  { name: 'bbcode', extension: 'bbcode', canConvertFrom: false, canConvertTo: true },
-  { name: 'slideous', extension: 'html', canConvertFrom: false, canConvertTo: true },
-  { name: 'ansi', extension: 'ansi', canConvertFrom: false, canConvertTo: true },
-  { name: 'vimdoc', extension: 'txt', canConvertFrom: false, canConvertTo: true },
-  { name: 'markua', extension: 'markua', canConvertFrom: false, canConvertTo: true },
-  { name: 'odt-xml', extension: 'xml', canConvertFrom: false, canConvertTo: true },
-];
+    if (ch === openChar) {
+      depth += 1;
+    } else if (ch === closeChar) {
+      depth -= 1;
+      if (depth === 0) {
+        return source.slice(start, i + 1);
+      }
+    }
+  }
+  throw new Error(`Failed to extract balanced ${openChar}${closeChar} section`);
+}
 
-const ARCHIVE_FORMATS = [
-  { name: 'zip', extension: 'zip', canConvertFrom: true, canConvertTo: true },
-  { name: '7z', extension: '7z', canConvertFrom: true, canConvertTo: true },
-  { name: 'rar', extension: 'rar', canConvertFrom: true, canConvertTo: false },
-  { name: 'tar', extension: 'tar', canConvertFrom: true, canConvertTo: true },
-  { name: 'tar.gz', extension: 'tar.gz', canConvertFrom: true, canConvertTo: true },
-  { name: 'tar.bz2', extension: 'tar.bz2', canConvertFrom: true, canConvertTo: true },
-  { name: 'tar.xz', extension: 'tar.xz', canConvertFrom: true, canConvertTo: true },
-  { name: 'iso', extension: 'iso', canConvertFrom: true, canConvertTo: true },
-];
+function extractStateArrayLiteral(source, key) {
+  const marker = `${key}: [`;
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex < 0) throw new Error(`Could not find state array: ${key}`);
+  const arrayStart = source.indexOf('[', markerIndex);
+  return extractBalanced(source, arrayStart, '[', ']');
+}
 
-const FONT_FORMATS = [
-  { name: 'ttf', extension: 'ttf', canConvertFrom: true, canConvertTo: true },
-  { name: 'otf', extension: 'otf', canConvertFrom: true, canConvertTo: true },
-  { name: 'woff', extension: 'woff', canConvertFrom: true, canConvertTo: true },
-  { name: 'woff2', extension: 'woff2', canConvertFrom: true, canConvertTo: true },
-  { name: 'eot', extension: 'eot', canConvertFrom: true, canConvertTo: true },
-  { name: 'svg', extension: 'svg', canConvertFrom: true, canConvertTo: true },
-];
+function extractConstArrayLiteral(source, name) {
+  const marker = `const ${name} = [`;
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex < 0) throw new Error(`Could not find const array: ${name}`);
+  const arrayStart = source.indexOf('[', markerIndex);
+  return extractBalanced(source, arrayStart, '[', ']');
+}
 
-const COMPRESSION_FORMATS = ['jpg', 'png', 'webp', 'avif'];
+function parseQuotedList(literal) {
+  return [...literal.matchAll(/["']([^"']+)["']/g)].map((m) => m[1]);
+}
 
-const OCR_INPUT_FORMATS = [
-  { name: 'jpg', inputType: 'image' },
-  { name: 'jpeg', inputType: 'image' },
-  { name: 'png', inputType: 'image' },
-  { name: 'gif', inputType: 'image' },
-  { name: 'bmp', inputType: 'image' },
-  { name: 'webp', inputType: 'image' },
-  { name: 'tiff', inputType: 'image' },
-  { name: 'pdf', inputType: 'pdf' },
-];
+function parseFormatObjects(arrayLiteral, extraKeys = []) {
+  const objectLiterals = arrayLiteral.match(/\{[\s\S]*?\}/g) || [];
+  return objectLiterals
+    .map((obj) => {
+      const nameMatch = obj.match(/name:\s*["']([^"']+)["']/);
+      if (!nameMatch) return null;
+      const result = {
+        name: nameMatch[1],
+        extension: (obj.match(/extension:\s*["']([^"']+)["']/) || [])[1],
+        canConvertFrom: /canConvertFrom:\s*true/.test(obj),
+        canConvertTo: /canConvertTo:\s*true/.test(obj),
+      };
+      extraKeys.forEach((key) => {
+        const match = obj.match(new RegExp(`${key}:\\s*[\"']([^\"']+)[\"']`));
+        if (match) result[key] = match[1];
+      });
+      return result;
+    })
+    .filter(Boolean);
+}
 
-const OCR_OUTPUT_FORMATS = [
-  'txt', 'docx', 'pdf', 'xlsx', 'csv', 'epub', 'rtf', 'odt',
-  'html', 'markdown', 'rst', 'latex', 'org', 'asciidoc',
-  'mediawiki', 'textile', 'docbook', 'fb2', 'tsv', 'ods',
-];
+function parseStoreFormats(arrayName) {
+  const source = fs.readFileSync(STORE_PATH, 'utf8');
+  return parseFormatObjects(extractStateArrayLiteral(source, arrayName));
+}
+
+function parseMergeFamilies() {
+  const source = fs.readFileSync(MERGE_VIEW_PATH, 'utf8');
+  const objectStart = source.indexOf('const FAMILY_CONFIG = {');
+  if (objectStart < 0) throw new Error('Could not find FAMILY_CONFIG');
+  const braceStart = source.indexOf('{', objectStart);
+  const familyConfigLiteral = extractBalanced(source, braceStart, '{', '}');
+  const familyRegex = /(archive|audio|video|document)\s*:\s*\{[\s\S]*?outputAllow:\s*\[([\s\S]*?)\]/g;
+  return [...familyConfigLiteral.matchAll(familyRegex)].map((match) => ({
+    family: match[1],
+    formats: parseQuotedList(match[2]),
+  }));
+}
+
+function parseRouterPaths() {
+  const source = fs.readFileSync(ROUTER_PATH, 'utf8');
+  return [...source.matchAll(/path:\s*'([^']+)'/g)].map((match) => match[1]);
+}
+
+const IMAGE_FORMATS = parseStoreFormats('formats');
+const AUDIO_FORMATS = parseStoreFormats('audioFormats');
+const VIDEO_FORMATS = parseStoreFormats('videoFormats');
+const DOCUMENT_FORMATS = parseStoreFormats('documentFormats');
+const ARCHIVE_FORMATS = parseStoreFormats('archiveFormats');
+const FONT_FORMATS = parseStoreFormats('fontFormats');
+
+const ocrViewSource = fs.readFileSync(OCR_VIEW_PATH, 'utf8');
+const OCR_INPUT_FORMATS = parseFormatObjects(extractConstArrayLiteral(ocrViewSource, 'OCR_INPUT_FORMATS'), ['inputType']);
+const OCR_OUTPUT_FORMATS = parseFormatObjects(extractConstArrayLiteral(ocrViewSource, 'OCR_OUTPUT_FORMATS')).map((format) => format.name);
 
 const PDF_IMAGE_PAIRS = [
   { input: 'pdf', outputs: ['png', 'jpg', 'jpeg', 'webp'] },
@@ -229,12 +151,11 @@ const PDF_IMAGE_PAIRS = [
   { input: 'webp', outputs: ['pdf'] },
 ];
 
-const MERGE_FAMILIES = [
-  { family: 'archive', formats: ['zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'iso'] },
-  { family: 'audio', formats: ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'opus', 'webm', 'wma', 'alac', 'ape'] },
-  { family: 'video', formats: ['mp4', 'webm', 'mkv', 'mov', 'avi', 'wmv', 'flv', '3gp', 'mpeg', 'm3u8', 'ts', 'ogv'] },
-  { family: 'document', formats: ['markdown', 'html', 'docx', 'odt', 'epub', 'rtf', 'pdf'] },
-];
+const MERGE_FAMILIES = parseMergeFamilies();
+
+const ROUTER_DEFINED_PATHS = parseRouterPaths();
+
+const COMPRESSION_FORMATS = ['jpg', 'png', 'webp', 'avif'];
 
 const COMPRESS_FORMATS = ['zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'iso'];
 
@@ -677,12 +598,12 @@ describe('Font Conversion Pairs', () => {
 describe('OCR Tool', () => {
   describe('Input formats', () => {
     test(`has ${OCR_INPUT_FORMATS.length} OCR input formats`, () => {
-      expect(OCR_INPUT_FORMATS.length).toBe(8);
+      expect(OCR_INPUT_FORMATS.length).toBe(7);
     });
 
-    test('supports image inputs (jpg, jpeg, png, gif, bmp, webp, tiff)', () => {
+    test('supports image inputs (jpg, png, gif, bmp, webp, tiff)', () => {
       const imageInputs = OCR_INPUT_FORMATS.filter(f => f.inputType === 'image');
-      expect(imageInputs.length).toBe(7);
+      expect(imageInputs.length).toBe(6);
     });
 
     test('supports PDF input', () => {
@@ -735,7 +656,7 @@ describe('OCR Tool', () => {
   describe('Total OCR pair count', () => {
     const pairCount = OCR_INPUT_FORMATS.length * OCR_OUTPUT_FORMATS.length;
     test(`supports ${pairCount} OCR conversion pairs`, () => {
-      expect(pairCount).toBe(160); // 8 * 20
+      expect(pairCount).toBe(140); // 7 * 20
     });
   });
 });
@@ -798,7 +719,7 @@ describe('Merge Tool', () => {
     test('supports video merge', () => {
       const video = MERGE_FAMILIES.find(f => f.family === 'video');
       expect(video).toBeDefined();
-      expect(video.formats.length).toBe(12);
+      expect(video.formats.length).toBe(11);
     });
 
     test('supports document merge', () => {
@@ -907,8 +828,7 @@ describe('Route Coverage', () => {
 
   EXPECTED_ROUTES.forEach(route => {
     test(`route ${route} is defined`, () => {
-      // Simply verify that the route exists in our test coverage
-      expect(EXPECTED_ROUTES).toContain(route);
+      expect(ROUTER_DEFINED_PATHS).toContain(route);
     });
   });
 
