@@ -169,7 +169,7 @@ export default createStore({
             },
             {
                 name: 'exr',
-                extension: 'ext',
+                extension: 'exr',
                 title:'OpenEXR Image',  
                 description: 'An EXR file is a raster image stored in the OpenEXR format, a high dynamic-range (HDR) image format developed by Academy Software Foundation (ASWF). The EXR format supports multi-layer images, lossy and lossless compression, and 16-bit and 32-bit pixels.', 
                 canConvertFrom: true, 
