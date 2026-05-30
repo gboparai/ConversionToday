@@ -16,6 +16,8 @@ const PDF_IMAGE_OUTPUTS_BY_INPUT = {
   webp: ['pdf'],
 };
 
+const EXPECTED_MEDIA_TYPES = ['image', 'audio', 'video', 'document', 'archive', 'font'];
+
 describe('Prerender route generation', () => {
   test('returns unique absolute routes', () => {
     const routes = generatePrerenderRoutes();
@@ -31,9 +33,10 @@ describe('Prerender route generation', () => {
     const routes = generatePrerenderRoutes();
 
     expect(routes).toContain('/');
-    Object.keys(formatsByMediaType).forEach((mediaType) => {
+    EXPECTED_MEDIA_TYPES.forEach((mediaType) => {
       expect(routes).toContain(`/${mediaType}`);
     });
+    expect(Object.keys(formatsByMediaType).sort()).toEqual([...EXPECTED_MEDIA_TYPES].sort());
     expect(routes).toContain('/ocr');
     expect(routes).toContain('/pdf-image');
   });

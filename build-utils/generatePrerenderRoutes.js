@@ -4,7 +4,7 @@
  * 
  * Route patterns generated:
  * - /                     (home)
- * - /TYPE                 (e.g., /image, /audio, /video, /document, /archive)
+ * - /TYPE                 (e.g., /image, /audio, /video, /document, /archive, /font)
  * - /TYPE/FORMAT          (e.g., /image/jpg, /audio/mp3, /archive/zip)
  * - /TYPE/FORMAT/TARGET   (e.g., /image/jpg/png, /audio/mp3/wav, /archive/zip/7z)
  */
@@ -40,6 +40,9 @@ const formatsByMediaType = {
   ],
   archive: [
     'zip', '7z', 'rar', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'iso'
+  ],
+  font: [
+    'ttf', 'otf', 'woff', 'woff2', 'eot', 'svg'
   ]
 };
 
