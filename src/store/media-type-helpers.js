@@ -205,4 +205,4 @@ function createMediaActions(prefix, { filesKey, nextIndexKey, configKey, workerK
     return actions;
 }
 
-export { createMediaMutations, createMediaActions, capitalize };
+export { createMediaMutations, createMediaActions };
