@@ -68,9 +68,9 @@
   </div>
   <div class="infomationContainer">
     <information>
-      <template #header>Bulk File Conversion </template>
+      <template #header>Unlimited Batch Conversion</template>
       <template #description>
-        Bulk converts an unlimited number of
+        Convert an unlimited number of
         {{ formatInofo.name.toUpperCase() }} files to any other supported file
         format with just one click.
       </template>
@@ -122,6 +122,10 @@ export default {
             "Free Online " +
             this.$route.params.format.toUpperCase() +
             " Converter. Convert to 50+ file formats in seconds with no limits on file size or number of files.",
+        },
+        {
+          name: "keywords",
+          content: "free file converter, convert " + this.$route.params.format.toUpperCase() + ", online file conversion, no limit converter, unlimited file converter",
         },
         { name: "twitter:card", content: "summary" },
         {

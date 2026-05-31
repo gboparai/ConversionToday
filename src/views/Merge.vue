@@ -287,6 +287,10 @@ export default {
           content:
             "Merge archive, audio, video and supported document files in-browser with drag-to-reorder queues and one-file download output.",
         },
+        {
+          name: "keywords",
+          content: "free file merger, merge pdf, merge audio, merge video, combine files online, merge archives, local browser file merger",
+        },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/merge" }],
       htmlAttrs: { lang: "en" },

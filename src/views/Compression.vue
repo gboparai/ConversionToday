@@ -301,6 +301,10 @@ export default {
           content:
             "Compress JPG, PNG, WEBP and AVIF files online for free. Files stay local in your browser with batch compression and before/after preview.",
         },
+        {
+          name: "keywords",
+          content: "free image compressor, compress jpg, compress png, compress webp, compress avif, online image compression, batch image compressor, no limit image compression",
+        },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/compression" }],
       htmlAttrs: { lang: "en" },

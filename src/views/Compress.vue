@@ -172,6 +172,10 @@ export default {
           content:
             "Compress multiple files into one archive online for free. Output ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO with local browser processing.",
         },
+        {
+          name: "keywords",
+          content: "free archive compressor, compress to zip, online compression tool, create tar archive, 7z compression, iso compressor, local browser compression",
+        },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/compress" }],
       htmlAttrs: { lang: "en" },
