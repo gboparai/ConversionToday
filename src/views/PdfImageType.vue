@@ -2,7 +2,7 @@
   <descriptor>
     <template #header>{{ pageHeader }}</template>
     <template #description>
-      Choose output format for {{ selectedInputInfo.label }} input, then process files on the next page.
+      Choose a {{ selectedInputInfo.label }} conversion path, then continue to process files in your browser. Convert PDF pages to images or combine images into a single PDF with no signup and no upload limits.
     </template>
   </descriptor>
 
@@ -27,21 +27,42 @@
 
   <div class="informationContainer">
     <information>
-      <template #header>Pair-based Routing</template>
+      <template #header>Direct Conversion Paths</template>
       <template #description>
-        Every conversion pair has a direct route so the processing page always opens with the expected input and output formats.
+        Each conversion pair uses a direct URL, so you can link and revisit the exact workflow you need, such as PDF to PNG or JPG to PDF.
       </template>
     </information>
     <information>
-      <template #header>Supported Image Inputs</template>
+      <template #header>Popular PDF and Image Workflows</template>
       <template #description>
-        Image input is split by type (JPG, PNG, WEBP) so users can choose the exact workflow they need.
+        Convert PDF pages to PNG, JPG, JPEG, or WEBP. You can also merge JPG, JPEG, PNG, or WEBP images into one downloadable PDF file.
       </template>
     </information>
     <information>
-      <template #header>Consistent Structure</template>
+      <template #header>Fast Local Processing</template>
       <template #description>
-        This follows the same three-step structure used by the main converter: home, type page, processing page.
+        Conversion runs in your browser, which helps keep files private and reduces waiting time for uploads or remote processing.
+      </template>
+    </information>
+  </div>
+
+  <div class="informationContainer">
+    <information>
+      <template #header>No Account Required</template>
+      <template #description>
+        Start converting immediately without creating an account. Pick your formats, add files, and download your results.
+      </template>
+    </information>
+    <information>
+      <template #header>Consistent Step-by-Step Flow</template>
+      <template #description>
+        This page is the format selection step before processing, so every workflow stays clear: choose formats first, then convert on the next screen.
+      </template>
+    </information>
+    <information>
+      <template #header>Useful for Batch Tasks</template>
+      <template #description>
+        Use PDF-to-image for extracting many pages, or image-to-PDF for packaging many screenshots and scans into a single PDF.
       </template>
     </information>
   </div>
@@ -108,20 +129,32 @@ const OUTPUT_LABEL = {
 function buildFaqs() {
   return [
     {
-      question: "Why are JPG, PNG, and WEBP separate inputs now?",
+      question: "Which PDF and image conversions are supported on this page?",
+      answer:
+        "You can convert PDF to PNG, JPG, JPEG, and WEBP. You can also convert JPG, JPEG, PNG, and WEBP images into a single PDF.",
+      open: false,
+    },
+    {
+      question: "Why are JPG, PNG, and WEBP split into separate input routes?",
       answer:
         "Splitting image input by format makes supported workflows explicit and keeps each conversion route clear.",
       open: false,
     },
     {
       question: "Which output formats are available for PDF?",
-      answer: "PDF supports PNG, JPEG, and WEBP output.",
+      answer: "PDF supports PNG, JPG, JPEG, and WEBP output.",
       open: false,
     },
     {
-      question: "Can I output images from JPG?",
+      question: "Can I convert images directly to other image formats here?",
       answer:
-        "No. JPG, PNG, and WEBP are designed for image-to-PDF packaging. PDF is used for PDF-to-image extraction.",
+        "No. This tool focuses on PDF ↔ image workflows. Image inputs are intended for image-to-PDF packaging, while PDF input is used for PDF-to-image extraction.",
+      open: false,
+    },
+    {
+      question: "Do I need to upload files to a server?",
+      answer:
+        "No. Conversion is designed to run in your browser so files stay on your device during processing.",
       open: false,
     },
   ];
@@ -137,7 +170,33 @@ export default {
         {
           name: "description",
           content:
-            "Choose PDF and image conversion pairs before processing. Supports PDF to PNG/JPG/WEBP and JPG/PNG/WEBP to PDF.",
+            "Choose PDF and image conversion pairs before processing. Supports PDF to PNG, JPG, JPEG, and WEBP plus JPG/JPEG/PNG/WEBP to PDF with local browser conversion.",
+        },
+        {
+          name: "keywords",
+          content:
+            "pdf to png, pdf to jpg, pdf to webp, image to pdf, jpg to pdf, png to pdf, webp to pdf, pdf image converter",
+        },
+        { name: "twitter:card", content: "summary" },
+        {
+          name: "twitter:title",
+          content: "PDF and Image Format Selector - No Limit Converter",
+        },
+        {
+          name: "twitter:description",
+          content:
+            "Pick PDF and image conversion paths, then process files in your browser. Supports PDF to images and images to PDF.",
+        },
+        {
+          property: "og:title",
+          content: "PDF and Image Format Selector - No Limit Converter",
+        },
+        { property: "og:site_name", content: "No Limit Converter" },
+        { property: "og:type", content: "website" },
+        {
+          property: "og:description",
+          content:
+            "Choose PDF and image conversion pairs before processing. Supports PDF to images and image to PDF workflows.",
         },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/pdf-image" }],
