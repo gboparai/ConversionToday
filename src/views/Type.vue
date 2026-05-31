@@ -198,6 +198,16 @@ export default {
             "The service is free because the entire conversion process takes place within your browser. The computing resources required for the conversion are provided by your device. This approach eliminates the need for server-side processing and infrastructure, allowing us to offer the service at no cost to users. Your browser becomes the tool for conversion, making it a convenient and cost-free solution.",
           open: false,
         },
+        {
+          question: `Do I need to install any software to convert ${this.$route.params.format} files?`,
+          answer: "No, everything is processed entirely within your web browser.",
+          open: false,
+        },
+        {
+          question: `Can I convert ${this.$route.params.format} files on my mobile device?`,
+          answer: "Yes, our converter works perfectly on both desktop and mobile browsers.",
+          open: false,
+        },
       ],
     };
   },

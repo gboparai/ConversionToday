@@ -157,6 +157,11 @@ function buildFaqs(formatName) {
       answer: "No. This tool just packages your selected files into one archive without drag-to-reorder controls.",
       open: false,
     },
+    {
+      question: "Is this compression tool completely free?",
+      answer: "Yes, you can compress as many files as you want without any cost or subscription.",
+      open: false,
+    },
   ];
 }
 
@@ -170,11 +175,11 @@ export default {
         {
           name: "description",
           content:
-            "Compress multiple files into one archive online for free. Output ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO with local browser processing.",
+            "Compress multiple files into one archive online for free. Output ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO with secure on-device processing.",
         },
         {
           name: "keywords",
-          content: "free archive compressor, compress to zip, online compression tool, create tar archive, 7z compression, iso compressor, local browser compression",
+          content: "free archive compressor, compress to zip, online compression tool, create tar archive, 7z compression, iso compressor, secure on-device compression",
         },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/compress" }],

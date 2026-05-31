@@ -245,6 +245,11 @@ function buildFaqs(formatLabel) {
         "Some formats use lossy compression, so there can be some visual change. The built-in preview makes it easy to compare the original and compressed versions before downloading.",
       open: false,
     },
+    {
+      question: "Is there a limit on how many images I can compress?",
+      answer: "No, there are no limits. You can compress an unlimited number of images in a single batch.",
+      open: false,
+    },
   ];
 }
 

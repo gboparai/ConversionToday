@@ -306,7 +306,7 @@ export default {
         {
           name: "twitter:description",
           content:
-            "Convert PDF pages to images or merge images into a PDF online. Free, no signup, and local browser processing.",
+            "Convert PDF pages to images or merge images into a PDF online. Free, no signup, and secure on-device processing.",
         },
         {
           property: "og:title",
@@ -317,7 +317,7 @@ export default {
         {
           property: "og:description",
           content:
-            "Convert PDF pages to PNG/JPG/JPEG/WEBP or convert images to PDF with fast browser-based processing.",
+            "Convert PDF pages to PNG/JPG/JPEG/WEBP or convert images to PDF with fast secure on-device processing.",
         },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/pdf-image" }],

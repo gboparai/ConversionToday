@@ -272,6 +272,11 @@ function buildMergeFaqs(familyLabel) {
         "Each merge family accepts specific input types. Unsupported files are skipped to prevent invalid output.",
       open: false,
     },
+    {
+      question: "Is there a limit to the number of files I can merge?",
+      answer: "No, you can merge an unlimited number of files together without any size restrictions.",
+      open: false,
+    },
   ];
 }
 
@@ -289,7 +294,7 @@ export default {
         },
         {
           name: "keywords",
-          content: "free file merger, merge pdf, merge audio, merge video, combine files online, merge archives, local browser file merger",
+          content: "free file merger, merge pdf, merge audio, merge video, combine files online, merge archives, on-device file merger",
         },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/merge" }],
