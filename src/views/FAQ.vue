@@ -76,43 +76,43 @@ export default {
   },
   setup() {
     useMeta({
-      title: "FAQ - Conversion Today",
+      title: "Frequently Asked Questions - No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Find answers to common questions about our service. Learn about file size limits, security measures, supported formats, and more. Fast, reliable, and free. Convert Today!",
+            "Find answers to common questions about No Limit Converter. Learn about file size limits, security measures, and supported formats. Fast, reliable, and totally free.",
         },
         { name: "twitter:card", content: "summary" },
-        { name: "twitter:title", content: "FAQ - Conversion Today" },
+        { name: "twitter:title", content: "Frequently Asked Questions - No Limit Converter" },
         {
           name: "twitter:description",
           content:
-            "Find answers to common questions about our service. Learn about file size limits, security measures, supported formats, and more. Fast, reliable, and free.",
+            "Find answers to common questions about No Limit Converter. Learn about file size limits, security measures, and supported formats. Fast, reliable, and totally free.",
         },
         // image must be an absolute path
         {
           name: "twitter:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         // Facebook OpenGraph
-        { property: "og:title", content: "FAQ - Conversion Today" },
-        { property: "og:site_name", content: "Conversion Today" },
+        { property: "og:title", content: "Frequently Asked Questions - No Limit Converter" },
+        { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:description",
           content:
-            "Find answers to common questions about our service. Learn about file size limits, security measures, supported formats, and more. Fast, reliable, and free.",
+            "Find answers to common questions about No Limit Converter. Learn about file size limits, security measures, and supported formats. Fast, reliable, and totally free.",
         },
       ],
       link: [
         {
           rel: "canonical",
-          href: "https://conversiontoday.com/faq",
+          href: "https://nolimitconverter.com/faq",
         },
       ],
       htmlAttrs: { lang: "en", amp: true },

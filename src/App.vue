@@ -60,14 +60,14 @@
   </nav>
   <metainfo>
     <template v-slot:title="{ content }">{{
-      content ? `${content}` : `Conversion Today`
+      content ? `${content}` : `No Limit Converter`
     }}</template>
   </metainfo>
   <img
     height="212"
     width="350"
     class="logo"
-    alt="conversion today logo"
+    alt="no limit converter logo"
     :src="logoSrc"
   />
 

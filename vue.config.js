@@ -22,7 +22,7 @@ module.exports = {
     ],
 
     pwa: {
-        name: 'Conversion Today',
+        name: 'No Limit Converter',
         themeColor: '#545454',
     },
     configureWebpack: () => {

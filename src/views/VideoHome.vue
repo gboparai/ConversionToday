@@ -1,56 +1,51 @@
 <template>
   <descriptor>
-    <template #header>Video Converter</template>
+    <template #header>Free Bulk Video Converter Online</template>
     <template #description>
-      Convert unlimited video files online for free. Supports MP4, WebM, MKV,
-      MOV, AVI and more — all processed locally in your browser.
+      Bulk convert MP4, MOV, MKV, AVI, WebM and 10+ video formats — no file size limits, no restrictions, completely free.
     </template>
   </descriptor>
 
   <format-selector :isFrom="true" path="video" name="from" mediaType="video"></format-selector>
+
   <div class="infomationContainer">
     <information>
-      <template #header>Wide Format Support</template>
+      <template #header>Convert Any Video Format</template>
       <template #description>
-        Convert between MP4, WebM, MKV, MOV, AVI, WMV, FLV, 3GP, MPEG and
-        more. Powered by Mediabunny and FFmpeg.
+        Convert between MP4, WebM, MKV, MOV, AVI, WMV, FLV, 3GP, MPEG, TS, OGV and more. Over 100 possible video conversion pairs covered.
       </template>
     </information>
     <information>
-      <template #header>Fast and Easy</template>
+      <template #header>No File Size Limit on Videos</template>
       <template #description>
-        Drop your video files, choose an output format and click "Process All".
-        Conversion is handled locally — no uploads, no waiting.
+        Convert large video files — 4K footage, long recordings, high-bitrate files — without hitting any size cap or paying for a plan.
       </template>
     </information>
     <information>
-      <template #header>Truly Unlimited</template>
+      <template #header>Batch Video Conversion</template>
       <template #description>
-        No limits on the number of files or file size. All conversions are
-        completely free.
+        Convert multiple videos simultaneously in a single batch. No need to process files one at a time. Download all or get a ZIP.
       </template>
     </information>
   </div>
+
   <div class="infomationContainer">
     <information>
-      <template #header>Browser-based</template>
+      <template #header>100% Free, No Signup</template>
       <template #description>
-        All video processing happens directly in your browser using
-        Mediabunny (WebCodecs) with an FFmpeg fallback for legacy formats.
-        Your files never leave your device.
+        No account, no email, no credit card required. Every video conversion is completely free with no daily limits or quotas.
       </template>
     </information>
     <information>
-      <template #header>Hardware-accelerated</template>
+      <template #header>Fast Conversion</template>
       <template #description>
-        Mediabunny uses the WebCodecs API for hardware-accelerated encoding and
-        decoding, making video conversion fast even for large files.
+        Process dozens of video files in minutes. No waiting for server queues — conversion starts immediately and runs at full speed.
       </template>
     </information>
     <information>
-      <template #header>Secure</template>
+      <template #header>Your Videos Stay Private</template>
       <template #description>
-        All files remain in your browser. No data is ever sent to a server.
+        Videos are processed directly in your browser and never uploaded to any server. Your files stay on your device at all times.
       </template>
     </information>
   </div>
@@ -65,44 +60,44 @@ export default {
   name: "VideoHome",
   setup() {
     useMeta({
-      title: "Free Online Video Converter - Conversion Today",
+      title: "Free Bulk Video Converter Online - No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more. Powered by Mediabunny and FFmpeg.",
+            "Batch convert MP4, MOV, MKV, AVI, WebM and more video formats for free. No file size limit. Bulk convert multiple videos at once with no restrictions.",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free Online Video Converter - Conversion Today",
+          content: "Free Bulk Video Converter Online - No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
-            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more.",
+            "Batch convert MP4, MOV, MKV, AVI, WebM and more video formats for free. No file size limit. Bulk convert multiple videos at once with no restrictions.",
         },
         {
           name: "twitter:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:title",
-          content: "Free Online Video Converter - Conversion Today",
+          content: "Free Bulk Video Converter Online - No Limit Converter",
         },
-        { property: "og:site_name", content: "Conversion Today" },
+        { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:description",
           content:
-            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more.",
+            "Batch convert MP4, MOV, MKV, AVI, WebM and more video formats for free. No file size limit. Bulk convert multiple videos at once with no restrictions.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/video" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/video" }],
       htmlAttrs: { lang: "en", amp: true },
     });
   },

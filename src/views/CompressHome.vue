@@ -1,9 +1,8 @@
 <template>
   <descriptor>
-    <template #header>Archive Compress Tool</template>
+    <template #header>Free File Compression Tool Online</template>
     <template #description>
-      Add multiple files and compress them into one downloadable archive in your browser.
-      Supports ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO.
+      Compress hundreds of files into a single ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ or ISO archive — free, no file size limits.
     </template>
   </descriptor>
 
@@ -40,21 +39,42 @@
 
   <div class="informationContainer">
     <information>
+      <template #header>7 Archive Output Formats</template>
+      <template #description>
+        Create ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ or ISO output from any collection of files. Choose the right format for your workflow.
+      </template>
+    </information>
+    <information>
+      <template #header>Compress Bulk Files</template>
+      <template #description>
+        Add an entire folder of files and pack them all into a single archive at once. Ideal for backup, sharing or archiving large file collections.
+      </template>
+    </information>
+    <information>
+      <template #header>No File Size Limit</template>
+      <template #description>
+        Compress large collections of files without hitting any upload cap or size restriction. Works for files of any size.
+      </template>
+    </information>
+  </div>
+
+  <div class="informationContainer">
+    <information>
       <template #header>Single Output Archive</template>
       <template #description>
-        Queue files, choose an output format, and generate one archive file you can download instantly.
+        Queue all your files, choose a format, and download one single archive. No need to manually zip files on your desktop.
       </template>
     </information>
     <information>
-      <template #header>Formats You Can Convert To</template>
+      <template #header>100% Free, No Signup</template>
       <template #description>
-        Output options match the archive formats supported as conversion targets in the archive converter.
+        No account, no email, no credit card required. Every compression is completely free with no daily limits.
       </template>
     </information>
     <information>
-      <template #header>Local Processing</template>
+      <template #header>Your Files Stay Private</template>
       <template #description>
-        Compression runs in-browser with WebAssembly runtimes, so files stay on your device.
+        Files are compressed directly in your browser and never uploaded to any server. Your data stays on your device.
       </template>
     </information>
   </div>
@@ -70,15 +90,36 @@ export default {
   components: { Descriptor, Information },
   setup() {
     useMeta({
-      title: "Free Archive Compress Tool - Conversion Today",
+      title: "Free File Compression Tool Online - No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Compress multiple files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ or ISO archive online for free with local browser processing.",
+            "Compress and zip multiple files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2 or ISO archive for free. No file size limits, no restrictions. Bulk compress online.",
+        },
+        { name: "twitter:card", content: "summary" },
+        {
+          name: "twitter:title",
+          content: "Free File Compression Tool Online - No Limit Converter",
+        },
+        {
+          name: "twitter:description",
+          content:
+            "Compress and zip multiple files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2 or ISO archive for free. No file size limits, no restrictions. Bulk compress online.",
+        },
+        {
+          property: "og:title",
+          content: "Free File Compression Tool Online - No Limit Converter",
+        },
+        { property: "og:site_name", content: "No Limit Converter" },
+        { property: "og:type", content: "website" },
+        {
+          property: "og:description",
+          content:
+            "Compress and zip multiple files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2 or ISO archive for free. No file size limits, no restrictions. Bulk compress online.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/compress" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/compress" }],
       htmlAttrs: { lang: "en" },
     });
   },

@@ -1,9 +1,8 @@
 <template>
   <descriptor>
-    <template #header>OCR Tool</template>
+    <template #header>Free Bulk OCR - Extract Text from Images & PDFs</template>
     <template #description>
-      Choose your OCR input type first, then pick output format and language in the tool.
-      Processing stays local in your browser.
+      Extract text from images and PDFs in bulk — free, 30+ languages, export to DOCX, PDF, XLSX, TXT, CSV and more. No file size limit.
     </template>
   </descriptor>
 
@@ -26,21 +25,42 @@
 
   <div class="informationContainer">
     <information>
-      <template #header>Wide Format Support</template>
+      <template #header>Batch OCR Processing</template>
       <template #description>
-        Convert JPG, PNG, GIF, BMP, WebP, TIFF and PDF files directly in your browser.
+        Run OCR on multiple images or PDFs at once. No need to process files one at a time — add as many as you need and extract all at once.
       </template>
     </information>
     <information>
-      <template #header>Fast and Easy</template>
+      <template #header>30+ Languages Supported</template>
       <template #description>
-        Pick an input type, choose your language and output format, then run OCR.
+        Supports English, Spanish, French, German, Chinese, Arabic, Hindi, Japanese, Korean, Portuguese, Russian and many more languages.
       </template>
     </information>
     <information>
-      <template #header>Private Processing</template>
+      <template #header>No File Size Limit</template>
       <template #description>
-        All OCR runs locally in your browser. Your files are never uploaded to a server.
+        Extract text from large high-resolution images and multi-page PDFs without any file size restrictions.
+      </template>
+    </information>
+  </div>
+
+  <div class="informationContainer">
+    <information>
+      <template #header>20+ Export Formats</template>
+      <template #description>
+        Export extracted text as DOCX, PDF, XLSX, CSV, TXT, HTML, Markdown, EPUB, ODT, RTF, LaTeX, Org-mode and more.
+      </template>
+    </information>
+    <information>
+      <template #header>100% Free, No Signup</template>
+      <template #description>
+        Every OCR conversion is completely free. No account, no email, no credit card required. No daily limits or quotas.
+      </template>
+    </information>
+    <information>
+      <template #header>Your Files Stay Private</template>
+      <template #description>
+        Files are processed directly in your browser and never uploaded to any server. Your images and documents stay on your device.
       </template>
     </information>
   </div>
@@ -123,36 +143,36 @@ export default {
   },
   setup() {
     useMeta({
-      title: 'Free Online OCR Tool (Images & PDFs) - Conversion Today',
+      title: "Free Bulk OCR Tool - Extract Text from Images & PDFs - No Limit Converter",
       meta: [
         {
           name: 'description',
           content:
-            'Extract text from images and PDFs using Tesseract OCR. Export as DOCX, PDF, EPUB, XLSX, CSV, TXT and more. 30+ languages, all processing in your browser.',
+            "Batch OCR: extract text from JPG, PNG, TIFF, GIF and PDF files for free. No file size limit. 30+ languages. Export to DOCX, PDF, XLSX, TXT, CSV and more.",
         },
         { name: 'twitter:card', content: 'summary' },
         {
           name: 'twitter:title',
-          content: 'Free Online OCR Tool - Conversion Today',
+          content: "Free Bulk OCR Tool - Extract Text from Images & PDFs - No Limit Converter",
         },
         {
           name: 'twitter:description',
           content:
-            'Extract text from images and PDFs with Tesseract OCR in your browser. Export to DOCX, PDF, XLSX, CSV, TXT and more.',
+            "Batch OCR: extract text from JPG, PNG, TIFF, GIF and PDF files for free. No file size limit. 30+ languages. Export to DOCX, PDF, XLSX, TXT, CSV and more.",
         },
         {
           property: 'og:title',
-          content: 'Free Online OCR Tool - Conversion Today',
+          content: "Free Bulk OCR Tool - Extract Text from Images & PDFs - No Limit Converter",
         },
-        { property: 'og:site_name', content: 'Conversion Today' },
+        { property: 'og:site_name', content: 'No Limit Converter' },
         { property: 'og:type', content: 'website' },
         {
           property: 'og:description',
           content:
-            'Extract text from images and PDFs with Tesseract OCR in your browser. Export to DOCX, PDF, XLSX, CSV, TXT and more.',
+            "Batch OCR: extract text from JPG, PNG, TIFF, GIF and PDF files for free. No file size limit. 30+ languages. Export to DOCX, PDF, XLSX, TXT, CSV and more.",
         },
       ],
-      link: [{ rel: 'canonical', href: 'https://conversiontoday.com/ocr' }],
+      link: [{ rel: 'canonical', href: 'https://nolimitconverter.com/ocr' }],
       htmlAttrs: { lang: 'en' },
     });
   },

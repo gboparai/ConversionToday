@@ -286,7 +286,7 @@ export default {
   components: { Card, Descriptor, Information, SearchableSelect },
   data() {
     useMeta({
-      title: "PDF and Image Tool - Conversion Today",
+      title: "PDF and Image Tool - No Limit Converter",
       meta: [
         {
           name: "description",
@@ -294,7 +294,7 @@ export default {
             "Convert PDF pages to images or combine images into one PDF with clear file queues and local browser processing.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/pdf-image" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/pdf-image" }],
       htmlAttrs: { lang: "en" },
     });
 

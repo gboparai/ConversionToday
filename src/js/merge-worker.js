@@ -493,7 +493,7 @@ async function createWithSevenZip(entries, outputExtension, outputName) {
 }
 
 async function createWithIso9660(entries) {
-    const writer = new ISOWriter({ volumeId: 'CONVERSIONTODAY' });
+    const writer = new ISOWriter({ volumeId: 'NOLIMITCONVERT' });
     entries.forEach((entry) => {
         writer.add(sanitizePath(entry.path), entry.data);
     });

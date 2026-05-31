@@ -1,5 +1,5 @@
 /**
- * Comprehensive Conversion Pair Tests for ConversionToday
+ * Comprehensive Conversion Pair Tests for NoLimitConverter
  *
  * This test suite verifies that every supported conversion pair, tool, and
  * feature advertised by the application is properly defined in the store and

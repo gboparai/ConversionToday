@@ -1,5 +1,5 @@
 /**
- * Media Types Utility Tests for ConversionToday
+ * Media Types Utility Tests for NoLimitConverter
  *
  * Tests the media-types.js module which handles path detection,
  * configuration resolution, and action/mutation mapping.

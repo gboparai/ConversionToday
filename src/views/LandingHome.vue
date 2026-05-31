@@ -1,9 +1,8 @@
 <template>
   <descriptor>
-    <template #header>Free File Converter</template>
+    <template #header>Free Bulk File Converter Online</template>
     <template #description>
-      Convert images, audio, video, documents and archives locally in your browser with no uploads,
-      no limits and no waiting for a server.
+      Bulk convert images, audio, video, documents, archives and fonts — completely free with no restrictions on file size or quantity. No signup required.
     </template>
   </descriptor>
 
@@ -13,32 +12,32 @@
       <a class="mediaHub__card" href="/image">
         <span class="mediaHub__icon">🖼️</span>
         <h2>Image Converter</h2>
-        <p>Convert JPG, PNG, GIF, WEBP, TIFF, SVG and many more image formats.</p>
+        <p>Bulk convert JPG, PNG, GIF, WEBP, TIFF, SVG and 50+ image formats. No file size limit.</p>
       </a>
       <a class="mediaHub__card" href="/audio">
         <span class="mediaHub__icon">🎵</span>
         <h2>Audio Converter</h2>
-        <p>Convert MP3, WAV, OGG, FLAC, AAC, M4A, Opus and more in-browser.</p>
+        <p>Batch convert MP3, WAV, FLAC, AAC, OGG, M4A and more. No restrictions on file count or size.</p>
       </a>
       <a class="mediaHub__card" href="/video">
         <span class="mediaHub__icon">🎬</span>
         <h2>Video Converter</h2>
-        <p>Convert MP4, WebM, MOV, AVI, MKV and other common video formats.</p>
+        <p>Convert MP4, WebM, MOV, AVI, MKV and more. No file size limit — even for large 4K videos.</p>
       </a>
       <a class="mediaHub__card" href="/document">
         <span class="mediaHub__icon">📄</span>
         <h2>Document Converter</h2>
-        <p>Convert Markdown, HTML, DOCX, ODT, LaTeX, EPUB, RST, Org-mode and 30+ more document formats.</p>
+        <p>Batch convert DOCX, PDF, Markdown, HTML, EPUB, LaTeX and 60+ document formats for free.</p>
       </a>
       <a class="mediaHub__card" href="/archive">
         <span class="mediaHub__icon">🗜️</span>
         <h2>Archive Converter</h2>
-        <p>Convert ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO archives in-browser.</p>
+        <p>Convert ZIP, 7Z, RAR, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO archives — free, no size limits.</p>
       </a>
       <a class="mediaHub__card" href="/font">
         <span class="mediaHub__icon">🔤</span>
         <h2>Font Converter</h2>
-        <p>Convert TTF, OTF, WOFF, WOFF2, EOT and SVG fonts directly in your browser.</p>
+        <p>Convert TTF, OTF, WOFF, WOFF2, EOT and SVG fonts online. Batch convert for web and desktop.</p>
       </a>
     </div>
   </section>
@@ -49,51 +48,69 @@
       <a class="mediaHub__card" href="/compression">
         <span class="mediaHub__icon">🧰</span>
         <h2>Image Compression</h2>
-        <p>Compress JPG, PNG, WEBP and AVIF files locally with before/after preview.</p>
+        <p>Bulk compress JPG, PNG, WEBP and AVIF images. No file size limits. Before/after preview included.</p>
       </a>
       <a class="mediaHub__card" href="/compress">
         <span class="mediaHub__icon">🗃️</span>
         <h2>Archive Compress Tool</h2>
-        <p>Combine multiple files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ or ISO archive.</p>
+        <p>Pack hundreds of files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ or ISO archive.</p>
       </a>
       <a class="mediaHub__card" href="/merge">
         <span class="mediaHub__icon">🧩</span>
         <h2>File Merge Tool</h2>
-        <p>Merge audio, video, archive and supported document files into one downloadable output.</p>
+        <p>Combine audio, video, archive and document files into a single output. Free, no size limits.</p>
       </a>
       <a class="mediaHub__card" href="/pdf-image">
         <span class="mediaHub__icon">📑</span>
         <h2>PDF ↔ Image Tool</h2>
-        <p>Create one PDF from ordered JPG/PNG/WEBP files, or extract PDF pages to JPG, PNG or WEBP.</p>
+        <p>Extract every PDF page as an image, or combine unlimited images into one PDF. Free, no restrictions.</p>
       </a>
       <a class="mediaHub__card" href="/ocr">
         <span class="mediaHub__icon">🔍</span>
-        <h2>OCR Tool</h2>
-        <p>Extract text from images and PDFs using Tesseract OCR. Export as TXT, DOCX, PDF, XLSX, CSV, EPUB and more.</p>
+        <h2>OCR Text Extraction</h2>
+        <p>Extract text from images and PDFs in bulk. 30+ languages. Export to DOCX, XLSX, TXT, CSV and more.</p>
       </a>
     </div>
   </section>
 
   <div class="infomationContainer">
     <information>
-      <template #header>All Local</template>
+      <template #header>No File Size Limits</template>
       <template #description>
-        Files stay on your device. Processing happens in your browser instead
-        of on a remote server.
+        Convert files of any size — large 4K videos, high-resolution images, hefty reports — with absolutely zero restrictions. No paid tier required.
       </template>
     </information>
     <information>
-      <template #header>No Limits</template>
+      <template #header>Bulk Convert Hundreds of Files</template>
       <template #description>
-        Convert as many files as you need without signups, file caps or daily
-        quotas.
+        Drop an entire folder at once and convert everything in a single batch. Download individually or grab a ZIP of all your converted files.
       </template>
     </information>
     <information>
-      <template #header>Fast Setup</template>
+      <template #header>100% Free, No Signup Required</template>
       <template #description>
-        Pick a media type, choose your target format and start converting in a
-        few clicks.
+        Every tool on No Limit Converter is completely free. No account, no email address, no credit card — just open and convert.
+      </template>
+    </information>
+  </div>
+
+  <div class="infomationContainer">
+    <information>
+      <template #header>Your Files Stay Private</template>
+      <template #description>
+        Files are processed directly in your browser and never sent to any server. You keep full control of your data at all times.
+      </template>
+    </information>
+    <information>
+      <template #header>2,500+ Conversion Pairs</template>
+      <template #description>
+        Image, audio, video, document, archive and font conversions — over 2,500 format combinations across all tools, all free.
+      </template>
+    </information>
+    <information>
+      <template #header>Works on Any Device</template>
+      <template #description>
+        No software to install. Works on Windows, Mac, Linux, iOS and Android. Open your browser and start converting instantly.
       </template>
     </information>
   </div>
@@ -112,47 +129,47 @@ export default {
   },
   setup() {
     useMeta({
-      title: "Free File Converter - Conversion Today",
+      title: "Free Bulk File Converter Online - No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-             "Convert image, audio, video, document, archive and font files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Bulk convert images, audio, video, documents, archives and fonts for free. No file size limits, no restrictions, no signups. Convert hundreds of files at once with No Limit Converter.",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free File Converter - Conversion Today",
+          content: "Free Bulk File Converter Online - No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
-             "Convert image, audio, video, document, archive and font files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Bulk convert images, audio, video, documents, archives and fonts for free. No file size limits, no restrictions, no signups. Convert hundreds of files at once.",
         },
         {
           name: "twitter:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:title",
-          content: "Free File Converter - Conversion Today",
+          content: "Free Bulk File Converter Online - No Limit Converter",
         },
-        { property: "og:site_name", content: "Conversion Today" },
+        { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:description",
           content:
-             "Convert image, audio, video, document, archive and font files online for free with local browser-based processing. No uploads, limits or signups.",
+             "Bulk convert images, audio, video, documents, archives and fonts for free. No file size limits, no restrictions, no signups. Convert hundreds of files at once.",
         },
       ],
       link: [
         {
           rel: "canonical",
-          href: "https://conversiontoday.com",
+          href: "https://nolimitconverter.com",
         },
       ],
       htmlAttrs: { lang: "en", amp: true },

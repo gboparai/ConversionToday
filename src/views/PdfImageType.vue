@@ -132,7 +132,7 @@ export default {
   components: { Descriptor, Faq, Information, SearchableSelect },
   data() {
     useMeta({
-      title: "PDF and Image Format Selector - Conversion Today",
+      title: "PDF and Image Format Selector - No Limit Converter",
       meta: [
         {
           name: "description",
@@ -140,7 +140,7 @@ export default {
             "Choose PDF and image conversion pairs before processing. Supports PDF to PNG/JPG/WEBP and JPG/PNG/WEBP to PDF.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/pdf-image" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/pdf-image" }],
       htmlAttrs: { lang: "en" },
     });
 

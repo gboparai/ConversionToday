@@ -1,8 +1,8 @@
 <template>
   <descriptor>
-    <template #header>File Merge Tool</template>
+    <template #header>Free File Merge Tool Online</template>
     <template #description>
-      Merge archives, audio tracks, videos, and supported documents into one downloadable file in your browser.
+      Combine audio, video, archives and documents into a single output file — free, no file size limits, no restrictions.
     </template>
   </descriptor>
 
@@ -27,22 +27,42 @@
 
   <div class="informationContainer">
     <information>
-      <template #header>One Output File</template>
+      <template #header>Merge Audio, Video, Archives & Documents</template>
       <template #description>
-        Choose an output extension, arrange the source files, merge, then download a single finished file.
+        Combine files across four media types — audio tracks, video clips, archive files and documents — into one single downloadable output.
+      </template>
+    </information>
+    <information>
+      <template #header>No File Size Limit</template>
+      <template #description>
+        Merge large video files, lengthy audio recordings or bulky archives without any size restrictions. No paid plan required.
       </template>
     </information>
     <information>
       <template #header>Drag to Reorder</template>
       <template #description>
-        The queue is reorderable before processing, so the final merge follows the exact file order you want.
+        Set the exact sequence before merging. Drag and drop files into the perfect order so the final output follows precisely what you want.
+      </template>
+    </information>
+  </div>
+
+  <div class="informationContainer">
+    <information>
+      <template #header>One Output File</template>
+      <template #description>
+        Choose an output extension, arrange the source files, merge, then download a single finished file — no zip extraction needed.
       </template>
     </information>
     <information>
-      <template #header>Local Processing</template>
+      <template #header>100% Free, No Signup</template>
       <template #description>
-        FFmpeg, Pandoc, and archive runtimes run in-browser, keeping your files on your device.
-        PDF merge also runs locally with pdf-lib.
+        No account, no email, no credit card required. Every file merge is completely free with no daily limits.
+      </template>
+    </information>
+    <information>
+      <template #header>Your Files Stay Private</template>
+      <template #description>
+        Files are processed directly in your browser and never uploaded to any server. Your data stays on your device throughout the entire process.
       </template>
     </information>
   </div>
@@ -58,15 +78,36 @@ export default {
   components: { Descriptor, Information },
   setup() {
     useMeta({
-      title: "Free File Merge Tool - Conversion Today",
+      title: "Free File Merge Tool Online - No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Merge audio, video, archive and supported document files into one downloadable file with local browser processing.",
+            "Merge multiple audio, video, archive and document files into one output file for free. No file size limit. Combine files online with no restrictions.",
+        },
+        { name: "twitter:card", content: "summary" },
+        {
+          name: "twitter:title",
+          content: "Free File Merge Tool Online - No Limit Converter",
+        },
+        {
+          name: "twitter:description",
+          content:
+            "Merge multiple audio, video, archive and document files into one output file for free. No file size limit. Combine files online with no restrictions.",
+        },
+        {
+          property: "og:title",
+          content: "Free File Merge Tool Online - No Limit Converter",
+        },
+        { property: "og:site_name", content: "No Limit Converter" },
+        { property: "og:type", content: "website" },
+        {
+          property: "og:description",
+          content:
+            "Merge multiple audio, video, archive and document files into one output file for free. No file size limit. Combine files online with no restrictions.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/merge" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/merge" }],
       htmlAttrs: { lang: "en" },
     });
   },

@@ -1,56 +1,51 @@
 <template>
   <descriptor>
-    <template #header>Audio Converter</template>
+    <template #header>Free Bulk Audio Converter Online</template>
     <template #description>
-      Convert unlimited audio files online for free. Supports MP3, WAV, OGG,
-      FLAC, AAC, M4A, Opus and more — all processed locally in your browser.
+      Batch convert MP3, WAV, FLAC, AAC, OGG, M4A and 10+ audio formats — free, fast, no file size limit.
     </template>
   </descriptor>
 
   <format-selector :isFrom="true" path="audio" name="from" mediaType="audio"></format-selector>
+
   <div class="infomationContainer">
     <information>
-      <template #header>Wide Format Support</template>
+      <template #header>11 Audio Formats Supported</template>
       <template #description>
-        Convert between MP3, WAV, OGG, FLAC, AAC, M4A, Opus, WebM and more.
-        Powered by Mediabunny and FFmpeg.
+        Convert between MP3, WAV, OGG, FLAC, AAC, M4A, Opus, WebM, WMA, ALAC and APE. High-quality output with no loss of audio fidelity.
       </template>
     </information>
     <information>
-      <template #header>Fast and Easy</template>
+      <template #header>Batch Audio Conversion</template>
       <template #description>
-        Drop your audio files, choose an output format and click "Process All".
-        Conversion happens instantly in your browser — no uploads needed.
+        Process an entire music library or podcast archive in one batch. Convert hundreds of audio files at once and download them all.
       </template>
     </information>
     <information>
-      <template #header>Truly Unlimited</template>
+      <template #header>No File Size Limit on Audio</template>
       <template #description>
-        No limits on the number of files or file size. All conversions are
-        completely free.
+        Convert large lossless audio files, studio recordings or long podcasts without hitting any file size cap.
       </template>
     </information>
   </div>
+
   <div class="infomationContainer">
     <information>
-      <template #header>Browser-based</template>
+      <template #header>100% Free, No Signup</template>
       <template #description>
-        All audio processing happens directly in your browser using
-        Mediabunny (WebCodecs) with an FFmpeg fallback. Your files never
-        leave your device.
+        No account, no email, no credit card required. Every audio conversion is completely free with no daily limits or quotas.
       </template>
     </information>
     <information>
-      <template #header>High Quality</template>
+      <template #header>Fast Audio Conversion</template>
       <template #description>
-        Mediabunny uses hardware-accelerated WebCodecs for fast, high-quality
-        audio re-encoding with full codec support.
+        Convert MP3, WAV and other audio formats quickly. Drop files, pick your output format, and download — no waiting in a queue.
       </template>
     </information>
     <information>
-      <template #header>Secure</template>
+      <template #header>Your Audio Stays Private</template>
       <template #description>
-        All files remain in your browser. No data is ever sent to a server.
+        Audio files are processed directly in your browser and never uploaded to any server. Your recordings stay on your device.
       </template>
     </information>
   </div>
@@ -65,44 +60,44 @@ export default {
   name: "AudioHome",
   setup() {
     useMeta({
-      title: "Free Online Audio Converter - Conversion Today",
+      title: "Free Bulk Audio Converter Online - No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Convert audio files online for free. No limits, no uploads. Supports MP3, WAV, OGG, FLAC, AAC, M4A and more. Powered by Mediabunny and FFmpeg.",
+            "Batch convert MP3, WAV, FLAC, AAC, OGG, M4A and more audio formats for free. No file size limit. Bulk convert hundreds of audio files at once with no restrictions.",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free Online Audio Converter - Conversion Today",
+          content: "Free Bulk Audio Converter Online - No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
-            "Convert audio files online for free. No limits, no uploads. Supports MP3, WAV, OGG, FLAC, AAC, M4A and more.",
+            "Batch convert MP3, WAV, FLAC, AAC, OGG, M4A and more audio formats for free. No file size limit. Bulk convert hundreds of audio files at once with no restrictions.",
         },
         {
           name: "twitter:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:title",
-          content: "Free Online Audio Converter - Conversion Today",
+          content: "Free Bulk Audio Converter Online - No Limit Converter",
         },
-        { property: "og:site_name", content: "Conversion Today" },
+        { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:description",
           content:
-            "Convert audio files online for free. No limits, no uploads. Supports MP3, WAV, OGG, FLAC, AAC, M4A and more.",
+            "Batch convert MP3, WAV, FLAC, AAC, OGG, M4A and more audio formats for free. No file size limit. Bulk convert hundreds of audio files at once with no restrictions.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/audio" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/audio" }],
       htmlAttrs: { lang: "en", amp: true },
     });
   },

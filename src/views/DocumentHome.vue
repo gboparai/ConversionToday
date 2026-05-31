@@ -1,58 +1,51 @@
 <template>
   <descriptor>
-    <template #header>Document Converter</template>
+    <template #header>Free Bulk Document Converter Online</template>
     <template #description>
-      Convert unlimited documents online for free. Supports 60+ document formats
-      including Markdown, HTML, DOCX, ODT, LaTeX, EPUB, RST, Org-mode and more — all processed
-      locally in your browser.
+      Batch convert DOCX, PDF, Markdown, HTML, EPUB, LaTeX and 60+ document formats — free, no file size limit, no restrictions.
     </template>
   </descriptor>
 
   <format-selector :isFrom="true" path="document" name="from" mediaType="document"></format-selector>
+
   <div class="infomationContainer">
     <information>
-      <template #header>60+ Format Support</template>
+      <template #header>60+ Document Formats</template>
       <template #description>
-        Convert between Markdown, HTML, DOCX, ODT, LaTeX, RST, Org-mode,
-        EPUB, and 60+ document formats including wikis, bibliographies, notebooks, and more.
+        Convert between DOCX, PDF, Markdown, HTML, EPUB, ODT, LaTeX, RST, Org-mode, PPTX, XLSX, CSV, RTF, wiki formats, e-books, academic formats and many more.
       </template>
     </information>
     <information>
-      <template #header>Fast and Easy</template>
+      <template #header>Batch Document Conversion</template>
       <template #description>
-        Drop your document files, choose an output format and click
-        "Process All". Conversion happens entirely in your browser — no
-        uploads needed.
+        Drop multiple documents at once and convert the entire batch with a single click. Ideal for converting large collections of reports, notes or books.
       </template>
     </information>
     <information>
-      <template #header>Truly Unlimited</template>
+      <template #header>No File Size Limit</template>
       <template #description>
-        No limits on the number of files or file size. All conversions are
-        completely free.
+        Convert large documents, lengthy reports, entire books or complex notebooks without hitting any file size cap.
       </template>
     </information>
   </div>
+
   <div class="infomationContainer">
     <information>
-      <template #header>Browser-based</template>
+      <template #header>2,600+ Document Conversion Pairs</template>
       <template #description>
-        All document processing happens directly in your browser using the
-        official Pandoc WebAssembly binary. Your files never leave your
-        device.
+        With 60+ supported formats, No Limit Converter provides over 2,600 possible document conversion combinations — all free.
       </template>
     </information>
     <information>
-      <template #header>Universal Format Support</template>
+      <template #header>100% Free, No Signup</template>
       <template #description>
-        Support for 30+ document formats including word processors, markup
-        languages, e-books, and academic standards — all converted in your browser.
+        No account, no email, no credit card required. Every document conversion is completely free with no daily limits.
       </template>
     </information>
     <information>
-      <template #header>Secure</template>
+      <template #header>Your Documents Stay Private</template>
       <template #description>
-        All files remain in your browser. No data is ever sent to a server.
+        Documents are processed directly in your browser and never uploaded to any server. Your sensitive files stay on your device.
       </template>
     </information>
   </div>
@@ -67,44 +60,44 @@ export default {
   name: "DocumentHome",
   setup() {
     useMeta({
-      title: "Free Online Document Converter - Conversion Today",
+      title: "Free Bulk Document Converter Online - No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Convert documents online for free. No limits, no uploads. Supports 60+ document formats including Markdown, HTML, DOCX, ODT, LaTeX, RST, Org-mode, EPUB, and many more.",
+            "Batch convert DOCX, PDF, Markdown, HTML, EPUB, ODT, LaTeX and 60+ document formats for free. No file size limit. Bulk convert documents with no restrictions.",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free Online Document Converter - Conversion Today",
+          content: "Free Bulk Document Converter Online - No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
-            "Convert documents online for free. No limits, no uploads. Supports Markdown, HTML, DOCX, ODT, LaTeX and 30+ more formats.",
+            "Batch convert DOCX, PDF, Markdown, HTML, EPUB, ODT, LaTeX and 60+ document formats for free. No file size limit. Bulk convert documents with no restrictions.",
         },
         {
           name: "twitter:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:title",
-          content: "Free Online Document Converter - Conversion Today",
+          content: "Free Bulk Document Converter Online - No Limit Converter",
         },
-        { property: "og:site_name", content: "Conversion Today" },
+        { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:description",
           content:
-            "Convert documents online for free. No limits, no uploads. Supports Markdown, HTML, DOCX, ODT, LaTeX and 30+ more formats.",
+            "Batch convert DOCX, PDF, Markdown, HTML, EPUB, ODT, LaTeX and 60+ document formats for free. No file size limit. Bulk convert documents with no restrictions.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/document" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/document" }],
       htmlAttrs: { lang: "en", amp: true },
     });
   },

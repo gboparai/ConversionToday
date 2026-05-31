@@ -165,7 +165,7 @@ export default {
   components: { Card, Descriptor, Faq, Information },
   setup() {
     useMeta({
-      title: "Free Archive Compress Tool - Conversion Today",
+      title: "Free Archive Compress Tool - No Limit Converter",
       meta: [
         {
           name: "description",
@@ -173,7 +173,7 @@ export default {
             "Compress multiple files into one archive online for free. Output ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ and ISO with local browser processing.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/compress" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/compress" }],
       htmlAttrs: { lang: "en" },
     });
   },

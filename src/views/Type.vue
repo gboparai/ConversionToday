@@ -114,7 +114,7 @@ export default {
       title:
         "Free Online " +
         this.$route.params.format.toUpperCase() +
-        " Converter | Unlimited Files ",
+        " Converter - No Limit Converter",
       meta: [
         {
           name: "description",
@@ -129,7 +129,7 @@ export default {
           content:
             "Free Online " +
             this.$route.params.format.toUpperCase() +
-            " Converter | Unlimited Files",
+            " Converter - No Limit Converter",
         },
         {
           name: "twitter:description",
@@ -141,7 +141,7 @@ export default {
         // image must be an absolute path
         {
           name: "twitter:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         // Facebook OpenGraph
         {
@@ -149,13 +149,13 @@ export default {
           content:
             "Free Online " +
             this.$route.params.format.toUpperCase() +
-            " Converter | Unlimited Files",
+            " Converter - No Limit Converter",
         },
-        { property: "og:site_name", content: "Conversion Today" },
+        { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:description",
@@ -169,7 +169,7 @@ export default {
         {
           rel: "canonical",
           href:
-            "https://conversiontoday.com" + this.$route.path,
+            "https://nolimitconverter.com" + this.$route.path,
         },
       ],
       htmlAttrs: { lang: "en", amp: true },
