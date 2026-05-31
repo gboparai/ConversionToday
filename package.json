@@ -2,7 +2,7 @@
   "name": "conversion-today",
   "version": "0.1.0",
   "private": true,
-  "license": "CC BY-NC-SA 4.0 DEED",
+  "license": "MIT",
   "scripts": {
     "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
     "serve:https": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve --https",
