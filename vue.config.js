@@ -1,7 +1,4 @@
 // Inside vue.config.js
-const PrerenderSPAPlugin = require('prerender-spa-plugin');  // Introducing plug-ins
-const Renderer = PrerenderSPAPlugin.PuppeteerRenderer;
-const path = require('path');
 const { generatePrerenderRoutes } = require('./build-utils/generatePrerenderRoutes');
 module.exports = {
     publicPath: '/',
@@ -29,29 +26,35 @@ module.exports = {
         themeColor: '#545454',
     },
     configureWebpack: () => {
-        if (process.env.NODE_ENV !== 'production') return;
-        return {
-            plugins: [
-                new PrerenderSPAPlugin({
-                    // The path to generate the file can also be consistent with the webpakc package.
-                    // This directory can only have one level, if the directory level is higher than one level, there will be no error prompt when it is generated, and it will only stick when it is pre-rendered.
-                    staticDir: path.join(__dirname, 'dist'),
+        const config = {
+            resolve: {
+                fallback: {
+                    path: false,
+                    fs: false,
+                    child_process: false,
+                    crypto: false,
+                },
+            },
+        };
+
+        if (process.env.NODE_ENV === 'production') {
+            const PrerendererWebpackPlugin = require('@prerenderer/webpack-plugin');
+            config.plugins = [
+                new PrerendererWebpackPlugin({
                     // Routes are generated programmatically from format definitions in build-utils/generatePrerenderRoutes.js
                     // This ensures that whenever formats are added or updated, the prerender routes stay in sync.
                     routes: generatePrerenderRoutes(),
-                    // You have to configure or you won't precompile
-                    ignoreHTTPSErrors: true,
-
-                    skipThirdPartyRequests: true,
-                    renderer: new Renderer({
-                        skipThirdPartyRequests: true,
+                    renderer: '@prerenderer/renderer-puppeteer',
+                    rendererOptions: {
                         maxConcurrentRoutes: 2,
                         headless: true,
                         // In main.js, document.dispatchEvent(new Event('render-event')) should correspond to the event name of both.
-                        renderAfterDocumentEvent: 'render-event'
-                    })
+                        renderAfterDocumentEvent: 'render-event',
+                    },
                 }),
-            ],
-        };
+            ];
+        }
+
+        return config;
     }
 }
