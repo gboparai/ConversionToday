@@ -138,33 +138,38 @@ export default {
   },
   setup() {
     useMeta({
-      title: "Free PDF to Image & Image to PDF Converter - No Limit Converter",
+      title: "Free PDF to Image & Image to PDF Converter — No Limits | No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Convert PDF pages to JPG, PNG or WEBP images, or combine unlimited images into a single PDF for free. No file size limits, no restrictions.",
+            "Convert PDF pages to JPG, PNG or WEBP images, or combine unlimited images into a single PDF free online. No file size limits, no signup, no restrictions.",
+        },
+        {
+          name: "keywords",
+          content:
+            "free pdf to image, pdf to jpg free, image to pdf free, convert pdf to png, combine images to pdf, free pdf converter, no limit pdf tool",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free PDF to Image & Image to PDF Converter - No Limit Converter",
+          content: "Free PDF to Image & Image to PDF Converter — No Limits | No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
-            "Convert PDF pages to JPG, PNG or WEBP images, or combine unlimited images into a single PDF for free. No file size limits, no restrictions.",
+            "Convert PDF pages to JPG, PNG or WEBP images, or combine unlimited images into a single PDF free online. No file size limits, no signup.",
         },
         {
           property: "og:title",
-          content: "Free PDF to Image & Image to PDF Converter - No Limit Converter",
+          content: "Free PDF to Image & Image to PDF Converter — No Limits | No Limit Converter",
         },
         { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:description",
           content:
-            "Convert PDF pages to JPG, PNG or WEBP images, or combine unlimited images into a single PDF for free. No file size limits, no restrictions.",
+            "Convert PDF pages to JPG, PNG or WEBP images, or combine unlimited images into a single PDF free online. No file size limits, no signup.",
         },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/pdf-image" }],

@@ -1,8 +1,8 @@
 <template>
   <descriptor>
-    <template #header>Free File Compression Tool Online</template>
+    <template #header>Free Online File Compression Tool — No Limits</template>
     <template #description>
-      Compress hundreds of files into a single ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ or ISO archive — free, no file size limits.
+      Compress unlimited files into a single ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ or ISO archive — free online, no file size limits, no signup.
     </template>
   </descriptor>
 
@@ -45,9 +45,9 @@
       </template>
     </information>
     <information>
-      <template #header>Compress Bulk Files</template>
+      <template #header>Compress Unlimited Files</template>
       <template #description>
-        Add an entire folder of files and pack them all into a single archive at once. Ideal for backup, sharing or archiving large file collections.
+        Add an entire folder of files and pack them all into a single archive at once. No cap on file count. Ideal for backup, sharing or archiving large file collections.
       </template>
     </information>
     <information>
@@ -90,33 +90,38 @@ export default {
   components: { Descriptor, Information },
   setup() {
     useMeta({
-      title: "Free File Compression Tool Online - No Limit Converter",
+      title: "Free Online File Compression Tool — No Limits, No Signup | No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Compress and zip multiple files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2 or ISO archive for free. No file size limits, no restrictions. Bulk compress online.",
+            "Compress and zip unlimited files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2 or ISO archive free online. No file size limits, no signup, no restrictions.",
+        },
+        {
+          name: "keywords",
+          content:
+            "free file compression, zip files online, create zip free, compress files online, free archive tool, no limit compression, 7z online",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free File Compression Tool Online - No Limit Converter",
+          content: "Free Online File Compression Tool — No Limits, No Signup | No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
-            "Compress and zip multiple files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2 or ISO archive for free. No file size limits, no restrictions. Bulk compress online.",
+            "Compress and zip unlimited files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2 or ISO archive free online. No file size limits, no signup.",
         },
         {
           property: "og:title",
-          content: "Free File Compression Tool Online - No Limit Converter",
+          content: "Free Online File Compression Tool — No Limits, No Signup | No Limit Converter",
         },
         { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:description",
           content:
-            "Compress and zip multiple files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2 or ISO archive for free. No file size limits, no restrictions. Bulk compress online.",
+            "Compress and zip unlimited files into one ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2 or ISO archive free online. No file size limits, no signup.",
         },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/compress" }],
