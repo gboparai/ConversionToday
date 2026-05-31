@@ -1,8 +1,8 @@
 <template>
   <descriptor>
-    <template #header>Free File Merge Tool Online</template>
+    <template #header>Free Online File Merge Tool — Unlimited, No Signup</template>
     <template #description>
-      Combine audio, video, archives and documents into a single output file — free, no file size limits, no restrictions.
+      Combine audio, video, archives and documents into a single output file — free online, no file size limits, no registration required.
     </template>
   </descriptor>
 
@@ -78,33 +78,38 @@ export default {
   components: { Descriptor, Information },
   setup() {
     useMeta({
-      title: "Free File Merge Tool Online - No Limit Converter",
+      title: "Free Online File Merge Tool — No Limits, No Signup | No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Merge multiple audio, video, archive and document files into one output file for free. No file size limit. Combine files online with no restrictions.",
+            "Merge multiple audio, video, archive and document files into one output file free online. No file size limit, no signup, unlimited merging. Combine files instantly.",
+        },
+        {
+          name: "keywords",
+          content:
+            "free file merge, merge files online, combine audio files free, merge videos free, combine pdf free, no limit file merge, merge documents online",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free File Merge Tool Online - No Limit Converter",
+          content: "Free Online File Merge Tool — No Limits, No Signup | No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
-            "Merge multiple audio, video, archive and document files into one output file for free. No file size limit. Combine files online with no restrictions.",
+            "Merge multiple audio, video, archive and document files into one output file free online. No file size limit, no signup, unlimited merging.",
         },
         {
           property: "og:title",
-          content: "Free File Merge Tool Online - No Limit Converter",
+          content: "Free Online File Merge Tool — No Limits, No Signup | No Limit Converter",
         },
         { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:description",
           content:
-            "Merge multiple audio, video, archive and document files into one output file for free. No file size limit. Combine files online with no restrictions.",
+            "Merge multiple audio, video, archive and document files into one output file free online. No file size limit, no signup, unlimited merging.",
         },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/merge" }],

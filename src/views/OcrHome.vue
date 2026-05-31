@@ -1,8 +1,8 @@
 <template>
   <descriptor>
-    <template #header>Free Bulk OCR - Extract Text from Images & PDFs</template>
+    <template #header>Free Online OCR — Extract Text from Images & PDFs</template>
     <template #description>
-      Extract text from images and PDFs in bulk — free, 30+ languages, export to DOCX, PDF, XLSX, TXT, CSV and more. No file size limit.
+      Extract text from images and PDFs free online — 30+ languages, no file size limit, no signup. Export to DOCX, PDF, XLSX, TXT, CSV and more.
     </template>
   </descriptor>
 
@@ -25,9 +25,9 @@
 
   <div class="informationContainer">
     <information>
-      <template #header>Batch OCR Processing</template>
+      <template #header>OCR Unlimited Files at Once</template>
       <template #description>
-        Run OCR on multiple images or PDFs at once. No need to process files one at a time — add as many as you need and extract all at once.
+        Run OCR on multiple images or PDFs at once. No need to process files one at a time — add as many as you need and extract all text at once. No daily limits.
       </template>
     </information>
     <information>
@@ -143,33 +143,38 @@ export default {
   },
   setup() {
     useMeta({
-      title: "Free Bulk OCR Tool - Extract Text from Images & PDFs - No Limit Converter",
+      title: "Free Online OCR Tool — Extract Text from Images & PDFs | No Limit Converter",
       meta: [
         {
           name: 'description',
           content:
-            "Batch OCR: extract text from JPG, PNG, TIFF, GIF and PDF files for free. No file size limit. 30+ languages. Export to DOCX, PDF, XLSX, TXT, CSV and more.",
+            "Extract text from images and PDFs free online. No file size limit, no signup, 30+ languages. Export to DOCX, PDF, XLSX, TXT, CSV and more. Unlimited OCR conversions.",
+        },
+        {
+          name: 'keywords',
+          content:
+            "free ocr, extract text from image, online ocr, image to text free, pdf to text free, ocr free online, no limit ocr, extract text free",
         },
         { name: 'twitter:card', content: 'summary' },
         {
           name: 'twitter:title',
-          content: "Free Bulk OCR Tool - Extract Text from Images & PDFs - No Limit Converter",
+          content: "Free Online OCR Tool — Extract Text from Images & PDFs | No Limit Converter",
         },
         {
           name: 'twitter:description',
           content:
-            "Batch OCR: extract text from JPG, PNG, TIFF, GIF and PDF files for free. No file size limit. 30+ languages. Export to DOCX, PDF, XLSX, TXT, CSV and more.",
+            "Extract text from images and PDFs free online. No file size limit, no signup, 30+ languages. Unlimited OCR conversions.",
         },
         {
           property: 'og:title',
-          content: "Free Bulk OCR Tool - Extract Text from Images & PDFs - No Limit Converter",
+          content: "Free Online OCR Tool — Extract Text from Images & PDFs | No Limit Converter",
         },
         { property: 'og:site_name', content: 'No Limit Converter' },
         { property: 'og:type', content: 'website' },
         {
           property: 'og:description',
           content:
-            "Batch OCR: extract text from JPG, PNG, TIFF, GIF and PDF files for free. No file size limit. 30+ languages. Export to DOCX, PDF, XLSX, TXT, CSV and more.",
+            "Extract text from images and PDFs free online. No file size limit, no signup, 30+ languages. Unlimited OCR conversions.",
         },
       ],
       link: [{ rel: 'canonical', href: 'https://nolimitconverter.com/ocr' }],

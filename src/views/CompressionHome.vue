@@ -1,8 +1,8 @@
 <template>
   <descriptor>
-    <template #header>Free Bulk Image Compression Online</template>
+    <template #header>Free Online Image Compression — Unlimited, No Signup</template>
     <template #description>
-      Bulk compress JPG, PNG, WEBP and AVIF images — free, no file size limits, before/after quality preview.
+      Compress JPG, PNG, WEBP and AVIF images free online. No file size limits, no daily caps, before/after quality preview.
     </template>
   </descriptor>
 
@@ -27,9 +27,9 @@
 
   <div class="infomationContainer">
     <information>
-      <template #header>Batch Image Compression</template>
+      <template #header>Compress Unlimited Images at Once</template>
       <template #description>
-        Compress hundreds of images at once and download them all as a single ZIP file. Ideal for optimizing image libraries or web assets in bulk.
+        Compress hundreds of images at once and download them all as a single ZIP file. No cap on file count. Ideal for optimizing image libraries or web assets.
       </template>
     </information>
     <information>
@@ -77,22 +77,27 @@ export default {
   components: { Descriptor, Information },
   setup() {
     useMeta({
-      title: "Free Bulk Image Compression Online - No Limit Converter",
+      title: "Free Online Image Compression — No Limits, No Signup | No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Batch compress JPG, PNG, WEBP and AVIF images for free. No file size limit. Compress hundreds of images at once and download as a ZIP.",
+            "Compress JPG, PNG, WEBP and AVIF images free online. No file size limit, no signup, unlimited compressions. Before/after quality preview. Download as ZIP.",
+        },
+        {
+          name: "keywords",
+          content:
+            "free image compression, compress jpg online, compress png free, reduce image size, free image compressor, no limit image compression, compress photos free",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free Bulk Image Compression Online - No Limit Converter",
+          content: "Free Online Image Compression — No Limits, No Signup | No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
-            "Batch compress JPG, PNG, WEBP and AVIF images for free. No file size limit. Compress hundreds of images at once and download as a ZIP.",
+            "Compress JPG, PNG, WEBP and AVIF images free online. No file size limit, no signup, unlimited compressions. Before/after quality preview.",
         },
         {
           name: "twitter:image",
@@ -100,7 +105,7 @@ export default {
         },
         {
           property: "og:title",
-          content: "Free Bulk Image Compression Online - No Limit Converter",
+          content: "Free Online Image Compression — No Limits, No Signup | No Limit Converter",
         },
         { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
@@ -111,7 +116,7 @@ export default {
         {
           property: "og:description",
           content:
-            "Batch compress JPG, PNG, WEBP and AVIF images for free. No file size limit. Compress hundreds of images at once and download as a ZIP.",
+            "Compress JPG, PNG, WEBP and AVIF images free online. No file size limit, no signup, unlimited compressions. Before/after quality preview.",
         },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/compression" }],
