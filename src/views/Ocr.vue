@@ -478,6 +478,10 @@ export default {
           name: 'description',
           content: 'Extract text from images and PDFs using Tesseract OCR. Export as DOCX, PDF, EPUB, XLSX, CSV, TXT and more. 30+ languages, all processing in your browser.',
         },
+        {
+          name: "keywords",
+          content: "free ocr tool, extract text from image, pdf ocr online, tesseract ocr browser, image to text converter, online document ocr",
+        },
       ],
       link: [{ rel: 'canonical', href: 'https://nolimitconverter.com/ocr' }],
       htmlAttrs: { lang: 'en' },

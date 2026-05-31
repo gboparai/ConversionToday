@@ -55,6 +55,10 @@ export default {
           content:
             "Explore the story of No Limit Converter—a free, hassle-free file conversion service. We break the limitations on file numbers and size for everyone.",
         },
+        {
+          name: "keywords",
+          content: "about no limit converter, free file converter, online file conversion, unlimited file size converter",
+        },
         { name: "twitter:card", content: "summary" },
         { name: "twitter:title", content: "About Us - No Limit Converter" },
         {
