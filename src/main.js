@@ -11,7 +11,7 @@ createApp(App).use(createMetaManager(false, {
   meta: { tag: 'meta', nameless: true }
 }
 )).use(store).use(router).use(VueGtag, {
-  appName: 'Conversion Today',
+  appName: 'No Limit Converter',
   pageTrackerScreenviewEnabled: true,
   config: {
     id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,

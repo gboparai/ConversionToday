@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { generatePrerenderRoutes } = require('./generatePrerenderRoutes');
 
-const baseUrl = (process.env.SITEMAP_BASE_URL || 'https://conversiontoday.com').replace(/\/+$/, '');
+const baseUrl = (process.env.SITEMAP_BASE_URL || 'https://nolimitconverter.com').replace(/\/+$/, '');
 const lastModified = new Date().toISOString().split('T')[0];
 const staticRoutes = ['/', '/about', '/FAQ', '/compression', '/merge', '/compress'];
 

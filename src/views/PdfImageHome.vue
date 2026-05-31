@@ -1,9 +1,8 @@
 <template>
   <descriptor>
-    <template #header>PDF ↔ Image Tool</template>
+    <template #header>Free PDF to Image & Image to PDF Converter</template>
     <template #description>
-      Choose your input type first, then open the tool page with the right output format.
-      All conversion stays local in your browser.
+      Extract every page of a PDF as an image, or combine unlimited images into one PDF — free, no file size limits, no restrictions.
     </template>
   </descriptor>
 
@@ -26,21 +25,42 @@
 
   <div class="informationContainer">
     <information>
-      <template #header>Two-way Workflow</template>
+      <template #header>PDF to Image - Bulk Extract All Pages</template>
       <template #description>
-        Convert one PDF into page images, or combine ordered images into one PDF file.
+        Convert a PDF and extract every single page as a JPG, PNG or WEBP image file at once. Perfect for turning document scans into editable images.
       </template>
     </information>
     <information>
-      <template #header>Structured Flow</template>
+      <template #header>Image to PDF - Combine Unlimited Images</template>
       <template #description>
-        Pick input and output first, then process files on the dedicated tool page.
+        Combine unlimited JPG, PNG and WEBP images into a single PDF document in the exact order you set. Ideal for creating photo books, reports or portfolios.
       </template>
     </information>
     <information>
-      <template #header>Private Processing</template>
+      <template #header>No File Size Limit</template>
       <template #description>
-        PDF extraction and image packaging run in-browser with PDF.js, pdf-lib, and JSZip.
+        Convert large PDFs and high-resolution image collections without any file size restrictions. No paid plan required.
+      </template>
+    </information>
+  </div>
+
+  <div class="informationContainer">
+    <information>
+      <template #header>Free & No Signup Required</template>
+      <template #description>
+        No account, no email, no credit card needed. Every PDF to image and image to PDF conversion is completely free.
+      </template>
+    </information>
+    <information>
+      <template #header>Drag to Reorder</template>
+      <template #description>
+        When building a PDF from images, drag and drop files into exactly the right order before generating your document.
+      </template>
+    </information>
+    <information>
+      <template #header>Your Files Stay Private</template>
+      <template #description>
+        All processing happens directly in your browser. Your PDFs and images are never uploaded to any server.
       </template>
     </information>
   </div>
@@ -118,15 +138,41 @@ export default {
   },
   setup() {
     useMeta({
-      title: "PDF and Image Tool - Conversion Today",
+      title: "Free PDF to Image & Image to PDF Converter — No Limits | No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Convert PDF pages to JPG, PNG, or WEBP, and combine images into one PDF with local browser processing.",
+            "Convert PDF pages to JPG, PNG or WEBP images, or combine unlimited images into a single PDF free online. No file size limits, no signup, no restrictions.",
+        },
+        {
+          name: "keywords",
+          content:
+            "free pdf to image, pdf to jpg free, image to pdf free, convert pdf to png, combine images to pdf, free pdf converter, no limit pdf tool",
+        },
+        { name: "twitter:card", content: "summary" },
+        {
+          name: "twitter:title",
+          content: "Free PDF to Image & Image to PDF Converter — No Limits | No Limit Converter",
+        },
+        {
+          name: "twitter:description",
+          content:
+            "Convert PDF pages to JPG, PNG or WEBP images, or combine unlimited images into a single PDF free online. No file size limits, no signup.",
+        },
+        {
+          property: "og:title",
+          content: "Free PDF to Image & Image to PDF Converter — No Limits | No Limit Converter",
+        },
+        { property: "og:site_name", content: "No Limit Converter" },
+        { property: "og:type", content: "website" },
+        {
+          property: "og:description",
+          content:
+            "Convert PDF pages to JPG, PNG or WEBP images, or combine unlimited images into a single PDF free online. No file size limits, no signup.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/pdf-image" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/pdf-image" }],
       htmlAttrs: { lang: "en" },
     });
   },

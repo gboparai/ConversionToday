@@ -472,14 +472,14 @@ export default {
   },
   data() {
     useMeta({
-      title: 'Free Online OCR Tool (Images & PDFs) - Conversion Today',
+      title: 'Free Online OCR Tool (Images & PDFs) - No Limit Converter',
       meta: [
         {
           name: 'description',
           content: 'Extract text from images and PDFs using Tesseract OCR. Export as DOCX, PDF, EPUB, XLSX, CSV, TXT and more. 30+ languages, all processing in your browser.',
         },
       ],
-      link: [{ rel: 'canonical', href: 'https://conversiontoday.com/ocr' }],
+      link: [{ rel: 'canonical', href: 'https://nolimitconverter.com/ocr' }],
       htmlAttrs: { lang: 'en' },
     });
     return {

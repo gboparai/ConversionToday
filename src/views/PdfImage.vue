@@ -180,21 +180,21 @@
 
   <div class="informationContainer">
     <information>
-      <template #header>Clear Input Visibility</template>
+      <template #header>Clear File Queue Visibility</template>
       <template #description>
-        Added files are listed so it is always clear what is queued for processing.
+        Every selected file is listed so it is always clear what is queued for conversion, helping avoid mistakes before processing.
       </template>
     </information>
     <information>
-      <template #header>Controlled PDF Upload</template>
+      <template #header>Optimized PDF-to-Image Flow</template>
       <template #description>
-        In PDF to image mode, drag and drop is disabled after one PDF is added until that file is removed.
+        In PDF-to-image mode, a single PDF is processed at a time so each page can be exported cleanly as PNG, JPG, JPEG, or WEBP files.
       </template>
     </information>
     <information>
-      <template #header>Local Processing</template>
+      <template #header>Private Local Processing</template>
       <template #description>
-        Conversion runs in-browser using pdf-lib, PDF.js, and canvas APIs without server upload.
+        Conversion runs in-browser using pdf-lib, PDF.js, and canvas APIs without uploading files to a remote server.
       </template>
     </information>
   </div>
@@ -286,15 +286,41 @@ export default {
   components: { Card, Descriptor, Information, SearchableSelect },
   data() {
     useMeta({
-      title: "PDF and Image Tool - Conversion Today",
+      title: "PDF and Image Tool - No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Convert PDF pages to images or combine images into one PDF with clear file queues and local browser processing.",
+            "Convert PDF pages to PNG, JPG, JPEG, or WEBP, or combine images into one PDF online. Free browser-based processing with no signup and local file handling.",
+        },
+        {
+          name: "keywords",
+          content:
+            "pdf to image converter, pdf to png, pdf to jpg, image to pdf converter, jpg to pdf, png to pdf, webp to pdf, free pdf converter",
+        },
+        { name: "twitter:card", content: "summary" },
+        {
+          name: "twitter:title",
+          content: "PDF and Image Tool - No Limit Converter",
+        },
+        {
+          name: "twitter:description",
+          content:
+            "Convert PDF pages to images or merge images into a PDF online. Free, no signup, and local browser processing.",
+        },
+        {
+          property: "og:title",
+          content: "PDF and Image Tool - No Limit Converter",
+        },
+        { property: "og:site_name", content: "No Limit Converter" },
+        { property: "og:type", content: "website" },
+        {
+          property: "og:description",
+          content:
+            "Convert PDF pages to PNG/JPG/JPEG/WEBP or convert images to PDF with fast browser-based processing.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/pdf-image" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/pdf-image" }],
       htmlAttrs: { lang: "en" },
     });
 

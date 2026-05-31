@@ -1,58 +1,58 @@
 <template>
   <descriptor>
-    <template #header>Video Converter</template>
+    <template #header>Free Online Video Converter — Unlimited, No Signup</template>
     <template #description>
-      Convert unlimited video files online for free. Supports MP4, WebM, MKV,
-      MOV, AVI and more — all processed locally in your browser.
+      Convert MP4, MOV, MKV, AVI, WebM and 10+ video formats free online. No file size limit, no daily caps, no registration required.
     </template>
   </descriptor>
 
   <format-selector :isFrom="true" path="video" name="from" mediaType="video"></format-selector>
+
   <div class="infomationContainer">
     <information>
-      <template #header>Wide Format Support</template>
+      <template #header>Convert Any Video Format Free</template>
       <template #description>
-        Convert between MP4, WebM, MKV, MOV, AVI, WMV, FLV, 3GP, MPEG and
-        more. Powered by Mediabunny and FFmpeg.
+        Convert between MP4, WebM, MKV, MOV, AVI, WMV, FLV, 3GP, MPEG, TS, OGV and more. Over 100 possible video conversion pairs — all free online.
       </template>
     </information>
     <information>
-      <template #header>Fast and Easy</template>
+      <template #header>No File Size Limit — Even 4K Videos</template>
       <template #description>
-        Drop your video files, choose an output format and click "Process All".
-        Conversion is handled locally — no uploads, no waiting.
+        Convert large video files — 4K footage, long recordings, high-bitrate files — without hitting any size cap. No paid plan or subscription needed.
       </template>
     </information>
     <information>
-      <template #header>Truly Unlimited</template>
+      <template #header>Convert Unlimited Videos at Once</template>
       <template #description>
-        No limits on the number of files or file size. All conversions are
-        completely free.
+        Convert multiple videos simultaneously in a single batch. No need to process files one at a time. No daily limits. Download all or get a ZIP.
       </template>
     </information>
   </div>
+
   <div class="infomationContainer">
     <information>
-      <template #header>Browser-based</template>
+      <template #header>100% Free — No Account Needed</template>
       <template #description>
-        All video processing happens directly in your browser using
-        Mediabunny (WebCodecs) with an FFmpeg fallback for legacy formats.
-        Your files never leave your device.
+        No signup, no email, no credit card required. Every video conversion is completely free. No watermarks, no quality restrictions, no quotas.
       </template>
     </information>
     <information>
-      <template #header>Hardware-accelerated</template>
+      <template #header>Fast & Private — Stays on Your Device</template>
       <template #description>
-        Mediabunny uses the WebCodecs API for hardware-accelerated encoding and
-        decoding, making video conversion fast even for large files.
+        Videos are processed directly in your browser and never uploaded to any server. Your files stay private on your device at all times.
       </template>
     </information>
     <information>
-      <template #header>Secure</template>
+      <template #header>Convert MP4 to WebM, MOV & More</template>
       <template #description>
-        All files remain in your browser. No data is ever sent to a server.
+        Popular conversions include MP4 to WebM, MOV to MP4, AVI to MP4, MKV to MP4, WebM to MP4, and many more — all free online.
       </template>
     </information>
+  </div>
+
+  <div class="faqSection">
+    <h3 class="faqSection__title">Video Converter FAQ</h3>
+    <faq :faqs="faqs" @toggle="toggleFaq" />
   </div>
 </template>
 
@@ -60,49 +60,91 @@
 import FormatSelector from "@/components/format-selector.vue";
 import Descriptor from "@/components/descriptor.vue";
 import Information from "@/components/information.vue";
+import Faq from "@/components/faq.vue";
 import { useMeta } from "vue-meta";
 export default {
   name: "VideoHome",
+  data() {
+    return {
+      faqs: [
+        {
+          question: "What video formats are supported?",
+          answer: "You can convert between MP4, WebM, MKV, MOV, AVI, WMV, FLV, 3GP, MPEG, TS, OGV and more — all for free with no restrictions.",
+          open: false,
+        },
+        {
+          question: "Is there a file size limit for video conversion?",
+          answer: "No. You can convert videos of any size — including large 4K files and multi-hour recordings — without any restrictions.",
+          open: false,
+        },
+        {
+          question: "How many videos can I convert at once?",
+          answer: "There is no limit. Add as many video files as you need and convert them all in a single batch.",
+          open: false,
+        },
+        {
+          question: "Do I need to sign up?",
+          answer: "No. No account, no email, no credit card required. Just open the video converter and start converting immediately.",
+          open: false,
+        },
+        {
+          question: "Are my videos uploaded to a server?",
+          answer: "No. All video processing happens locally in your browser using FFmpeg WebAssembly. Your videos never leave your device.",
+          open: false,
+        },
+        {
+          question: "How do I convert MOV to MP4?",
+          answer: "Select MOV as the input format, add your MOV files, choose MP4 as the output format, and click convert. Your MP4 files will be ready to download.",
+          open: false,
+        },
+      ],
+    };
+  },
   setup() {
     useMeta({
-      title: "Free Online Video Converter - Conversion Today",
+      title: "Free Online Video Converter — No Limits, No Signup | No Limit Converter",
       meta: [
         {
           name: "description",
           content:
-            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more. Powered by Mediabunny and FFmpeg.",
+            "Convert MP4, MOV, MKV, AVI, WebM and more video formats free online. No file size limit, no signup, no watermarks. Unlimited video conversions with No Limit Converter.",
+        },
+        {
+          name: "keywords",
+          content:
+            "free video converter, convert mp4 online, online video converter, mov to mp4 free, convert video free, no limit video converter, avi to mp4, mkv to mp4 free",
         },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",
-          content: "Free Online Video Converter - Conversion Today",
+          content: "Free Online Video Converter — No Limits, No Signup | No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
-            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more.",
+            "Convert MP4, MOV, MKV, AVI, WebM and more video formats free online. No file size limit, no signup, unlimited conversions.",
         },
         {
           name: "twitter:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:title",
-          content: "Free Online Video Converter - Conversion Today",
+          content: "Free Online Video Converter — No Limits, No Signup | No Limit Converter",
         },
-        { property: "og:site_name", content: "Conversion Today" },
+        { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:description",
           content:
-            "Convert video files online for free. No limits, no uploads. Supports MP4, WebM, MKV, MOV, AVI and more.",
+            "Convert MP4, MOV, MKV, AVI, WebM and more video formats free online. No file size limit, no signup, unlimited conversions.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/video" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/video" }],
       htmlAttrs: { lang: "en", amp: true },
     });
   },
@@ -110,6 +152,12 @@ export default {
     FormatSelector,
     Descriptor,
     Information,
+    Faq,
+  },
+  methods: {
+    toggleFaq(index) {
+      this.faqs[index].open = !this.faqs[index].open;
+    },
   },
 };
 </script>
@@ -117,4 +165,17 @@ export default {
 <style scoped lang="scss">
 @import "src/styles/_utilities";
 
+.faqSection {
+  @include mid-width;
+  margin-top: 1.75rem;
+  margin-bottom: 2rem;
+  padding: 0 0.25rem;
+
+  &__title {
+    text-align: center;
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+}
 </style>

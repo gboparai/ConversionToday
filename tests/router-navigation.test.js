@@ -1,5 +1,5 @@
 /**
- * Router & Navigation Tests for ConversionToday
+ * Router & Navigation Tests for NoLimitConverter
  *
  * Verifies that all routes are properly configured, each page has
  * a valid component reference, and navigation paths are consistent.

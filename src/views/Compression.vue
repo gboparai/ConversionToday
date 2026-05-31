@@ -294,7 +294,7 @@ export default {
   },
   data() {
     useMeta({
-      title: "Free Online Image Compression (JPG, PNG, WEBP, AVIF) - Conversion Today",
+      title: "Free Online Image Compression (JPG, PNG, WEBP, AVIF) - No Limit Converter",
       meta: [
         {
           name: "description",
@@ -302,7 +302,7 @@ export default {
             "Compress JPG, PNG, WEBP and AVIF files online for free. Files stay local in your browser with batch compression and before/after preview.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/compression" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/compression" }],
       htmlAttrs: { lang: "en" },
     });
     return {

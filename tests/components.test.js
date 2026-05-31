@@ -1,5 +1,5 @@
 /**
- * Component Structure & Integration Tests for ConversionToday
+ * Component Structure & Integration Tests for NoLimitConverter
  *
  * Verifies component files exist, have proper structure, expose expected
  * props/methods, and integrate correctly with each other.

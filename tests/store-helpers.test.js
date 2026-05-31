@@ -1,5 +1,5 @@
 /**
- * Store Media-Type Helpers Tests for ConversionToday
+ * Store Media-Type Helpers Tests for NoLimitConverter
  *
  * Tests the createMediaMutations and createMediaActions factory functions
  * that generate Vuex mutations and actions for each media type.

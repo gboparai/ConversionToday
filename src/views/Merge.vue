@@ -280,7 +280,7 @@ export default {
   components: { Card, Descriptor, Faq, Information },
   setup() {
     useMeta({
-      title: "Free File Merge Tool - Conversion Today",
+      title: "Free File Merge Tool - No Limit Converter",
       meta: [
         {
           name: "description",
@@ -288,7 +288,7 @@ export default {
             "Merge archive, audio, video and supported document files in-browser with drag-to-reorder queues and one-file download output.",
         },
       ],
-      link: [{ rel: "canonical", href: "https://conversiontoday.com/merge" }],
+      link: [{ rel: "canonical", href: "https://nolimitconverter.com/merge" }],
       htmlAttrs: { lang: "en" },
     });
   },

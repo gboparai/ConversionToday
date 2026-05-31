@@ -29,7 +29,7 @@
     <template #description
       >Convert unlimited number of files to and from
       {{ formatInofo.name }} online. Amongst many others, we support PNG, JPG,
-      GIF, WEBP and BPM.</template
+      GIF, WEBP and BMP.</template
     >
   </descriptor>
   <div class="informationBar">
@@ -52,10 +52,10 @@
   ></format-selector>
   <div class="infomationContainer">
     <information>
-      <template #header>Fast Conversion </template>
+      <template #header>Fast Conversion</template>
       <template #description>
-        We can convert hundreds of {{ formatInofo.name.toUpperCase() }} to any
-        supported file formats in a matter of minutes.
+        Convert large batches of {{ formatInofo.name.toUpperCase() }} files to
+        supported formats quickly in your browser.
       </template>
     </information>
     <information>
@@ -78,8 +78,8 @@
     <information>
       <template #header>50+ formats supported</template>
       <template #description>
-        Convert {{ formatInofo.name.toUpperCase() }} files to one of our 50+
-        different supported file formats within a second.
+        Convert {{ formatInofo.name.toUpperCase() }} files to more than 50
+        supported output formats with a simple workflow.
       </template>
     </information>
   </div>
@@ -114,14 +114,14 @@ export default {
       title:
         "Free Online " +
         this.$route.params.format.toUpperCase() +
-        " Converter | Unlimited Files ",
+        " Converter - No Limit Converter",
       meta: [
         {
           name: "description",
           content:
             "Free Online " +
             this.$route.params.format.toUpperCase() +
-            " Converter. Converts to over 50+ files within seconds. No limitions or ristrictions on the file size and the number of files.",
+            " Converter. Convert to 50+ file formats in seconds with no limits on file size or number of files.",
         },
         { name: "twitter:card", content: "summary" },
         {
@@ -129,19 +129,19 @@ export default {
           content:
             "Free Online " +
             this.$route.params.format.toUpperCase() +
-            " Converter | Unlimited Files",
+            " Converter - No Limit Converter",
         },
         {
           name: "twitter:description",
           content:
             "Free Online " +
             this.$route.params.format.toUpperCase() +
-            " Converter. Converts to over 50+ files within seconds. No limitions or ristrictions on the file size and the number of files.",
+            " Converter. Convert to 50+ file formats in seconds with no limits on file size or number of files.",
         },
         // image must be an absolute path
         {
           name: "twitter:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         // Facebook OpenGraph
         {
@@ -149,27 +149,27 @@ export default {
           content:
             "Free Online " +
             this.$route.params.format.toUpperCase() +
-            " Converter | Unlimited Files",
+            " Converter - No Limit Converter",
         },
-        { property: "og:site_name", content: "Conversion Today" },
+        { property: "og:site_name", content: "No Limit Converter" },
         { property: "og:type", content: "website" },
         {
           property: "og:image",
-          content: "https://conversiontoday.com/img/logo-conversion-today.png",
+          content: "https://nolimitconverter.com/img/logo-conversion-today.png",
         },
         {
           property: "og:description",
           content:
             "Free Online " +
             this.$route.params.format.toUpperCase() +
-            " Converter. Converts to over 50+ files within seconds. No limitions or ristrictions on the file size and the number of files.",
+            " Converter. Convert to 50+ file formats in seconds with no limits on file size or number of files.",
         },
       ],
       link: [
         {
           rel: "canonical",
           href:
-            "https://conversiontoday.com" + this.$route.path,
+            "https://nolimitconverter.com" + this.$route.path,
         },
       ],
       htmlAttrs: { lang: "en", amp: true },
