@@ -343,6 +343,10 @@ export default {
             this.$route.params.format2 +
             " online in seconds. No file size limit or limit on the number of files or any other Restrictions. 100% Completely Free. Just upload, convert and download.",
         },
+        {
+          name: "keywords",
+          content: "free online converter, convert " + this.$route.params.format + " to " + this.$route.params.format2 + ", online file conversion, no limit converter, unlimited file converter",
+        },
         { name: "twitter:card", content: "summary" },
         {
           name: "twitter:title",

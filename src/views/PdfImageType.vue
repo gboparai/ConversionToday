@@ -170,7 +170,7 @@ export default {
         {
           name: "description",
           content:
-            "Choose PDF and image conversion pairs before processing. Supports PDF to PNG, JPG, JPEG, and WEBP plus JPG/JPEG/PNG/WEBP to PDF with local browser conversion.",
+            "Choose PDF and image conversion pairs before processing. Supports PDF to PNG, JPG, JPEG, and WEBP plus JPG/JPEG/PNG/WEBP to PDF with secure on-device conversion.",
         },
         {
           name: "keywords",

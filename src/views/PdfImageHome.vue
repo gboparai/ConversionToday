@@ -112,6 +112,11 @@ function buildFaqs() {
         "On the processing page, select JPG, PNG, or WEBP output before running extraction.",
       open: false,
     },
+    {
+      question: "Is there a limit to how many PDF pages I can extract?",
+      answer: "No, you can extract an unlimited number of pages from your PDFs without any restrictions.",
+      open: false,
+    },
   ];
 }
 

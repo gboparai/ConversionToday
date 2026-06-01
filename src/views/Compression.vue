@@ -245,6 +245,11 @@ function buildFaqs(formatLabel) {
         "Some formats use lossy compression, so there can be some visual change. The built-in preview makes it easy to compare the original and compressed versions before downloading.",
       open: false,
     },
+    {
+      question: "Is there a limit on how many images I can compress?",
+      answer: "No, there are no limits. You can compress an unlimited number of images in a single batch.",
+      open: false,
+    },
   ];
 }
 
@@ -300,6 +305,10 @@ export default {
           name: "description",
           content:
             "Compress JPG, PNG, WEBP and AVIF files online for free. Files stay local in your browser with batch compression and before/after preview.",
+        },
+        {
+          name: "keywords",
+          content: "free image compressor, compress jpg, compress png, compress webp, compress avif, online image compression, batch image compressor, no limit image compression",
         },
       ],
       link: [{ rel: "canonical", href: "https://nolimitconverter.com/compression" }],

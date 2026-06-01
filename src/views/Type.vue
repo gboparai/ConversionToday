@@ -68,9 +68,9 @@
   </div>
   <div class="infomationContainer">
     <information>
-      <template #header>Bulk File Conversion </template>
+      <template #header>Unlimited Batch Conversion</template>
       <template #description>
-        Bulk converts an unlimited number of
+        Convert an unlimited number of
         {{ formatInofo.name.toUpperCase() }} files to any other supported file
         format with just one click.
       </template>
@@ -122,6 +122,10 @@ export default {
             "Free Online " +
             this.$route.params.format.toUpperCase() +
             " Converter. Convert to 50+ file formats in seconds with no limits on file size or number of files.",
+        },
+        {
+          name: "keywords",
+          content: "free file converter, convert " + this.$route.params.format.toUpperCase() + ", online file conversion, no limit converter, unlimited file converter",
         },
         { name: "twitter:card", content: "summary" },
         {
@@ -192,6 +196,16 @@ export default {
           question: `How can we convert ${this.$route.params.format} files free of charge?`,
           answer:
             "The service is free because the entire conversion process takes place within your browser. The computing resources required for the conversion are provided by your device. This approach eliminates the need for server-side processing and infrastructure, allowing us to offer the service at no cost to users. Your browser becomes the tool for conversion, making it a convenient and cost-free solution.",
+          open: false,
+        },
+        {
+          question: `Do I need to install any software to convert ${this.$route.params.format} files?`,
+          answer: "No, everything is processed entirely within your web browser.",
+          open: false,
+        },
+        {
+          question: `Can I convert ${this.$route.params.format} files on my mobile device?`,
+          answer: "Yes, our converter works perfectly on both desktop and mobile browsers.",
           open: false,
         },
       ],
