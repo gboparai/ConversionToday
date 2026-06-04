@@ -504,13 +504,34 @@ export default {
     },
   },
   methods: {
+    fileMatchesAccept(file, acceptString) {
+      if (!acceptString || acceptString === '*/*') return true;
+      const parts = acceptString.split(',').map((p) => p.trim().toLowerCase());
+      const fileType = (file.type || '').toLowerCase();
+      const fileName = file.name.toLowerCase();
+      return parts.some((part) => {
+        if (part.startsWith('.')) {
+          return fileName.endsWith(part);
+        }
+        if (part.endsWith('/*')) {
+          const category = part.split('/')[0];
+          return fileType.startsWith(category + '/');
+        }
+        return fileType === part;
+      });
+    },
     input(e) {
       this.$store.dispatch(this.mtConfig.addFiles, e.target.files);
     },
     fileDrop(e) {
       e.preventDefault();
-      this.$store.dispatch(this.mtConfig.addFiles, e.dataTransfer.files);
-      this.fileInDropZone = false;
+      const filtered = Array.from(e.dataTransfer.files).filter((f) =>
+        this.fileMatchesAccept(f, this.acceptMimeTypes)
+      );
+      if (filtered.length) {
+        this.$store.dispatch(this.mtConfig.addFiles, filtered);
+      }
+      this.fileInDropZone = 0;
     },
     fileOver(e) {
       e.preventDefault();

@@ -33,6 +33,20 @@
     pointer-events: none;
   }
 
+  .processing-fill--indeterminate {
+    position: absolute;
+    left: -30%;
+    width: 30%;
+    animation: progress-indeterminate 1.4s ease-in-out infinite;
+    transition: none;
+  }
+
+  @keyframes progress-indeterminate {
+    0%   { left: -30%; width: 30%; }
+    50%  { left: 20%;  width: 60%; }
+    100% { left: 110%; width: 30%; }
+  }
+
   .file-name {
     flex: 1;
     white-space: nowrap;
@@ -127,7 +141,11 @@
   <div class="file-row">
     <transition name="fade">
       <div v-if="file.status === FILE_STATUS.processing" class="processing-bar">
-        <div class="processing-fill" :style="{ width: progressPercent + '%' }"></div>
+        <div
+          class="processing-fill"
+          :class="{ 'processing-fill--indeterminate': !trackProgress }"
+          :style="trackProgress ? { width: progressPercent + '%' } : {}"
+        ></div>
       </div>
     </transition>
 
@@ -180,6 +198,9 @@ export default {
     mtConfig() {
       return getMediaTypeConfig(this.mediaType);
     },
+    trackProgress() {
+      return this.mtConfig.trackProgress !== false;
+    },
     blobURL() {
       let url = null;
       if (
@@ -205,7 +226,7 @@ export default {
     statusLabel() {
       switch (this.file.status) {
         case FILE_STATUS.waiting:    return "Waiting";
-        case FILE_STATUS.processing: return `Converting ${this.progressPercent}%`;
+        case FILE_STATUS.processing: return this.trackProgress ? `Converting ${this.progressPercent}%` : "Converting";
         case FILE_STATUS.failed:     return "Failed";
         case FILE_STATUS.processed:  return "Successful";
         default:                     return "Waiting";
