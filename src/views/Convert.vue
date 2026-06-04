@@ -529,15 +529,17 @@ export default {
     process() {
       this.$store.dispatch(this.mtConfig.processAll);
     },
-    downloadAll() {
-      this.files.forEach((file) => {
+    async downloadAll() {
+      for (const file of this.files) {
+        if (!file.output || !file.output.url) continue;
         let a = document.createElement("a");
         a.download = file.output.name;
         a.href = file.output.url;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-      });
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
     },
     async downloadZip() {
       const zip = new JSZip();

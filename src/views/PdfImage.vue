@@ -789,12 +789,15 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    downloadAll() {
+    async downloadAll() {
       if (this.isImagesToPdf && this.hasPdfOutput) {
         this._downloadItem(this.pdfOutput.url, this.pdfOutput.name);
         return;
       }
-      this.imageOutputs.forEach((o) => this._downloadItem(o.url, o.name));
+      for (const o of this.imageOutputs) {
+        this._downloadItem(o.url, o.name);
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
     },
     async downloadZip() {
       const zip = new JSZip();

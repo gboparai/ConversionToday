@@ -499,15 +499,16 @@ export default {
         file.status = FILE_STATUS.failed;
       }
     },
-    downloadAll() {
-      this.processed.forEach((file) => {
+    async downloadAll() {
+      for (const file of this.processed) {
         const a = document.createElement("a");
         a.download = file.output.name;
         a.href = file.output.url;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-      });
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
     },
     removeFile(id) {
       const file = this.files.find((f) => f.id === id);

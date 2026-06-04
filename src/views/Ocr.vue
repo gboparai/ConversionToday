@@ -915,16 +915,17 @@ export default {
     },
 
     // ── Download helpers ───────────────────────────────────────────────────
-    downloadAll() {
-      this.processed.forEach((file) => {
-        if (!file.output || !file.output.url) return;
+    async downloadAll() {
+      for (const file of this.processed) {
+        if (!file.output || !file.output.url) continue;
         const a = document.createElement('a');
         a.download = file.output.name;
         a.href = file.output.url;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-      });
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
     },
     async downloadZip() {
       const zip = new JSZip();
