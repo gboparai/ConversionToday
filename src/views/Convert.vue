@@ -515,12 +515,47 @@ export default {
     },
   },
   methods: {
+    /**
+     * Filter a FileList (or array of Files) to only those whose extension or
+     * MIME type matches the currently-selected input format.
+     *
+     * The browser's `accept` attribute is advisory-only and can be bypassed,
+     * so we enforce the same restriction in JavaScript for both the file-picker
+     * and drag-and-drop paths.
+     *
+     * Returns an Array<File> (never a raw FileList so it is iterable everywhere).
+     */
+    filterFilesByInputFormat(fileList) {
+      const inputFormat = this.formatInofo;
+      // If we cannot determine the input format, pass all files through so the
+      // converter can handle them as usual.
+      if (!inputFormat) return Array.from(fileList);
+
+      const allowedExt  = String(inputFormat.extension || inputFormat.name || '').trim().toLowerCase();
+      // Some formats (e.g. audio/video) carry a mimeType; build a Set for O(1) lookup.
+      // Split on commas to handle compound values like 'audio/ogg; codecs=opus'.
+      const allowedMimes = new Set(
+        inputFormat.mimeType
+          ? [inputFormat.mimeType.trim().toLowerCase().split(';')[0].trim()]
+          : []
+      );
+
+      return Array.from(fileList).filter((file) => {
+        const fileExt  = (file.name.split('.').pop() || '').toLowerCase();
+        const fileMime = (file.type || '').toLowerCase().split(';')[0].trim();
+        const extMatch  = allowedExt  && fileExt  === allowedExt;
+        const mimeMatch = allowedMimes.size > 0 && allowedMimes.has(fileMime);
+        return extMatch || mimeMatch;
+      });
+    },
     input(e) {
-      this.$store.dispatch(this.mtConfig.addFiles, e.target.files);
+      const filtered = this.filterFilesByInputFormat(e.target.files);
+      if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
     },
     fileDrop(e) {
       e.preventDefault();
-      this.$store.dispatch(this.mtConfig.addFiles, e.dataTransfer.files);
+      const filtered = this.filterFilesByInputFormat(e.dataTransfer.files);
+      if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
       this.fileInDropZone = false;
     },
     fileOver(e) {

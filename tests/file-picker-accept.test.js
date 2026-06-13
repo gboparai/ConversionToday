@@ -1,15 +1,21 @@
 /**
- * File Picker Accept Attribute Tests
+ * File Picker Accept Attribute & Drag-and-Drop Filter Tests
  *
  * Verifies that the acceptMimeTypes computed property in Convert.vue correctly
- * restricts the file picker to the selected input format. Tests cover:
+ * restricts the file picker to the selected input format, AND that the
+ * filterFilesByInputFormat method enforces the same restriction for drag-and-drop
+ * (and as a defence-in-depth layer for the file picker). Tests cover:
  *
- *   1. The computed property logic in Convert.vue (source analysis)
- *   2. Format data integrity — every input-capable format has the fields
- *      needed to build a non-empty accept string
- *   3. Per-media-type spot checks (image, audio, video, document, archive, font)
- *   4. Fallback behaviour when no specific format is resolved
- *   5. The file input element actually carries the :accept binding
+ *   1.  The computed property logic in Convert.vue (source analysis)
+ *   2.  Format data integrity — every input-capable format has the fields
+ *       needed to build a non-empty accept string
+ *   3.  Per-media-type spot checks (image, audio, video, document, archive, font)
+ *   4.  Fallback behaviour when no specific format is resolved
+ *   5.  The file input element actually carries the :accept binding
+ *   6.  filterFilesByInputFormat source structure
+ *   7.  filterFilesByInputFormat logic (pure-JS simulation)
+ *   8.  Drag-and-drop handler wiring — fileDrop uses the filter
+ *   9.  File-picker handler wiring — input uses the filter
  */
 /* eslint-env jest */
 
@@ -624,6 +630,324 @@ describe('Store format data completeness for file picker', () => {
     const archive = parseStoreFormats('archiveFormats');
     archive.forEach(format => {
       expect(format.extension).toBeTruthy();
+    });
+  });
+});
+
+// ─── Helper: simulate filterFilesByInputFormat ────────────────────────────────
+//
+// Mirrors the exact logic in Convert.vue filterFilesByInputFormat() so we can
+// test it without a browser runtime.
+
+function makeFile(name, type = '') {
+  // Minimal File-like object sufficient for the filter logic.
+  return { name, type };
+}
+
+function simulateFilterFiles(fileList, inputFormat) {
+  if (!inputFormat) return Array.from(fileList);
+
+  const allowedExt = String(inputFormat.extension || inputFormat.name || '').trim().toLowerCase();
+  const allowedMimes = new Set(
+    inputFormat.mimeType
+      ? [inputFormat.mimeType.trim().toLowerCase().split(';')[0].trim()]
+      : []
+  );
+
+  return Array.from(fileList).filter((file) => {
+    const fileExt  = (file.name.split('.').pop() || '').toLowerCase();
+    const fileMime = (file.type || '').toLowerCase().split(';')[0].trim();
+    const extMatch  = allowedExt && fileExt === allowedExt;
+    const mimeMatch = allowedMimes.size > 0 && allowedMimes.has(fileMime);
+    return extMatch || mimeMatch;
+  });
+}
+
+// ─── 11. filterFilesByInputFormat — source structure ──────────────────────────
+
+describe('Convert.vue — filterFilesByInputFormat source structure', () => {
+  test('filterFilesByInputFormat method is defined in Convert.vue', () => {
+    expect(convertSource).toContain('filterFilesByInputFormat(fileList)');
+  });
+
+  test('method returns early (passes all files) when no inputFormat is resolved', () => {
+    expect(convertSource).toContain('if (!inputFormat) return Array.from(fileList)');
+  });
+
+  test('method builds allowedExt from format.extension or format.name', () => {
+    expect(convertSource).toContain('inputFormat.extension || inputFormat.name');
+  });
+
+  test('method builds allowedMimes Set from format.mimeType', () => {
+    expect(convertSource).toContain('new Set(');
+    expect(convertSource).toContain('inputFormat.mimeType');
+  });
+
+  test('method strips codecs suffix from MIME type (split on semicolon)', () => {
+    // e.g. 'audio/ogg; codecs=opus' → 'audio/ogg'
+    expect(convertSource).toContain(".split(';')[0].trim()");
+  });
+
+  test('method matches on extension OR mimeType', () => {
+    expect(convertSource).toContain('extMatch || mimeMatch');
+  });
+
+  test('fileDrop handler calls filterFilesByInputFormat before dispatching', () => {
+    // The raw e.dataTransfer.files must no longer be dispatched directly
+    expect(convertSource).not.toContain(
+      'this.$store.dispatch(this.mtConfig.addFiles, e.dataTransfer.files)'
+    );
+    expect(convertSource).toContain('filterFilesByInputFormat(e.dataTransfer.files)');
+  });
+
+  test('input handler calls filterFilesByInputFormat before dispatching', () => {
+    // The raw e.target.files must no longer be dispatched directly
+    expect(convertSource).not.toContain(
+      'this.$store.dispatch(this.mtConfig.addFiles, e.target.files)'
+    );
+    expect(convertSource).toContain('filterFilesByInputFormat(e.target.files)');
+  });
+
+  test('both handlers only dispatch when filtered list is non-empty', () => {
+    expect(convertSource).toContain('if (filtered.length) this.$store.dispatch');
+  });
+});
+
+// ─── 12. filterFilesByInputFormat — logic (pure-JS simulation) ────────────────
+
+describe('filterFilesByInputFormat — filter logic', () => {
+  // ── Extension-only formats (e.g. image) ────────────────────────────────────
+
+  describe('extension-only matching (image formats — no mimeType)', () => {
+    const jpgFormat = { name: 'jpg', extension: 'jpg', mimeType: null };
+
+    test('accepts a .jpg file', () => {
+      const result = simulateFilterFiles([makeFile('photo.jpg')], jpgFormat);
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('photo.jpg');
+    });
+
+    test('rejects a .png file when format is jpg', () => {
+      const result = simulateFilterFiles([makeFile('image.png')], jpgFormat);
+      expect(result).toHaveLength(0);
+    });
+
+    test('rejects a .mp4 file when format is jpg', () => {
+      const result = simulateFilterFiles([makeFile('video.mp4')], jpgFormat);
+      expect(result).toHaveLength(0);
+    });
+
+    test('accepts only matching files from a mixed list', () => {
+      const files = [
+        makeFile('a.jpg'),
+        makeFile('b.png'),
+        makeFile('c.jpg'),
+        makeFile('d.gif'),
+      ];
+      const result = simulateFilterFiles(files, jpgFormat);
+      expect(result).toHaveLength(2);
+      expect(result.map(f => f.name)).toEqual(['a.jpg', 'c.jpg']);
+    });
+
+    test('is case-insensitive for extension', () => {
+      const result = simulateFilterFiles([makeFile('PHOTO.JPG')], jpgFormat);
+      expect(result).toHaveLength(1);
+    });
+  });
+
+  // ── Extension + MIME matching (e.g. audio) ─────────────────────────────────
+
+  describe('extension + MIME matching (audio formats)', () => {
+    const mp3Format = { name: 'mp3', extension: 'mp3', mimeType: 'audio/mpeg' };
+
+    test('accepts a .mp3 file with correct MIME type', () => {
+      const result = simulateFilterFiles([makeFile('song.mp3', 'audio/mpeg')], mp3Format);
+      expect(result).toHaveLength(1);
+    });
+
+    test('accepts a .mp3 file with empty MIME type (extension match is enough)', () => {
+      const result = simulateFilterFiles([makeFile('song.mp3', '')], mp3Format);
+      expect(result).toHaveLength(1);
+    });
+
+    test('accepts a file with correct MIME type even if extension is absent', () => {
+      // Some drag-and-drop scenarios report no extension but a correct MIME type
+      const result = simulateFilterFiles([makeFile('song', 'audio/mpeg')], mp3Format);
+      expect(result).toHaveLength(1);
+    });
+
+    test('rejects a .wav file when format is mp3', () => {
+      const result = simulateFilterFiles([makeFile('sound.wav', 'audio/wav')], mp3Format);
+      expect(result).toHaveLength(0);
+    });
+
+    test('rejects a .mp4 file when format is mp3', () => {
+      const result = simulateFilterFiles([makeFile('video.mp4', 'video/mp4')], mp3Format);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  // ── Compound MIME values (e.g. opus: 'audio/ogg; codecs=opus') ─────────────
+
+  describe('compound mimeType values (codec suffix is stripped)', () => {
+    const opusFormat = { name: 'opus', extension: 'opus', mimeType: 'audio/ogg; codecs=opus' };
+
+    test('accepts a file with base MIME type audio/ogg (codec stripped for comparison)', () => {
+      const result = simulateFilterFiles([makeFile('track.opus', 'audio/ogg')], opusFormat);
+      expect(result).toHaveLength(1);
+    });
+
+    test('accepts a .opus file by extension even if MIME is empty', () => {
+      const result = simulateFilterFiles([makeFile('track.opus', '')], opusFormat);
+      expect(result).toHaveLength(1);
+    });
+
+    test('rejects a .mp3 file when format is opus', () => {
+      const result = simulateFilterFiles([makeFile('song.mp3', 'audio/mpeg')], opusFormat);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  // ── Video formats ──────────────────────────────────────────────────────────
+
+  describe('video format matching', () => {
+    const mp4Format = { name: 'mp4', extension: 'mp4', mimeType: 'video/mp4' };
+
+    test('accepts a .mp4 file', () => {
+      const result = simulateFilterFiles([makeFile('clip.mp4', 'video/mp4')], mp4Format);
+      expect(result).toHaveLength(1);
+    });
+
+    test('rejects a .mkv file when format is mp4', () => {
+      const result = simulateFilterFiles([makeFile('film.mkv', 'video/x-matroska')], mp4Format);
+      expect(result).toHaveLength(0);
+    });
+
+    test('rejects an audio file when format is mp4 video', () => {
+      const result = simulateFilterFiles([makeFile('song.mp3', 'audio/mpeg')], mp4Format);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  // ── Font formats ───────────────────────────────────────────────────────────
+
+  describe('font format matching', () => {
+    const ttfFormat = { name: 'ttf', extension: 'ttf', mimeType: 'font/ttf' };
+    const woffFormat = { name: 'woff', extension: 'woff', mimeType: 'font/woff' };
+
+    test('accepts a .ttf file', () => {
+      const result = simulateFilterFiles([makeFile('font.ttf', 'font/ttf')], ttfFormat);
+      expect(result).toHaveLength(1);
+    });
+
+    test('rejects a .woff file when format is ttf', () => {
+      const result = simulateFilterFiles([makeFile('font.woff', 'font/woff')], ttfFormat);
+      expect(result).toHaveLength(0);
+    });
+
+    test('accepts a .woff file when format is woff', () => {
+      const result = simulateFilterFiles([makeFile('font.woff', 'font/woff')], woffFormat);
+      expect(result).toHaveLength(1);
+    });
+  });
+
+  // ── No inputFormat (passthrough) ───────────────────────────────────────────
+
+  describe('passthrough when inputFormat is null/undefined', () => {
+    test('returns all files unchanged when inputFormat is null', () => {
+      const files = [makeFile('a.jpg'), makeFile('b.mp3'), makeFile('c.pdf')];
+      const result = simulateFilterFiles(files, null);
+      expect(result).toHaveLength(3);
+    });
+
+    test('returns all files unchanged when inputFormat is undefined', () => {
+      const files = [makeFile('a.jpg'), makeFile('b.mp3')];
+      const result = simulateFilterFiles(files, undefined);
+      expect(result).toHaveLength(2);
+    });
+  });
+
+  // ── Empty file lists ───────────────────────────────────────────────────────
+
+  describe('empty input', () => {
+    const jpgFormat = { name: 'jpg', extension: 'jpg', mimeType: null };
+
+    test('returns empty array when given an empty list', () => {
+      const result = simulateFilterFiles([], jpgFormat);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  // ── Archive format (extension + mimeType) ──────────────────────────────────
+
+  describe('archive format matching', () => {
+    const zipFormat = { name: 'zip', extension: 'zip', mimeType: 'application/zip' };
+    const rarFormat = { name: 'rar', extension: 'rar', mimeType: 'application/vnd.rar' };
+
+    test('accepts a .zip file when format is zip', () => {
+      const result = simulateFilterFiles([makeFile('archive.zip', 'application/zip')], zipFormat);
+      expect(result).toHaveLength(1);
+    });
+
+    test('rejects a .rar file when format is zip', () => {
+      const result = simulateFilterFiles([makeFile('archive.rar', 'application/vnd.rar')], zipFormat);
+      expect(result).toHaveLength(0);
+    });
+
+    test('accepts a .rar file when format is rar', () => {
+      const result = simulateFilterFiles([makeFile('archive.rar', 'application/vnd.rar')], rarFormat);
+      expect(result).toHaveLength(1);
+    });
+
+    test('rejects a .zip file when format is rar', () => {
+      const result = simulateFilterFiles([makeFile('archive.zip', 'application/zip')], rarFormat);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  // ── Mixed drag-and-drop scenarios ─────────────────────────────────────────
+
+  describe('realistic drag-and-drop scenarios', () => {
+    test('user drops mp3 + jpg onto an mp3 converter — only mp3 passes', () => {
+      const mp3Format = { name: 'mp3', extension: 'mp3', mimeType: 'audio/mpeg' };
+      const files = [
+        makeFile('track.mp3', 'audio/mpeg'),
+        makeFile('cover.jpg', 'image/jpeg'),
+      ];
+      const result = simulateFilterFiles(files, mp3Format);
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('track.mp3');
+    });
+
+    test('user drops multiple mp4 + mkv files onto an mp4 converter — only mp4 files pass', () => {
+      const mp4Format = { name: 'mp4', extension: 'mp4', mimeType: 'video/mp4' };
+      const files = [
+        makeFile('clip1.mp4', 'video/mp4'),
+        makeFile('clip2.mkv', 'video/x-matroska'),
+        makeFile('clip3.mp4', 'video/mp4'),
+        makeFile('clip4.avi', 'video/x-msvideo'),
+      ];
+      const result = simulateFilterFiles(files, mp4Format);
+      expect(result).toHaveLength(2);
+      expect(result.map(f => f.name)).toEqual(['clip1.mp4', 'clip3.mp4']);
+    });
+
+    test('user drops entirely wrong file types — result is empty', () => {
+      const pngFormat = { name: 'png', extension: 'png', mimeType: null };
+      const files = [
+        makeFile('doc.pdf', 'application/pdf'),
+        makeFile('sheet.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+        makeFile('song.mp3', 'audio/mpeg'),
+      ];
+      const result = simulateFilterFiles(files, pngFormat);
+      expect(result).toHaveLength(0);
+    });
+
+    test('user drops a folder of pngs onto a png converter — all pass', () => {
+      const pngFormat = { name: 'png', extension: 'png', mimeType: null };
+      const files = Array.from({ length: 5 }, (_, i) => makeFile(`img${i}.png`, 'image/png'));
+      const result = simulateFilterFiles(files, pngFormat);
+      expect(result).toHaveLength(5);
     });
   });
 });
