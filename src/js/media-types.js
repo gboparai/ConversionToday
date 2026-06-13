@@ -117,6 +117,24 @@ const MEDIA_TYPES = {
         setName: 'setFontName',
         removeFile: 'removeFontFile',
     },
+    subtitle: {
+        filesKey: 'subtitleFiles',
+        formatsKey: 'subtitleFormats',
+        nextIndexKey: 'subtitleNextIndex',
+        workerKey: 'subtitleWorker',
+        configKey: 'subtitleConfig',
+        label: 'Subtitle Files',
+        acceptMimeTypes: '.srt,.vtt,.ass,.ssa,.sub,.sbv,.stl,.ttml,.dfxp,.scc,.lrc,.txt',
+        addFiles: 'addSubtitleFiles',
+        clearFiles: 'clearSubtitleFiles',
+        processAll: 'processAllSubtitleFiles',
+        loadWorker: 'loadSubtitleWorker',
+        setFormat: 'setSubtitleFormat',
+        setInputFormat: 'setSubtitleInputFormat',
+        setUrl: 'setSubtitleUrl',
+        setName: 'setSubtitleName',
+        removeFile: 'removeSubtitleFile',
+    },
 };
 
 /**
@@ -130,6 +148,7 @@ function getMediaTypeFromPath(path) {
     if (path.startsWith('/document')) return 'document';
     if (path.startsWith('/archive')) return 'archive';
     if (path.startsWith('/font')) return 'font';
+    if (path.startsWith('/subtitle')) return 'subtitle';
     return 'image';
 }
 

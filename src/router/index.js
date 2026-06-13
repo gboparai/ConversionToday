@@ -10,6 +10,7 @@ const VideoHome = () => import('../views/VideoHome.vue')
 const DocumentHome = () => import('../views/DocumentHome.vue')
 const ArchiveHome = () => import('../views/ArchiveHome.vue')
 const FontHome = () => import('../views/FontHome.vue')
+const SubtitleHome = () => import('../views/SubtitleHome.vue')
 const Compression = () => import('../views/Compression.vue')
 const CompressionHome = () => import('../views/CompressionHome.vue')
 const Merge = () => import('../views/Merge.vue')
@@ -154,6 +155,22 @@ const routes = [
   {
     path: '/font/:format/:format2',
     name: 'FontConversion',
+    component: Convert
+  },
+  // ── Subtitle routes ─────────────────────────────────────────────────
+  {
+    path: '/subtitle',
+    name: 'SubtitleHome',
+    component: SubtitleHome
+  },
+  {
+    path: '/subtitle/:format',
+    name: 'SubtitleFormat',
+    component: Type
+  },
+  {
+    path: '/subtitle/:format/:format2',
+    name: 'SubtitleConversion',
     component: Convert
   },
   // ── OCR routes ─────────────────────────────────────────────────────────────

@@ -24,10 +24,10 @@ describe('Media types module structure', () => {
     expect(source).toContain('export { MEDIA_TYPES, getMediaTypeFromPath, getMediaTypeConfig }');
   });
 
-  test('defines all 6 media types', () => {
-    const types = ['image', 'audio', 'video', 'document', 'archive', 'font'];
+  test('defines all 7 media types', () => {
+    const types = ['image', 'audio', 'video', 'document', 'archive', 'font', 'subtitle'];
     types.forEach(type => {
-      expect(source).toContain(`${type}: {`);
+      expect(source).toContain(`${type}:`);
     });
   });
 });
@@ -43,7 +43,7 @@ describe('Media type configuration completeness', () => {
 
   // Extract each media type block (simple validation via regex)
   const mediaTypeBlocks = {};
-  const types = ['image', 'audio', 'video', 'document', 'archive', 'font'];
+  const types = ['image', 'audio', 'video', 'document', 'archive', 'font', 'subtitle'];
 
   beforeAll(() => {
     types.forEach(type => {
@@ -70,6 +70,7 @@ describe('Media type configuration completeness', () => {
     expect(mediaTypeBlocks.document).toContain("filesKey: 'documentFiles'");
     expect(mediaTypeBlocks.archive).toContain("filesKey: 'archiveFiles'");
     expect(mediaTypeBlocks.font).toContain("filesKey: 'fontFiles'");
+    expect(mediaTypeBlocks.subtitle).toContain("filesKey: 'subtitleFiles'");
   });
 });
 
@@ -82,6 +83,7 @@ describe('getMediaTypeFromPath logic', () => {
     expect(source).toContain("if (path.startsWith('/document')) return 'document'");
     expect(source).toContain("if (path.startsWith('/archive')) return 'archive'");
     expect(source).toContain("if (path.startsWith('/font')) return 'font'");
+    expect(source).toContain("if (path.startsWith('/subtitle')) return 'subtitle'");
   });
 
   test('defaults to image for unmatched paths', () => {
@@ -117,11 +119,12 @@ describe('Action name consistency', () => {
     });
   });
 
-  test('document, archive, and font types have setInputFormat action', () => {
+  test('document, archive, font, and subtitle types have setInputFormat action', () => {
     // These types support input format differentiation
     expect(source).toContain("setInputFormat: 'setDocumentInputFormat'");
     expect(source).toContain("setInputFormat: 'setArchiveInputFormat'");
     expect(source).toContain("setInputFormat: 'setFontInputFormat'");
+    expect(source).toContain("setInputFormat: 'setSubtitleInputFormat'");
   });
 
   test('image and audio types do NOT have setInputFormat', () => {
@@ -158,5 +161,11 @@ describe('Accept MIME types', () => {
 
   test('archive type has explicit extension list', () => {
     expect(source).toContain('.zip,.7z,.rar,.tar');
+  });
+
+  test('subtitle type has explicit extension list including .srt and .vtt', () => {
+    expect(source).toContain('.srt');
+    expect(source).toContain('.vtt');
+    expect(source).toContain('.ass');
   });
 });

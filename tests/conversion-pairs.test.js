@@ -155,6 +155,7 @@ const VIDEO_FORMATS = parseStoreFormats('videoFormats');
 const DOCUMENT_FORMATS = parseStoreFormats('documentFormats');
 const ARCHIVE_FORMATS = parseStoreFormats('archiveFormats');
 const FONT_FORMATS = parseStoreFormats('fontFormats');
+const SUBTITLE_FORMATS = parseStoreFormats('subtitleFormats');
 
 const ocrViewSource = fs.readFileSync(OCR_VIEW_PATH, 'utf8');
 const OCR_INPUT_FORMATS = parseFormatObjects(extractConstArrayLiteral(ocrViewSource, 'OCR_INPUT_FORMATS'), ['inputType']);
@@ -565,6 +566,75 @@ describe('Archive Conversion Pairs', () => {
   });
 });
 
+// ─── Subtitle Conversion Pairs ──────────────────────────────────────────────
+
+describe('Subtitle Conversion Pairs', () => {
+  const inputFormats = SUBTITLE_FORMATS.filter(f => f.canConvertFrom);
+  const outputFormats = SUBTITLE_FORMATS.filter(f => f.canConvertTo);
+
+  describe('Format definitions', () => {
+    test(`has ${SUBTITLE_FORMATS.length} subtitle formats defined`, () => {
+      expect(SUBTITLE_FORMATS.length).toBe(11);
+    });
+
+    test('all formats have required properties', () => {
+      SUBTITLE_FORMATS.forEach(format => {
+        expect(format).toHaveProperty('name');
+        expect(format).toHaveProperty('extension');
+        expect(format).toHaveProperty('canConvertFrom');
+        expect(format).toHaveProperty('canConvertTo');
+      });
+    });
+
+    test('scc format is input-only', () => {
+      const scc = SUBTITLE_FORMATS.find(f => f.name === 'scc');
+      expect(scc.canConvertFrom).toBe(true);
+      expect(scc.canConvertTo).toBe(false);
+    });
+
+    test('srt format is defined', () => {
+      expect(SUBTITLE_FORMATS.find(f => f.name === 'srt')).toBeDefined();
+    });
+
+    test('vtt format is defined', () => {
+      expect(SUBTITLE_FORMATS.find(f => f.name === 'vtt')).toBeDefined();
+    });
+
+    test('ass format is defined', () => {
+      expect(SUBTITLE_FORMATS.find(f => f.name === 'ass')).toBeDefined();
+    });
+  });
+
+  describe('All valid conversion pairs', () => {
+    inputFormats.forEach(input => {
+      outputFormats
+        .filter(output => output.name !== input.name)
+        .forEach(output => {
+          test(`${input.name} → ${output.name}`, () => {
+            expect(input.canConvertFrom).toBe(true);
+            expect(output.canConvertTo).toBe(true);
+            expect(input.name).not.toBe(output.name);
+          });
+        });
+    });
+  });
+
+  describe('Total conversion pair count', () => {
+    // 11 inputs, 10 outputs. Pairs = 11 * (10 - 1) = 11 * 9 = 99
+    // Wait, wait, outputFormats is length 10. input is length 11.
+    // For each input, we convert to outputs that are not the input.
+    // So 10 inputs that have an output will convert to 9 other formats (10 * 9 = 90).
+    // The 1 input that does not have an output (scc) will convert to all 10 outputs (1 * 10 = 10).
+    // Total pairs = 100.
+    const pairCount = inputFormats.reduce((count, input) => {
+        return count + outputFormats.filter(o => o.name !== input.name).length;
+    }, 0);
+    test(`supports ${pairCount} subtitle conversion pairs`, () => {
+      expect(pairCount).toBe(100);
+    });
+  });
+});
+
 // ─── Font Conversion Pairs ──────────────────────────────────────────────────
 
 describe('Font Conversion Pairs', () => {
@@ -832,6 +902,7 @@ describe('Route Coverage', () => {
     '/document',
     '/archive',
     '/font',
+    '/subtitle',
     '/compression',
     '/compress',
     '/merge',
@@ -893,6 +964,15 @@ describe('Route Coverage', () => {
       const pairCount = inputs.length * (outputs.length - 1);
       expect(pairCount).toBe(30);
     });
+
+    test('/subtitle/:format/:format2 supports all subtitle conversion pairs', () => {
+      const inputs = SUBTITLE_FORMATS.filter(f => f.canConvertFrom);
+      const outputs = SUBTITLE_FORMATS.filter(f => f.canConvertTo);
+      const pairCount = inputs.reduce((count, input) => {
+        return count + outputs.filter(o => o.name !== input.name).length;
+      }, 0);
+      expect(pairCount).toBe(100);
+    });
   });
 });
 
@@ -921,12 +1001,18 @@ describe('Conversion Pair Summary', () => {
     const fontPairs = FONT_FORMATS.filter(f => f.canConvertFrom).length *
       (FONT_FORMATS.filter(f => f.canConvertTo).length - 1);
 
+    const subtitleInputs = SUBTITLE_FORMATS.filter(f => f.canConvertFrom);
+    const subtitleOutputs = SUBTITLE_FORMATS.filter(f => f.canConvertTo);
+    const subtitlePairs = subtitleInputs.reduce((count, input) => {
+        return count + subtitleOutputs.filter(o => o.name !== input.name).length;
+    }, 0);
+
     const ocrPairs = OCR_INPUT_FORMATS.length * OCR_OUTPUT_FORMATS.length;
 
     const pdfImagePairs = PDF_IMAGE_PAIRS.reduce((c, p) => c + p.outputs.length, 0);
 
     const totalPairs = imagePairs + audioPairs + videoPairs + docPairs +
-      archivePairs + fontPairs + ocrPairs + pdfImagePairs;
+      archivePairs + fontPairs + subtitlePairs + ocrPairs + pdfImagePairs;
 
     // Log for visibility
     console.log(`
@@ -939,6 +1025,7 @@ describe('Conversion Pair Summary', () => {
     ║ Document:    ${String(docPairs).padStart(5)} pairs              ║
     ║ Archive:     ${String(archivePairs).padStart(5)} pairs              ║
     ║ Font:        ${String(fontPairs).padStart(5)} pairs              ║
+    ║ Subtitle:    ${String(subtitlePairs).padStart(5)} pairs              ║
     ║ OCR:         ${String(ocrPairs).padStart(5)} pairs              ║
     ║ PDF-Image:   ${String(pdfImagePairs).padStart(5)} pairs              ║
     ╠══════════════════════════════════════════╣

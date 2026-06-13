@@ -19,6 +19,7 @@
           <router-link to="/document">Document</router-link>
           <router-link to="/archive">Archive</router-link>
           <router-link to="/font">Font</router-link>
+          <router-link to="/subtitle">Subtitle</router-link>
         </div>
       </div>
 

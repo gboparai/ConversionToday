@@ -969,3 +969,264 @@ describe('filterFilesByInputFormat — filter logic', () => {
     });
   });
 });
+
+// ─── 8. Subtitle format data integrity ───────────────────────────────────────
+
+describe('Subtitle format accept strings', () => {
+  let subtitleFormats;
+  beforeAll(() => {
+    subtitleFormats = parseStoreFormats('subtitleFormats');
+  });
+
+  test('subtitleFormats array is defined in the store', () => {
+    expect(subtitleFormats.length).toBeGreaterThan(0);
+  });
+
+  test('all subtitle formats have a non-empty extension', () => {
+    subtitleFormats.forEach(fmt => {
+      expect(fmt.extension).toBeTruthy();
+    });
+  });
+
+  test('srt format is present and can convert from and to', () => {
+    const srt = subtitleFormats.find(f => f.name === 'srt');
+    expect(srt).toBeDefined();
+    expect(srt.canConvertFrom).toBe(true);
+    expect(srt.canConvertTo).toBe(true);
+  });
+
+  test('vtt format is present and can convert from and to', () => {
+    const vtt = subtitleFormats.find(f => f.name === 'vtt');
+    expect(vtt).toBeDefined();
+    expect(vtt.canConvertFrom).toBe(true);
+    expect(vtt.canConvertTo).toBe(true);
+  });
+
+  test('ass format is present and can convert from and to', () => {
+    const ass = subtitleFormats.find(f => f.name === 'ass');
+    expect(ass).toBeDefined();
+    expect(ass.canConvertFrom).toBe(true);
+    expect(ass.canConvertTo).toBe(true);
+  });
+
+  test('ssa format is present', () => {
+    expect(subtitleFormats.find(f => f.name === 'ssa')).toBeDefined();
+  });
+
+  test('sbv format is present', () => {
+    expect(subtitleFormats.find(f => f.name === 'sbv')).toBeDefined();
+  });
+
+  test('lrc format is present', () => {
+    expect(subtitleFormats.find(f => f.name === 'lrc')).toBeDefined();
+  });
+
+  test('ttml format is present', () => {
+    expect(subtitleFormats.find(f => f.name === 'ttml')).toBeDefined();
+  });
+
+  test('stl format is present', () => {
+    expect(subtitleFormats.find(f => f.name === 'stl')).toBeDefined();
+  });
+
+  test('txt format is present', () => {
+    expect(subtitleFormats.find(f => f.name === 'txt')).toBeDefined();
+  });
+
+  test('srt accept string contains .srt', () => {
+    const srt = subtitleFormats.find(f => f.name === 'srt');
+    const accept = simulateAcceptMimeTypes(srt, '.srt,.vtt,.ass,.ssa,.sub,.sbv,.stl,.ttml,.dfxp,.lrc,.txt');
+    expect(accept).toContain('.srt');
+  });
+
+  test('vtt accept string contains .vtt', () => {
+    const vtt = subtitleFormats.find(f => f.name === 'vtt');
+    const accept = simulateAcceptMimeTypes(vtt, '.srt,.vtt,.ass');
+    expect(accept).toContain('.vtt');
+  });
+
+  test('all subtitle accept strings are non-empty', () => {
+    const fallback = '.srt,.vtt,.ass,.ssa,.sub,.sbv,.stl,.ttml,.dfxp,.lrc,.txt';
+    subtitleFormats.forEach(fmt => {
+      const accept = simulateAcceptMimeTypes(fmt, fallback);
+      expect(accept.length).toBeGreaterThan(0);
+    });
+  });
+
+  test('all subtitle accept strings start with a dot (extension-first)', () => {
+    const fallback = '.srt,.vtt,.ass,.ssa,.sub,.sbv,.stl,.ttml,.dfxp,.lrc,.txt';
+    subtitleFormats.forEach(fmt => {
+      const accept = simulateAcceptMimeTypes(fmt, fallback);
+      expect(accept.startsWith('.')).toBe(true);
+    });
+  });
+});
+
+// ─── 9. Subtitle media-type config ───────────────────────────────────────────
+
+describe('Subtitle media-type config in media-types.js', () => {
+  test('media-types.js defines a subtitle entry', () => {
+    expect(mediaTypesSource).toContain("subtitle:");
+  });
+
+  test('subtitle entry has correct filesKey', () => {
+    expect(mediaTypesSource).toContain("subtitleFiles");
+  });
+
+  test('subtitle entry has correct formatsKey', () => {
+    expect(mediaTypesSource).toContain("subtitleFormats");
+  });
+
+  test('subtitle entry has setInputFormat (non-null)', () => {
+    expect(mediaTypesSource).toContain("setSubtitleInputFormat");
+  });
+
+  test('subtitle acceptMimeTypes includes .srt and .vtt', () => {
+    expect(mediaTypesSource).toContain('.srt');
+    expect(mediaTypesSource).toContain('.vtt');
+  });
+
+  test('getMediaTypeFromPath handles /subtitle path', () => {
+    expect(mediaTypesSource).toContain("startsWith('/subtitle')");
+    expect(mediaTypesSource).toContain("return 'subtitle'");
+  });
+});
+
+// ─── 10. Subtitle route registration ─────────────────────────────────────────
+
+describe('Subtitle routes in router/index.js', () => {
+  let routerSource;
+  beforeAll(() => {
+    routerSource = require('fs').readFileSync(
+      require('path').resolve(__dirname, '../src/router/index.js'), 'utf8'
+    );
+  });
+
+  test("router imports SubtitleHome", () => {
+    expect(routerSource).toContain("SubtitleHome");
+  });
+
+  test("router has /subtitle home route", () => {
+    expect(routerSource).toContain("path: '/subtitle'");
+  });
+
+  test("router has /subtitle/:format type route", () => {
+    expect(routerSource).toContain("path: '/subtitle/:format'");
+  });
+
+  test("router has /subtitle/:format/:format2 conversion route", () => {
+    expect(routerSource).toContain("path: '/subtitle/:format/:format2'");
+  });
+});
+
+// ─── 11. Subtitle nav link in App.vue ─────────────────────────────────────────
+
+describe('Subtitle nav link in App.vue', () => {
+  let appSource;
+  beforeAll(() => {
+    appSource = require('fs').readFileSync(
+      require('path').resolve(__dirname, '../src/App.vue'), 'utf8'
+    );
+  });
+
+  test('App.vue contains a Subtitle nav link', () => {
+    expect(appSource).toContain('to="/subtitle"');
+  });
+
+  test('Subtitle link is in the Convert dropdown', () => {
+    // The Subtitle link should appear after the Convert dropdown trigger
+    const convertTriggerIdx = appSource.indexOf('navDropdown__trigger');
+    const subtitleLinkIdx   = appSource.indexOf('to="/subtitle"');
+    expect(subtitleLinkIdx).toBeGreaterThan(convertTriggerIdx);
+  });
+});
+
+// ─── 12. Subtitle tile on LandingHome ─────────────────────────────────────────
+
+describe('Subtitle tile on LandingHome.vue', () => {
+  let landingSource;
+  beforeAll(() => {
+    landingSource = require('fs').readFileSync(
+      require('path').resolve(__dirname, '../src/views/LandingHome.vue'), 'utf8'
+    );
+  });
+
+  test('LandingHome.vue contains a link to /subtitle', () => {
+    expect(landingSource).toContain('href="/subtitle"');
+  });
+
+  test('Subtitle tile has a heading', () => {
+    expect(landingSource).toContain('Subtitle Converter');
+  });
+});
+
+// ─── 13. filterFilesByInputFormat — subtitle format matching ──────────────────
+
+describe('filterFilesByInputFormat — subtitle format matching', () => {
+  const srtFormat  = { name: 'srt',  extension: 'srt',  mimeType: 'application/x-subrip' };
+  const vttFormat  = { name: 'vtt',  extension: 'vtt',  mimeType: 'text/vtt' };
+  const assFormat  = { name: 'ass',  extension: 'ass',  mimeType: 'text/x-ass' };
+  const ttmlFormat = { name: 'ttml', extension: 'ttml', mimeType: 'application/ttml+xml' };
+
+  test('accepts a .srt file when format is srt', () => {
+    const result = simulateFilterFiles(
+      [makeFile('subs.srt', 'application/x-subrip')], srtFormat
+    );
+    expect(result).toHaveLength(1);
+  });
+
+  test('rejects a .vtt file when format is srt', () => {
+    const result = simulateFilterFiles(
+      [makeFile('subs.vtt', 'text/vtt')], srtFormat
+    );
+    expect(result).toHaveLength(0);
+  });
+
+  test('accepts a .vtt file when format is vtt', () => {
+    const result = simulateFilterFiles(
+      [makeFile('subs.vtt', 'text/vtt')], vttFormat
+    );
+    expect(result).toHaveLength(1);
+  });
+
+  test('rejects a .srt file when format is vtt', () => {
+    const result = simulateFilterFiles(
+      [makeFile('subs.srt', 'application/x-subrip')], vttFormat
+    );
+    expect(result).toHaveLength(0);
+  });
+
+  test('accepts a .ass file when format is ass', () => {
+    const result = simulateFilterFiles(
+      [makeFile('anime.ass', 'text/x-ass')], assFormat
+    );
+    expect(result).toHaveLength(1);
+  });
+
+  test('accepts a .ttml file when format is ttml', () => {
+    const result = simulateFilterFiles(
+      [makeFile('netflix.ttml', 'application/ttml+xml')], ttmlFormat
+    );
+    expect(result).toHaveLength(1);
+  });
+
+  test('rejects a video file dropped on an srt converter', () => {
+    const result = simulateFilterFiles(
+      [makeFile('movie.mp4', 'video/mp4')], srtFormat
+    );
+    expect(result).toHaveLength(0);
+  });
+
+  test('user drops mixed subtitle types — only srt files pass on srt converter', () => {
+    const files = [
+      makeFile('ep1.srt', 'application/x-subrip'),
+      makeFile('ep1.vtt', 'text/vtt'),
+      makeFile('ep1.ass', 'text/x-ass'),
+      makeFile('ep2.srt', 'application/x-subrip'),
+    ];
+    const result = simulateFilterFiles(files, srtFormat);
+    expect(result).toHaveLength(2);
+    expect(result.map(f => f.name)).toEqual(['ep1.srt', 'ep2.srt']);
+  });
+});
+
