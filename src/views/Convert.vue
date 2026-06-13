@@ -427,8 +427,19 @@ export default {
       return this.mtConfig.label;
     },
     acceptMimeTypes() {
+      // Build a precise accept string from the selected input format.
+      // This scopes the OS file picker to only the format the user intends to convert FROM.
+      const inputFormat = this.formatInofo;
+      if (inputFormat) {
+        const ext = String(inputFormat.extension || inputFormat.name || '').trim().toLowerCase();
+        const parts = ext ? [`.${ext}`] : [];
+        const mime = inputFormat.mimeType ? String(inputFormat.mimeType).trim() : null;
+        if (mime) parts.push(mime);
+        if (parts.length) return parts.join(',');
+      }
+      // Fallback: use the media-type-level accept string when no specific format is resolved.
       if (this.mtConfig.acceptMimeTypes) return this.mtConfig.acceptMimeTypes;
-      // Font type: compute dynamically from formats
+      // Font type (acceptMimeTypes is null): compute dynamically from all formats.
       const extensions = this.$store.state[this.mtConfig.formatsKey]
         .map((format) => String(format.extension || '').trim().toLowerCase())
         .filter((extension, index, list) => extension && list.indexOf(extension) === index);
