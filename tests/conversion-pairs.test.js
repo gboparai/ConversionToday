@@ -574,7 +574,7 @@ describe('Subtitle Conversion Pairs', () => {
 
   describe('Format definitions', () => {
     test(`has ${SUBTITLE_FORMATS.length} subtitle formats defined`, () => {
-      expect(SUBTITLE_FORMATS.length).toBe(9);
+      expect(SUBTITLE_FORMATS.length).toBe(11);
     });
 
     test('all formats have required properties', () => {
@@ -586,11 +586,10 @@ describe('Subtitle Conversion Pairs', () => {
       });
     });
 
-    test('all subtitle formats support both input and output', () => {
-      SUBTITLE_FORMATS.forEach(format => {
-        expect(format.canConvertFrom).toBe(true);
-        expect(format.canConvertTo).toBe(true);
-      });
+    test('scc format is input-only', () => {
+      const scc = SUBTITLE_FORMATS.find(f => f.name === 'scc');
+      expect(scc.canConvertFrom).toBe(true);
+      expect(scc.canConvertTo).toBe(false);
     });
 
     test('srt format is defined', () => {
@@ -621,9 +620,17 @@ describe('Subtitle Conversion Pairs', () => {
   });
 
   describe('Total conversion pair count', () => {
-    const pairCount = inputFormats.length * (outputFormats.length - 1);
+    // 11 inputs, 10 outputs. Pairs = 11 * (10 - 1) = 11 * 9 = 99
+    // Wait, wait, outputFormats is length 10. input is length 11.
+    // For each input, we convert to outputs that are not the input.
+    // So 10 inputs that have an output will convert to 9 other formats (10 * 9 = 90).
+    // The 1 input that does not have an output (scc) will convert to all 10 outputs (1 * 10 = 10).
+    // Total pairs = 100.
+    const pairCount = inputFormats.reduce((count, input) => {
+        return count + outputFormats.filter(o => o.name !== input.name).length;
+    }, 0);
     test(`supports ${pairCount} subtitle conversion pairs`, () => {
-      expect(pairCount).toBe(72); // 9 * 8
+      expect(pairCount).toBe(100);
     });
   });
 });
@@ -961,8 +968,10 @@ describe('Route Coverage', () => {
     test('/subtitle/:format/:format2 supports all subtitle conversion pairs', () => {
       const inputs = SUBTITLE_FORMATS.filter(f => f.canConvertFrom);
       const outputs = SUBTITLE_FORMATS.filter(f => f.canConvertTo);
-      const pairCount = inputs.length * (outputs.length - 1);
-      expect(pairCount).toBe(72); // 9 * 8
+      const pairCount = inputs.reduce((count, input) => {
+        return count + outputs.filter(o => o.name !== input.name).length;
+      }, 0);
+      expect(pairCount).toBe(100);
     });
   });
 });
@@ -994,7 +1003,9 @@ describe('Conversion Pair Summary', () => {
 
     const subtitleInputs = SUBTITLE_FORMATS.filter(f => f.canConvertFrom);
     const subtitleOutputs = SUBTITLE_FORMATS.filter(f => f.canConvertTo);
-    const subtitlePairs = subtitleInputs.length * (subtitleOutputs.length - 1);
+    const subtitlePairs = subtitleInputs.reduce((count, input) => {
+        return count + subtitleOutputs.filter(o => o.name !== input.name).length;
+    }, 0);
 
     const ocrPairs = OCR_INPUT_FORMATS.length * OCR_OUTPUT_FORMATS.length;
 

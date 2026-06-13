@@ -313,7 +313,24 @@ function toTxt(cues) {
 
 // ── Format dispatch ────────────────────────────────────────────────────────
 
+import { convert } from 'subtitle-converter';
+
 function parse(content, formatName) {
+    const complexFormats = ['scc', 'ttml', 'dfxp', 'ass', 'ssa', 'vtt'];
+    
+    if (complexFormats.includes(formatName)) {
+        try {
+            // Use the robust library to normalize the file into SRT string format
+            const res = convert(content, '.srt');
+            if (res.status.success && res.subtitle) {
+                return parseSrt(res.subtitle);
+            }
+            console.warn(`[subtitle-worker] Library conversion failed for ${formatName}, falling back to custom parser`);
+        } catch (err) {
+            console.warn(`[subtitle-worker] Library conversion error for ${formatName}:`, err);
+        }
+    }
+
     switch (formatName) {
         case 'srt':  return parseSrt(content);
         case 'vtt':  return parseVtt(content);

@@ -124,7 +124,7 @@ const MEDIA_TYPES = {
         workerKey: 'subtitleWorker',
         configKey: 'subtitleConfig',
         label: 'Subtitle Files',
-        acceptMimeTypes: '.srt,.vtt,.ass,.ssa,.sub,.sbv,.stl,.ttml,.dfxp,.lrc,.txt',
+        acceptMimeTypes: '.srt,.vtt,.ass,.ssa,.sub,.sbv,.stl,.ttml,.dfxp,.scc,.lrc,.txt',
         addFiles: 'addSubtitleFiles',
         clearFiles: 'clearSubtitleFiles',
         processAll: 'processAllSubtitleFiles',
