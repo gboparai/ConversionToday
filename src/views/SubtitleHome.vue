@@ -10,9 +10,9 @@
 
   <div class="infomationContainer">
     <information>
-      <template #header>9 Subtitle Formats — All Free</template>
+      <template #header>11 Subtitle Formats — All Free</template>
       <template #description>
-        Convert between SRT, VTT, ASS, SSA, SBV, LRC, TTML, STL, and plain TXT — all the major subtitle and caption formats used by video players, streaming platforms, and broadcasting tools.
+        Convert between SRT, VTT, ASS, SSA, SBV, LRC, TTML, DFXP, STL, SCC, and plain TXT — all the major subtitle and caption formats used by video players, streaming platforms, and broadcasting tools.
       </template>
     </information>
     <information>
@@ -91,7 +91,7 @@ export default {
       faqs: [
         {
           question: "What subtitle formats can I convert for free?",
-          answer: "You can convert between 9 formats: SRT, VTT (WebVTT), ASS (Advanced SubStation Alpha), SSA (SubStation Alpha), SBV (YouTube), LRC (lyrics), TTML / DFXP, STL (Spruce), and plain TXT.",
+          answer: "You can convert between 11 formats: SRT, VTT (WebVTT), ASS (Advanced SubStation Alpha), SSA (SubStation Alpha), SBV (YouTube), LRC (lyrics), TTML, DFXP, STL (Spruce), SCC (Scenarist), and plain TXT.",
           open: false,
         },
         {

@@ -174,11 +174,11 @@
 <template>
   <descriptor>
     <template #header
-      >{{ formatInofo.name.toUpperCase() }} To
-      {{ formatInofo2.name.toUpperCase() }} Converter</template
+      >{{ formatInfo.name.toUpperCase() }} To
+      {{ formatInfo2.name.toUpperCase() }} Converter</template
     >
     <template #description
-      >Convert your {{ formatInofo.name }} and {{ formatInofo2.name }} files
+      >Convert your {{ formatInfo.name }} and {{ formatInfo2.name }} files
       today online for free with no restrictions</template
     >
   </descriptor>
@@ -186,20 +186,20 @@
     <card
       :path="mediaHomePath"
       :formats="formats1"
-      :selectedFormat="formatInofo.name"
+      :selectedFormat="formatInfo.name"
       :handleChange="handleChangeFormat1"
     >
-      <template #header>{{ formatInofo.title }}</template>
-      <template #description>{{ formatInofo.description }}</template>
+      <template #header>{{ formatInfo.title }}</template>
+      <template #description>{{ formatInfo.description }}</template>
     </card>
     <card
-      :path="'/' + mediaType + '/' + formatInofo.name"
+      :path="'/' + mediaType + '/' + formatInfo.name"
       :handleChange="handleChangeFormat2"
       :formats="formats2"
-      :selectedFormat="formatInofo2.name"
+      :selectedFormat="formatInfo2.name"
     >
-      <template #header>{{ formatInofo2.title }}</template>
-      <template #description>{{ formatInofo2.description }}</template>
+      <template #header>{{ formatInfo2.title }}</template>
+      <template #description>{{ formatInfo2.description }}</template>
     </card>
   </div>
   <label class="fileInput">
@@ -211,7 +211,7 @@
 
   <p v-if="skippedCount > 0" class="skippedNotice">
     {{ skippedCount }} file{{ skippedCount === 1 ? '' : 's' }} skipped — only
-    <strong>.{{ formatInofo ? (formatInofo.extension || formatInofo.name) : mediaTypeLabel }}</strong>
+    <strong>.{{ formatInfo ? (formatInfo.extension || formatInfo.name) : mediaTypeLabel }}</strong>
     files are accepted on this page.
     <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
   </p>
@@ -263,16 +263,16 @@
       <template #header>Unlimited Conversions</template>
       <template #description>
         Need to convert allot of files no problem you can convert as many
-        {{ formatInofo.name.toUpperCase() }} files to
-        {{ formatInofo2.name.toUpperCase() }} as you want without limitation.
+        {{ formatInfo.name.toUpperCase() }} files to
+        {{ formatInfo2.name.toUpperCase() }} as you want without limitation.
       </template>
     </information>
     <information>
       <template #header>No File Size Limit</template>
       <template #description>
         There are no file size restrictions so you can convert as large
-        {{ formatInofo.name.toUpperCase() }} file to
-        {{ formatInofo2.name.toUpperCase() }} as you desire.
+        {{ formatInfo.name.toUpperCase() }} file to
+        {{ formatInfo2.name.toUpperCase() }} as you desire.
       </template>
     </information>
   </div>
@@ -437,7 +437,7 @@ export default {
     acceptMimeTypes() {
       // Build a precise accept string from the selected input format.
       // This scopes the OS file picker to only the format the user intends to convert FROM.
-      const inputFormat = this.formatInofo;
+      const inputFormat = this.formatInfo;
       if (inputFormat) {
         const ext = String(inputFormat.extension || inputFormat.name || '').trim().toLowerCase();
         const parts = ext ? [`.${ext}`] : [];
@@ -467,12 +467,12 @@ export default {
     processed() {
       return this.files.filter((file) => file.status === FILE_STATUS.processed);
     },
-    formatInofo() {
+    formatInfo() {
       return this.$store.state[this.formatsKey].find((formatObj) => {
         if (formatObj.name == this.format) return formatObj;
       });
     },
-    formatInofo2() {
+    formatInfo2() {
       return this.$store.state[this.formatsKey].find((formatObj) => {
         if (formatObj.name == this.format2) return formatObj;
       });
@@ -534,7 +534,7 @@ export default {
      * Returns an Array<File> (never a raw FileList so it is iterable everywhere).
      */
     filterFilesByInputFormat(fileList) {
-      const inputFormat = this.formatInofo;
+      const inputFormat = this.formatInfo;
       // If we cannot determine the input format, pass all files through so the
       // converter can handle them as usual.
       if (!inputFormat) return Array.from(fileList);
@@ -645,9 +645,9 @@ export default {
     List,
   },
   mounted() {
-    this.$store.dispatch(this.mtConfig.setFormat, this.formatInofo2);
+    this.$store.dispatch(this.mtConfig.setFormat, this.formatInfo2);
     if (this.mtConfig.setInputFormat) {
-      this.$store.dispatch(this.mtConfig.setInputFormat, this.formatInofo);
+      this.$store.dispatch(this.mtConfig.setInputFormat, this.formatInfo);
     }
     this.$store.dispatch(this.mtConfig.loadWorker);
 

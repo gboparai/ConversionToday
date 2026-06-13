@@ -24,25 +24,25 @@
 <template>
   <descriptor>
     <template #header
-      ><span>{{ formatInofo.name.toUpperCase() }}</span> Converter</template
+      ><span>{{ formatInfo.name.toUpperCase() }}</span> Converter</template
     >
     <template #description
       >Convert unlimited number of files to and from
-      {{ formatInofo.name }} online. <span v-if="supportedFormatsString">Amongst many others, we support {{ supportedFormatsString }}.</span></template
+      {{ formatInfo.name }} online. <span v-if="supportedFormatsString">Amongst many others, we support {{ supportedFormatsString }}.</span></template
     >
   </descriptor>
   <div class="informationBar">
     <card
       :path="mediaHomePath"
       :formats="formats"
-      :selectedFormat="formatInofo.name"
+      :selectedFormat="formatInfo.name"
       :handleChange="handleChange"
     >
-      <template #header>{{ formatInofo.title }}</template>
-      <template #description>{{ formatInofo.description }}</template>
+      <template #header>{{ formatInfo.title }}</template>
+      <template #description>{{ formatInfo.description }}</template>
     </card>
   </div>
-  <h2 class="toTitle">Convert {{ formatInofo.name }} to:</h2>
+  <h2 class="toTitle">Convert {{ formatInfo.name }} to:</h2>
   <format-selector
     :isFrom="false"
     :path="mediaType + '/' + format"
@@ -53,14 +53,14 @@
     <information>
       <template #header>Fast Conversion</template>
       <template #description>
-        Convert large batches of {{ formatInofo.name.toUpperCase() }} files to
+        Convert large batches of {{ formatInfo.name.toUpperCase() }} files to
         supported formats quickly in your browser.
       </template>
     </information>
     <information>
       <template #header>No Limit</template>
       <template #description>
-        Convert {{ formatInofo.name.toUpperCase() }} files without any
+        Convert {{ formatInfo.name.toUpperCase() }} files without any
         limitations on the size or quantity.
       </template>
     </information>
@@ -70,14 +70,14 @@
       <template #header>Unlimited Batch Conversion</template>
       <template #description>
         Convert an unlimited number of
-        {{ formatInofo.name.toUpperCase() }} files to any other supported file
+        {{ formatInfo.name.toUpperCase() }} files to any other supported file
         format with just one click.
       </template>
     </information>
     <information>
       <template #header>{{ outputFormatCount }} formats supported</template>
       <template #description>
-        Convert {{ formatInofo.name.toUpperCase() }} files to {{ outputFormatCount }}
+        Convert {{ formatInfo.name.toUpperCase() }} files to {{ outputFormatCount }}
         supported output formats with a simple workflow.
       </template>
     </information>
@@ -231,7 +231,7 @@ export default {
     formatsKey() {
       return this.mtConfig.formatsKey;
     },
-    formatInofo() {
+    formatInfo() {
       return this.$store.state[this.formatsKey].find((formatObj) => {
         if (formatObj.name == this.format) return formatObj;
       });
