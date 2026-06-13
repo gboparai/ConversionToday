@@ -6,6 +6,7 @@ import DocWorker from 'worker-loader!@/js/doc-worker';
 import ArchiveWorker from 'worker-loader!@/js/archive-worker';
 import FontWorker from 'worker-loader!@/js/font-worker';
 import MergeWorker from 'worker-loader!@/js/merge-worker';
+import SubtitleWorker from 'worker-loader!@/js/subtitle-worker';
 import { FILE_STATUS } from '@/js/constants';
 import { MagickFormat } from "@imagemagick/magick-wasm/magick-format";
 import { createMediaMutations, createMediaActions } from './media-type-helpers';
@@ -1501,6 +1502,94 @@ export default createStore({
                 mimeType: 'image/svg+xml',
             },
         ],
+        // ── Subtitle ──────────────────────────────────────────────────────────
+        subtitleFiles: [],
+        subtitleNextIndex: 0,
+        subtitleWorker: null,
+        subtitleConfig: { format: null, inputFormat: null },
+        subtitleFormats: [
+            {
+                name: 'srt',
+                extension: 'srt',
+                title: 'SubRip Text',
+                description: 'SRT (SubRip Text) is the most widely supported subtitle format. It contains sequential numbered entries with start/end timecodes and plain text. Compatible with virtually every video player, streaming platform, and editing tool.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/x-subrip',
+            },
+            {
+                name: 'vtt',
+                extension: 'vtt',
+                title: 'WebVTT',
+                description: 'WebVTT (Web Video Text Tracks) is the standard subtitle format for HTML5 video. It extends SRT with support for cue settings, positioning, and styling, and is supported natively by all modern browsers.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'text/vtt',
+            },
+            {
+                name: 'ass',
+                extension: 'ass',
+                title: 'Advanced SubStation Alpha',
+                description: 'ASS (Advanced SubStation Alpha) is a rich subtitle format supporting complex styling, positioning, colors, animations, and karaoke effects. Widely used for anime fansubs and professional subtitle authoring.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'text/x-ass',
+            },
+            {
+                name: 'ssa',
+                extension: 'ssa',
+                title: 'SubStation Alpha',
+                description: 'SSA (SubStation Alpha) is the predecessor to the ASS format. It supports styled subtitles with fonts, colors, and positioning. Still used by some subtitle tools and players.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'text/x-ssa',
+            },
+            {
+                name: 'sbv',
+                extension: 'sbv',
+                title: 'YouTube SBV',
+                description: 'SBV is the subtitle format used natively by YouTube. It is similar to SRT but uses a comma-separated timecode format and is the default export format from YouTube Studio.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'text/x-sbv',
+            },
+            {
+                name: 'lrc',
+                extension: 'lrc',
+                title: 'LRC Lyrics',
+                description: 'LRC is a timed lyrics format used by music players to synchronize text with audio. Each line is prefixed with a bracketed timestamp in MM:SS.xx format. Commonly used for karaoke and music players like foobar2000.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'text/x-lrc',
+            },
+            {
+                name: 'ttml',
+                extension: 'ttml',
+                title: 'Timed Text Markup Language',
+                description: 'TTML (Timed Text Markup Language) is an XML-based W3C standard for timed text. It is used in broadcast workflows, MPEG-DASH streaming, and platforms like Netflix and Amazon Prime for exchanging subtitle data.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/ttml+xml',
+            },
+            {
+                name: 'stl',
+                extension: 'stl',
+                title: 'Spruce Subtitle Format',
+                description: 'STL (Spruce/Spruce Technologies) is a plain-text subtitle format used in DVD and broadcast production. Each line contains a start time, end time, and the subtitle text, separated by commas.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'text/plain',
+            },
+            {
+                name: 'txt',
+                extension: 'txt',
+                title: 'Plain Text',
+                description: 'Export subtitles as plain text, stripping all timing information. Useful for reading transcripts, creating documents from subtitle files, or re-timing from scratch.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'text/plain',
+            },
+        ],
         // ── Merge ────────────────────────────────────────────────────────────
         mergeFiles: [],
         mergeNextIndex: 0,
@@ -1555,12 +1644,13 @@ export default createStore({
             state.worker = worker;
         },
 
-        // ── Generated media-type mutations (Audio, Video, Document, Archive, Font) ──
+        // ── Generated media-type mutations (Audio, Video, Document, Archive, Font, Subtitle) ──
         ...createMediaMutations('Audio', { filesKey: 'audioFiles', nextIndexKey: 'audioNextIndex', configKey: 'audioConfig' }),
         ...createMediaMutations('Video', { filesKey: 'videoFiles', nextIndexKey: 'videoNextIndex', configKey: 'videoConfig' }),
         ...createMediaMutations('Document', { filesKey: 'documentFiles', nextIndexKey: 'documentNextIndex', configKey: 'documentConfig', hasInputFormat: true }),
         ...createMediaMutations('Archive', { filesKey: 'archiveFiles', nextIndexKey: 'archiveNextIndex', configKey: 'archiveConfig', hasInputFormat: true }),
         ...createMediaMutations('Font', { filesKey: 'fontFiles', nextIndexKey: 'fontNextIndex', configKey: 'fontConfig', hasInputFormat: true }),
+        ...createMediaMutations('Subtitle', { filesKey: 'subtitleFiles', nextIndexKey: 'subtitleNextIndex', configKey: 'subtitleConfig', hasInputFormat: true }),
         // ── Merge mutations ──────────────────────────────────────────────────
         setMergeFamily(state, family) {
             state.mergeConfig.family = family;
@@ -1720,6 +1810,10 @@ export default createStore({
         ...createMediaActions('Font', {
             filesKey: 'fontFiles', nextIndexKey: 'fontNextIndex', configKey: 'fontConfig',
             workerKey: 'fontWorker', WorkerClass: FontWorker, maxConcurrency: 1, hasInputFormat: true,
+        }),
+        ...createMediaActions('Subtitle', {
+            filesKey: 'subtitleFiles', nextIndexKey: 'subtitleNextIndex', configKey: 'subtitleConfig',
+            workerKey: 'subtitleWorker', WorkerClass: SubtitleWorker, maxConcurrency: 4, hasInputFormat: true,
         }),
         // ── Merge actions ────────────────────────────────────────────────────
         loadMergeWorker(context) {
