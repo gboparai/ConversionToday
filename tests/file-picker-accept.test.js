@@ -150,9 +150,9 @@ describe('Convert.vue — acceptMimeTypes computed property structure', () => {
     expect(convertSource).toContain('acceptMimeTypes()');
   });
 
-  test('reads extension from the selected input format (formatInofo)', () => {
+  test('reads extension from the selected input format (formatInfo)', () => {
     expect(convertSource).toContain('inputFormat.extension');
-    expect(convertSource).toContain('formatInofo');
+    expect(convertSource).toContain('formatInfo');
   });
 
   test('uses mimeType field from the format object when present', () => {
@@ -718,7 +718,7 @@ describe('Convert.vue — filterFilesByInputFormat source structure', () => {
   });
 
   test('skipped notice shows the expected input format extension', () => {
-    expect(convertSource).toContain('formatInofo.extension || formatInofo.name');
+    expect(convertSource).toContain('formatInfo.extension || formatInfo.name');
   });
 
   test('skipped notice has a dismiss button that resets skippedCount', () => {
@@ -1230,3 +1230,62 @@ describe('filterFilesByInputFormat — subtitle format matching', () => {
   });
 });
 
+// ─── 14. PDF Splitter nav link and landing tile ───────────────────────────────
+
+describe('PDF Splitter nav link and landing tile', () => {
+  let appSource;
+  let landingSource;
+
+  beforeAll(() => {
+    appSource     = require('fs').readFileSync(require('path').resolve(__dirname, '../src/App.vue'), 'utf8');
+    landingSource = require('fs').readFileSync(require('path').resolve(__dirname, '../src/views/LandingHome.vue'), 'utf8');
+  });
+
+  test('App.vue contains a PDF Splitter nav link', () => {
+    expect(appSource).toContain('to="/pdf-split"');
+  });
+
+  test('PDF Splitter link is in the Tools dropdown', () => {
+    const toolsTriggerIdx = appSource.indexOf("activeDropdown === 'tools'");
+    const splitLinkIdx    = appSource.indexOf('to="/pdf-split"');
+    expect(splitLinkIdx).toBeGreaterThan(toolsTriggerIdx);
+  });
+
+  test('LandingHome.vue contains a link to /pdf-split', () => {
+    expect(landingSource).toContain('href="/pdf-split"');
+  });
+
+  test('PDF Splitter tile has a heading', () => {
+    expect(landingSource).toContain('PDF Splitter');
+  });
+});
+
+// ─── 15. PDF Password nav link and landing tile ───────────────────────────────
+
+describe('PDF Password nav link and landing tile', () => {
+  let appSource;
+  let landingSource;
+
+  beforeAll(() => {
+    appSource     = require('fs').readFileSync(require('path').resolve(__dirname, '../src/App.vue'), 'utf8');
+    landingSource = require('fs').readFileSync(require('path').resolve(__dirname, '../src/views/LandingHome.vue'), 'utf8');
+  });
+
+  test('App.vue contains a PDF Password nav link', () => {
+    expect(appSource).toContain('to="/pdf-password"');
+  });
+
+  test('PDF Password link is in the Tools dropdown', () => {
+    const toolsTriggerIdx = appSource.indexOf("activeDropdown === 'tools'");
+    const passLinkIdx     = appSource.indexOf('to="/pdf-password"');
+    expect(passLinkIdx).toBeGreaterThan(toolsTriggerIdx);
+  });
+
+  test('LandingHome.vue contains a link to /pdf-password', () => {
+    expect(landingSource).toContain('href="/pdf-password"');
+  });
+
+  test('PDF Password tile has a heading', () => {
+    expect(landingSource).toContain('PDF Password Tool');
+  });
+});

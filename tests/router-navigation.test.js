@@ -62,6 +62,17 @@ describe('Router route definitions', () => {
     expect(routerSource).toContain("'/pdf-image/:format/:format2'");
   });
 
+  test('PDF-Split route is defined', () => {
+    expect(routerSource).toContain("'/pdf-split'");
+    expect(routerSource).toContain("'PdfSplit'");
+  });
+
+  test('PDF-Password routes are defined', () => {
+    expect(routerSource).toContain("'/pdf-password'");
+    expect(routerSource).toContain("'/pdf-password/:mode'");
+    expect(routerSource).toContain("'PdfPassword'");
+  });
+
   test('compression routes are defined', () => {
     expect(routerSource).toContain("'/compression'");
     expect(routerSource).toContain("'/compression/:format'");
