@@ -39,6 +39,11 @@
         <h2>Font Converter</h2>
         <p>Convert TTF, OTF, WOFF, WOFF2, EOT and SVG fonts free online. Unlimited batch conversions for web and desktop.</p>
       </a>
+      <a class="mediaHub__card" href="/subtitle">
+        <span class="mediaHub__icon">💬</span>
+        <h2>Subtitle Converter</h2>
+        <p>Convert SRT, VTT, ASS, SSA, SBV, LRC, TTML and STL subtitle formats free online. Batch convert, no size limits.</p>
+      </a>
     </div>
   </section>
 
