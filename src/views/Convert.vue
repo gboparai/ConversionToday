@@ -209,6 +209,13 @@
     </div>
   </label>
 
+  <p v-if="skippedCount > 0" class="skippedNotice">
+    {{ skippedCount }} file{{ skippedCount === 1 ? '' : 's' }} skipped — only
+    <strong>.{{ formatInofo ? (formatInofo.extension || formatInofo.name) : mediaTypeLabel }}</strong>
+    files are accepted on this page.
+    <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
+  </p>
+
   <div class="batchBar">
     <button
       class="batchBar__button"
@@ -317,14 +324,15 @@ import FileCell from "@/components/file-cell.vue";
 import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
 import List from "@/components/list.vue";
+import Information from "@/components/information.vue";
+import fileQueueMixin from "@/mixins/fileQueueMixin";
 import { FILE_STATUS } from "@/js/constants";
 import { getMediaTypeFromPath, getMediaTypeConfig } from "@/js/media-types";
-import Information from "@/components/information.vue";
 import { useMeta } from "vue-meta";
 import JSZip from "jszip";
 export default {
   name: "App",
-
+  mixins: [fileQueueMixin],
   data() {
     useMeta({
       title:
@@ -427,8 +435,19 @@ export default {
       return this.mtConfig.label;
     },
     acceptMimeTypes() {
+      // Build a precise accept string from the selected input format.
+      // This scopes the OS file picker to only the format the user intends to convert FROM.
+      const inputFormat = this.formatInofo;
+      if (inputFormat) {
+        const ext = String(inputFormat.extension || inputFormat.name || '').trim().toLowerCase();
+        const parts = ext ? [`.${ext}`] : [];
+        const mime = inputFormat.mimeType ? String(inputFormat.mimeType).trim() : null;
+        if (mime) parts.push(mime);
+        if (parts.length) return parts.join(',');
+      }
+      // Fallback: use the media-type-level accept string when no specific format is resolved.
       if (this.mtConfig.acceptMimeTypes) return this.mtConfig.acceptMimeTypes;
-      // Font type: compute dynamically from formats
+      // Font type (acceptMimeTypes is null): compute dynamically from all formats.
       const extensions = this.$store.state[this.mtConfig.formatsKey]
         .map((format) => String(format.extension || '').trim().toLowerCase())
         .filter((extension, index, list) => extension && list.indexOf(extension) === index);
@@ -504,12 +523,51 @@ export default {
     },
   },
   methods: {
+    /**
+     * Filter a FileList (or array of Files) to only those whose extension or
+     * MIME type matches the currently-selected input format.
+     *
+     * The browser's `accept` attribute is advisory-only and can be bypassed,
+     * so we enforce the same restriction in JavaScript for both the file-picker
+     * and drag-and-drop paths.
+     *
+     * Returns an Array<File> (never a raw FileList so it is iterable everywhere).
+     */
+    filterFilesByInputFormat(fileList) {
+      const inputFormat = this.formatInofo;
+      // If we cannot determine the input format, pass all files through so the
+      // converter can handle them as usual.
+      if (!inputFormat) return Array.from(fileList);
+
+      const allowedExt  = String(inputFormat.extension || inputFormat.name || '').trim().toLowerCase();
+      // Some formats (e.g. audio/video) carry a mimeType; build a Set for O(1) lookup.
+      // Split on commas to handle compound values like 'audio/ogg; codecs=opus'.
+      const allowedMimes = new Set(
+        inputFormat.mimeType
+          ? [inputFormat.mimeType.trim().toLowerCase().split(';')[0].trim()]
+          : []
+      );
+
+      return Array.from(fileList).filter((file) => {
+        const fileExt  = (file.name.split('.').pop() || '').toLowerCase();
+        const fileMime = (file.type || '').toLowerCase().split(';')[0].trim();
+        const extMatch  = allowedExt  && fileExt  === allowedExt;
+        const mimeMatch = allowedMimes.size > 0 && allowedMimes.has(fileMime);
+        return extMatch || mimeMatch;
+      });
+    },
     input(e) {
-      this.$store.dispatch(this.mtConfig.addFiles, e.target.files);
+      const all = Array.from(e.target.files);
+      const filtered = this.filterFilesByInputFormat(all);
+      this.trackSkipped(all.length - filtered.length);
+      if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
     },
     fileDrop(e) {
       e.preventDefault();
-      this.$store.dispatch(this.mtConfig.addFiles, e.dataTransfer.files);
+      const all = Array.from(e.dataTransfer.files);
+      const filtered = this.filterFilesByInputFormat(all);
+      this.trackSkipped(all.length - filtered.length);
+      if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
       this.fileInDropZone = false;
     },
     fileOver(e) {
@@ -570,6 +628,7 @@ export default {
     },
     clearAll() {
       this.$store.dispatch(this.mtConfig.clearFiles);
+      this.resetSkippedCount();
     },
     handleChangeFormat1(event) {
       window.location.href = `/${this.mediaType}/${event.target.value}/${this.format2}`;

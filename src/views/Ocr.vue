@@ -81,8 +81,9 @@
     </button>
   </div>
 
-  <p v-if="unsupportedCount > 0" class="notice">
-    {{ unsupportedCount }} file(s) were skipped. {{ skipHelpText }}
+  <p v-if="skippedCount > 0" class="skippedNotice">
+    {{ skippedCount }} file(s) were skipped. {{ skipHelpText }}
+    <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
   </p>
 
   <div v-if="running || files.length > 0 || hasOutput" class="progressCard">
@@ -210,6 +211,7 @@ import JSZip from "jszip";
 import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
 import Information from "@/components/information.vue";
+import fileQueueMixin from "@/mixins/fileQueueMixin";
 import List from "@/components/list.vue";
 import SearchableSelect from "@/components/searchable-select.vue";
 import { FILE_STATUS } from "@/js/constants";
@@ -352,6 +354,7 @@ const OCR_LANGUAGES = [
 export default {
   name: 'Ocr',
   components: { Card, Descriptor, Information, List, SearchableSelect },
+  mixins: [fileQueueMixin],
   computed: {
     routeInputFormat() {
       const f = (this.$route.params.inputFormat || 'jpg').toLowerCase();
@@ -491,7 +494,6 @@ export default {
       OCR_LANGUAGES,
       nextId: 0,
       files: [],
-      unsupportedCount: 0,
       selectedInputFormat: 'jpg',
       selectedOutputFormat: 'txt',
       selectedLanguage: 'eng',
@@ -601,7 +603,7 @@ export default {
           output: { blob: null, url: null, name: null },
         });
       }
-      this.unsupportedCount += skipped;
+      this.trackSkipped(skipped);
     },
     removeFile(id) {
       const file = this.files.find(f => f.id === id);
@@ -615,8 +617,8 @@ export default {
         if (file.output && file.output.url) URL.revokeObjectURL(file.output.url);
       });
       this.clearCombinedOutput();
+      this.resetSkippedCount();
       this.files = [];
-      this.unsupportedCount = 0;
     },
 
     // ── Status helpers ─────────────────────────────────────────────────────
@@ -1063,17 +1065,7 @@ export default {
   }
 }
 
-.notice {
-  @include mid-width;
-  margin-top: 0;
-  margin-bottom: 0.85rem;
-  padding: 0.6rem 1rem;
-  background-color: var(--bg-surface);
-  border-left: 3px solid var(--accent);
-  border-radius: $default-radius;
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-}
+
 
 .queueHint {
   margin-top: 0;
