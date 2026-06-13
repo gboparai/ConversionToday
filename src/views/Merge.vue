@@ -47,9 +47,9 @@
     </button>
   </div>
 
-  <p v-if="unsupportedCount > 0" class="skippedNotice">
-    {{ unsupportedCount }} file(s) were skipped. {{ familyConfig.skipText }}
-    <button class="skippedNotice__dismiss" @click="unsupportedCount = 0" aria-label="Dismiss">✕</button>
+  <p v-if="skippedCount > 0" class="skippedNotice">
+    {{ skippedCount }} file(s) were skipped. {{ familyConfig.skipText }}
+    <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
   </p>
 
   <div v-if="isProcessing || hasOutput || mergeStatus === FILE_STATUS.failed" class="progressCard">
@@ -153,6 +153,7 @@ import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
 import Faq from "@/components/faq.vue";
 import Information from "@/components/information.vue";
+import fileQueueMixin from "@/mixins/fileQueueMixin";
 import { FILE_STATUS } from "@/js/constants";
 import { useMeta } from "vue-meta";
 
@@ -284,6 +285,7 @@ function buildMergeFaqs(familyLabel) {
 export default {
   name: "Merge",
   components: { Card, Descriptor, Faq, Information },
+  mixins: [fileQueueMixin],
   setup() {
     useMeta({
       title: "Free File Merge Tool - No Limit Converter",
@@ -305,7 +307,6 @@ export default {
   data() {
     return {
       FILE_STATUS,
-      unsupportedCount: 0,
       draggedId: null,
       syncedRouteKey: null,
       faqs: buildMergeFaqs(FAMILY_CONFIG.archive.label),
@@ -421,7 +422,7 @@ export default {
         this.$store.dispatch("setMergeFormat", this.selectedFormat);
         if (this.syncedRouteKey && this.syncedRouteKey !== routeKey) {
           this.$store.dispatch("clearMergeFiles");
-          this.unsupportedCount = 0;
+          this.resetSkippedCount();
         }
         this.faqs = buildMergeFaqs(this.familyConfig.label);
         this.syncedRouteKey = routeKey;
@@ -501,7 +502,7 @@ export default {
       if (accepted.length) {
         this.$store.dispatch("addMergeFiles", accepted);
       }
-      this.unsupportedCount += skipped;
+      this.trackSkipped(skipped);
     },
     processMerge() {
       if (this.selectedFamily === "document" && this.files.length > 0) {
@@ -517,7 +518,7 @@ export default {
     },
     clearAll() {
       this.$store.dispatch("clearMergeFiles");
-      this.unsupportedCount = 0;
+      this.resetSkippedCount();
       this.draggedId = null;
     },
     removeFile(id) {

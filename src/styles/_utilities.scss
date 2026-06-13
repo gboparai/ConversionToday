@@ -33,6 +33,7 @@ $default-radius: 0.625rem;
   --negative:      #ef5350;
   --positive:      #66bb6a;
   --positive-text: #000;
+  --warning:       #f57c00;
   --nav-bg:        rgba(15, 17, 23, 0.85);
   --toggle-icon:   "☀️";
 }
@@ -56,6 +57,7 @@ $default-radius: 0.625rem;
   --negative:      #c62828;
   --positive:      #2e7d32;
   --positive-text: #fff;
+  --warning:       #e65100;
   --nav-bg:        rgba(240, 244, 249, 0.9);
   --toggle-icon:   "🌙";
 }
@@ -111,8 +113,8 @@ $default-radius: 0.625rem;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
   padding: 0.55rem 0.85rem;
-  background-color: color-mix(in srgb, var(--warning, #b45309) 12%, var(--bg-surface));
-  border: 1px solid color-mix(in srgb, var(--warning, #b45309) 40%, transparent);
+  background-color: color-mix(in srgb, var(--warning) 12%, var(--bg-surface));
+  border: 1px solid color-mix(in srgb, var(--warning) 40%, transparent);
   border-radius: $default-radius;
   color: var(--text-primary);
   font-size: 0.875rem;

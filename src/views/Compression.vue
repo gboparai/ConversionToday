@@ -40,9 +40,9 @@
     </button>
   </div>
 
-  <p v-if="unsupportedCount > 0" class="skippedNotice">
-    {{ unsupportedCount }} file(s) were skipped. Supported: {{ formatLabel }}.
-    <button class="skippedNotice__dismiss" @click="unsupportedCount = 0" aria-label="Dismiss">✕</button>
+  <p v-if="skippedCount > 0" class="skippedNotice">
+    {{ skippedCount }} file(s) were skipped. Supported: {{ formatLabel }}.
+    <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
   </p>
 
   <div class="files">
@@ -164,6 +164,7 @@ import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
 import Faq from "@/components/faq.vue";
 import Information from "@/components/information.vue";
+import fileQueueMixin from "@/mixins/fileQueueMixin";
 import { FILE_STATUS } from "@/js/constants";
 import { useMeta } from "vue-meta";
 import JSZip from "jszip";
@@ -257,6 +258,7 @@ function buildFaqs(formatLabel) {
 export default {
   name: "Compression",
   components: { Card, Descriptor, Faq, Information },
+  mixins: [fileQueueMixin],
   computed: {
     routeFormat() {
       const f = (this.$route.params.format || '').toLowerCase();
@@ -320,7 +322,6 @@ export default {
       nextId: 0,
       files: [],
       codecCache: {},
-      unsupportedCount: 0,
       previewFileId: null,
       slider: 50,
       faqs: buildFaqs(this.formatLabel),
@@ -328,13 +329,8 @@ export default {
   },
   watch: {
     routeFormat() {
-      this.files.forEach((file) => {
-        if (file.originalUrl) URL.revokeObjectURL(file.originalUrl);
-        if (file.output.url) URL.revokeObjectURL(file.output.url);
-      });
-      this.files = [];
-      this.unsupportedCount = 0;
-      this.previewFileId = null;
+      this.clearAll();
+      this.resetSkippedCount();
       this.faqs = buildFaqs(this.formatLabel);
     },
   },
@@ -380,7 +376,7 @@ export default {
           output: { blob: null, url: null, name: null },
         });
       }
-      this.unsupportedCount += skipped;
+      this.trackSkipped(skipped);
     },
     async codecFor(format) {
       const key = this.normalizeFormat(format);

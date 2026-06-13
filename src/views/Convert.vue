@@ -213,7 +213,7 @@
     {{ skippedCount }} file{{ skippedCount === 1 ? '' : 's' }} skipped — only
     <strong>.{{ formatInofo ? (formatInofo.extension || formatInofo.name) : mediaTypeLabel }}</strong>
     files are accepted on this page.
-    <button class="skippedNotice__dismiss" @click="skippedCount = 0" aria-label="Dismiss">✕</button>
+    <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
   </p>
 
   <div class="batchBar">
@@ -324,14 +324,15 @@ import FileCell from "@/components/file-cell.vue";
 import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
 import List from "@/components/list.vue";
+import Information from "@/components/information.vue";
+import fileQueueMixin from "@/mixins/fileQueueMixin";
 import { FILE_STATUS } from "@/js/constants";
 import { getMediaTypeFromPath, getMediaTypeConfig } from "@/js/media-types";
-import Information from "@/components/information.vue";
 import { useMeta } from "vue-meta";
 import JSZip from "jszip";
 export default {
   name: "App",
-
+  mixins: [fileQueueMixin],
   data() {
     useMeta({
       title:
@@ -418,7 +419,6 @@ export default {
       format: this.$route.params.format,
       format2: this.$route.params.format2,
       conversionSearch: "",
-      skippedCount: 0,
     };
   },
   computed: {
@@ -559,16 +559,14 @@ export default {
     input(e) {
       const all = Array.from(e.target.files);
       const filtered = this.filterFilesByInputFormat(all);
-      const skipped = all.length - filtered.length;
-      if (skipped > 0) this.skippedCount += skipped;
+      this.trackSkipped(all.length - filtered.length);
       if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
     },
     fileDrop(e) {
       e.preventDefault();
       const all = Array.from(e.dataTransfer.files);
       const filtered = this.filterFilesByInputFormat(all);
-      const skipped = all.length - filtered.length;
-      if (skipped > 0) this.skippedCount += skipped;
+      this.trackSkipped(all.length - filtered.length);
       if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
       this.fileInDropZone = false;
     },
@@ -630,7 +628,7 @@ export default {
     },
     clearAll() {
       this.$store.dispatch(this.mtConfig.clearFiles);
-      this.skippedCount = 0;
+      this.resetSkippedCount();
     },
     handleChangeFormat1(event) {
       window.location.href = `/${this.mediaType}/${event.target.value}/${this.format2}`;

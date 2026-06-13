@@ -699,17 +699,13 @@ describe('Convert.vue — filterFilesByInputFormat source structure', () => {
     expect(convertSource).toContain('Array.from(e.target.files)');
   });
 
-  test('both handlers compute skipped count and accumulate it into skippedCount', () => {
+  test('both handlers compute skipped count and track it using trackSkipped', () => {
     expect(convertSource).toContain('all.length - filtered.length');
-    expect(convertSource).toContain('this.skippedCount += skipped');
+    expect(convertSource).toContain('this.trackSkipped(');
   });
 
-  test('skippedCount starts at 0 in component data', () => {
-    expect(convertSource).toContain('skippedCount: 0');
-  });
-
-  test('clearAll resets skippedCount to 0', () => {
-    expect(convertSource).toContain('this.skippedCount = 0');
+  test('clearAll uses resetSkippedCount', () => {
+    expect(convertSource).toContain('this.resetSkippedCount()');
   });
 
   test('skipped notice is shown when skippedCount > 0', () => {
@@ -727,7 +723,7 @@ describe('Convert.vue — filterFilesByInputFormat source structure', () => {
 
   test('skipped notice has a dismiss button that resets skippedCount', () => {
     expect(convertSource).toContain('skippedNotice__dismiss');
-    expect(convertSource).toContain('@click="skippedCount = 0"');
+    expect(convertSource).toContain('@click="resetSkippedCount"');
   });
 
   test('both handlers only dispatch when filtered list is non-empty', () => {
