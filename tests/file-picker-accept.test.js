@@ -684,7 +684,6 @@ describe('Convert.vue — filterFilesByInputFormat source structure', () => {
   });
 
   test('method strips codecs suffix from MIME type (split on semicolon)', () => {
-    // e.g. 'audio/ogg; codecs=opus' → 'audio/ogg'
     expect(convertSource).toContain(".split(';')[0].trim()");
   });
 
@@ -692,20 +691,43 @@ describe('Convert.vue — filterFilesByInputFormat source structure', () => {
     expect(convertSource).toContain('extMatch || mimeMatch');
   });
 
-  test('fileDrop handler calls filterFilesByInputFormat before dispatching', () => {
-    // The raw e.dataTransfer.files must no longer be dispatched directly
-    expect(convertSource).not.toContain(
-      'this.$store.dispatch(this.mtConfig.addFiles, e.dataTransfer.files)'
-    );
-    expect(convertSource).toContain('filterFilesByInputFormat(e.dataTransfer.files)');
+  test('fileDrop handler converts FileList to Array before filtering', () => {
+    expect(convertSource).toContain('Array.from(e.dataTransfer.files)');
   });
 
-  test('input handler calls filterFilesByInputFormat before dispatching', () => {
-    // The raw e.target.files must no longer be dispatched directly
-    expect(convertSource).not.toContain(
-      'this.$store.dispatch(this.mtConfig.addFiles, e.target.files)'
-    );
-    expect(convertSource).toContain('filterFilesByInputFormat(e.target.files)');
+  test('input handler converts FileList to Array before filtering', () => {
+    expect(convertSource).toContain('Array.from(e.target.files)');
+  });
+
+  test('both handlers compute skipped count and accumulate it into skippedCount', () => {
+    expect(convertSource).toContain('all.length - filtered.length');
+    expect(convertSource).toContain('this.skippedCount += skipped');
+  });
+
+  test('skippedCount starts at 0 in component data', () => {
+    expect(convertSource).toContain('skippedCount: 0');
+  });
+
+  test('clearAll resets skippedCount to 0', () => {
+    expect(convertSource).toContain('this.skippedCount = 0');
+  });
+
+  test('skipped notice is shown when skippedCount > 0', () => {
+    expect(convertSource).toContain('v-if="skippedCount > 0"');
+    expect(convertSource).toContain('skippedNotice');
+  });
+
+  test('skipped notice shows correct singular/plural wording', () => {
+    expect(convertSource).toContain("skippedCount === 1 ? '' : 's'");
+  });
+
+  test('skipped notice shows the expected input format extension', () => {
+    expect(convertSource).toContain('formatInofo.extension || formatInofo.name');
+  });
+
+  test('skipped notice has a dismiss button that resets skippedCount', () => {
+    expect(convertSource).toContain('skippedNotice__dismiss');
+    expect(convertSource).toContain('@click="skippedCount = 0"');
   });
 
   test('both handlers only dispatch when filtered list is non-empty', () => {

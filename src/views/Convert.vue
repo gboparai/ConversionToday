@@ -46,6 +46,43 @@
   }
 }
 
+.skippedNotice {
+  @include mid-width;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  background-color: color-mix(in srgb, var(--warning, #b45309) 12%, var(--bg-surface));
+  border: 1px solid color-mix(in srgb, var(--warning, #b45309) 40%, transparent);
+  border-radius: $default-radius;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  line-height: 1.4;
+
+  strong {
+    font-weight: 700;
+  }
+
+  &__dismiss {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+    transition: color 0.15s;
+
+    &:hover {
+      color: var(--text-primary);
+    }
+  }
+}
+
 .files {
   @include mid-width;
   display: flex;
@@ -208,6 +245,13 @@
       <p>Add {{ mediaTypeLabel }} Here</p>
     </div>
   </label>
+
+  <p v-if="skippedCount > 0" class="skippedNotice">
+    {{ skippedCount }} file{{ skippedCount === 1 ? '' : 's' }} skipped — only
+    <strong>.{{ formatInofo ? (formatInofo.extension || formatInofo.name) : mediaTypeLabel }}</strong>
+    files are accepted on this page.
+    <button class="skippedNotice__dismiss" @click="skippedCount = 0" aria-label="Dismiss">✕</button>
+  </p>
 
   <div class="batchBar">
     <button
@@ -411,6 +455,7 @@ export default {
       format: this.$route.params.format,
       format2: this.$route.params.format2,
       conversionSearch: "",
+      skippedCount: 0,
     };
   },
   computed: {
@@ -549,12 +594,18 @@ export default {
       });
     },
     input(e) {
-      const filtered = this.filterFilesByInputFormat(e.target.files);
+      const all = Array.from(e.target.files);
+      const filtered = this.filterFilesByInputFormat(all);
+      const skipped = all.length - filtered.length;
+      if (skipped > 0) this.skippedCount += skipped;
       if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
     },
     fileDrop(e) {
       e.preventDefault();
-      const filtered = this.filterFilesByInputFormat(e.dataTransfer.files);
+      const all = Array.from(e.dataTransfer.files);
+      const filtered = this.filterFilesByInputFormat(all);
+      const skipped = all.length - filtered.length;
+      if (skipped > 0) this.skippedCount += skipped;
       if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
       this.fileInDropZone = false;
     },
@@ -616,6 +667,7 @@ export default {
     },
     clearAll() {
       this.$store.dispatch(this.mtConfig.clearFiles);
+      this.skippedCount = 0;
     },
     handleChangeFormat1(event) {
       window.location.href = `/${this.mediaType}/${event.target.value}/${this.format2}`;
