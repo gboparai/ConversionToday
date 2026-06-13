@@ -8,7 +8,7 @@
 
   <format-selector :isFrom="true" path="archive" name="from" mediaType="archive"></format-selector>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>8 Archive Formats — All Free</template>
       <template #description>
@@ -29,7 +29,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Convert Unlimited Archives</template>
       <template #description>

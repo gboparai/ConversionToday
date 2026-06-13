@@ -7,24 +7,24 @@
   </descriptor>
 
   <!-- Mode tabs -->
-  <div class="modeTabs">
+  <div class="familySelector">
     <button
       id="pdf-password-tab-protect"
-      class="modeTabs__tab"
-      :class="{ 'modeTabs__tab--active': mode === 'protect' }"
+      class="familySelector__button"
+      :class="{ 'familySelector__button--active': mode === 'protect' }"
       type="button"
       @click="switchMode('protect')"
     >
-      🔒 Protect PDF
+      Protect PDF
     </button>
     <button
       id="pdf-password-tab-unlock"
-      class="modeTabs__tab"
-      :class="{ 'modeTabs__tab--active': mode === 'unlock' }"
+      class="familySelector__button"
+      :class="{ 'familySelector__button--active': mode === 'unlock' }"
       type="button"
       @click="switchMode('unlock')"
     >
-      🔓 Unlock PDF
+      Unlock PDF
     </button>
   </div>
 
@@ -42,112 +42,131 @@
       @change="onInputChange"
     />
     <div class="file">
-      <p v-if="!pdfFile">Drop a PDF here or click to browse</p>
-      <p v-else>{{ pdfFile.name }}</p>
+      <p>{{ pdfFile ? pdfFile.name : (mode === 'protect' ? 'Drop a PDF to protect or click to browse' : 'Drop a password-protected PDF or click to browse') }}</p>
     </div>
   </label>
 
-  <!-- Loaded file row -->
-  <div v-if="pdfFile" class="fileRow fileRow--loaded">
-    <div class="fileRow__copy">
-      <div class="fileRow__name">{{ pdfFile.name }}</div>
-    </div>
-    <button
-      class="iconButton iconButton--remove"
-      type="button"
-      :disabled="isProcessing"
-      @click="clearAll"
-      title="Remove"
-      aria-label="Remove file"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-      </svg>
-    </button>
-  </div>
+  <p v-if="pdfFile" class="fileInput__notice">
+    One PDF is already loaded. Remove it to load a different file.
+  </p>
+
+
 
   <!-- Password fields -->
-  <div class="passwordCard">
-    <div class="passwordCard__field">
-      <label :for="mode === 'protect' ? 'pdf-user-password' : 'pdf-unlock-password'" class="passwordCard__label">
-        {{ mode === 'protect' ? 'Set Password' : 'Enter PDF Password' }}
-      </label>
-      <div class="passwordCard__inputWrap">
-        <input
-          :id="mode === 'protect' ? 'pdf-user-password' : 'pdf-unlock-password'"
-          class="passwordCard__input"
-          :type="showPassword ? 'text' : 'password'"
-          v-model="userPassword"
-          :placeholder="mode === 'protect' ? 'Enter a password to protect the PDF' : 'Enter the PDF password to unlock it'"
-          autocomplete="new-password"
-        />
-        <button type="button" class="passwordCard__toggle" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Hide password' : 'Show password'">
-          {{ showPassword ? '🙈' : '👁️' }}
-        </button>
+  <div class="settingsBar">
+    <div class="settingsCard">
+      <div class="settingsCard__item">
+        <span class="settingsCard__label">
+          {{ mode === 'protect' ? 'Set Password' : 'Enter PDF Password' }}
+        </span>
+        <div class="passwordWrap">
+          <input
+            id="pdf-password-input"
+            class="passwordWrap__input"
+            :type="showPassword ? 'text' : 'password'"
+            v-model="userPassword"
+            :placeholder="mode === 'protect' ? 'Enter a password to protect the PDF' : 'Enter the PDF password to unlock it'"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="passwordWrap__toggle"
+            @click="showPassword = !showPassword"
+            :aria-label="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <!-- Eye open -->
+            <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            <!-- Eye off -->
+            <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Owner password (protect mode only, advanced) -->
-    <div v-if="mode === 'protect'" class="passwordCard__field">
-      <button type="button" class="passwordCard__advancedToggle" @click="showAdvanced = !showAdvanced">
-        {{ showAdvanced ? '▾' : '▸' }} Advanced — Set Owner Password
-      </button>
-      <div v-if="showAdvanced" class="passwordCard__inputWrap" style="margin-top: 0.5rem;">
-        <input
-          id="pdf-owner-password"
-          class="passwordCard__input"
-          :type="showOwnerPassword ? 'text' : 'password'"
-          v-model="ownerPassword"
-          placeholder="Owner password (controls editing/printing permissions)"
-          autocomplete="new-password"
-        />
-        <button type="button" class="passwordCard__toggle" @click="showOwnerPassword = !showOwnerPassword" aria-label="Toggle owner password visibility">
-          {{ showOwnerPassword ? '🙈' : '👁️' }}
+      <!-- Owner password (protect mode only) -->
+      <div v-if="mode === 'protect'" class="settingsCard__item">
+        <button type="button" class="advancedToggle" @click="showAdvanced = !showAdvanced">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" :style="{ transform: showAdvanced ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          Advanced — Set Owner Password
         </button>
+        <template v-if="showAdvanced">
+          <div class="passwordWrap" style="margin-top: 0.5rem;">
+            <input
+              id="pdf-owner-password"
+              class="passwordWrap__input"
+              :type="showOwnerPassword ? 'text' : 'password'"
+              v-model="ownerPassword"
+              placeholder="Owner password (controls editing/printing permissions)"
+              autocomplete="new-password"
+            />
+            <button type="button" class="passwordWrap__toggle" @click="showOwnerPassword = !showOwnerPassword" aria-label="Toggle owner password visibility">
+              <svg v-if="!showOwnerPassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+            </button>
+          </div>
+          <p class="settingsCard__hint">If left blank, the user password is used as the owner password.</p>
+        </template>
       </div>
-      <p v-if="showAdvanced" class="passwordCard__hint">
-        The owner password restricts editing and printing. If left blank, the user password is used.
-      </p>
     </div>
   </div>
 
   <div class="batchBar">
-    <button class="batchBar__button batchBar__button--primary" :disabled="!canProcess" @click="process">
-      <div>{{ mode === 'protect' ? '🔒 Protect PDF' : '🔓 Unlock PDF' }}</div>
+    <button class="batchBar__button" :disabled="!canProcess" @click="process">
+      <div>{{ mode === 'protect' ? 'Protect PDF' : 'Unlock PDF' }}</div>
     </button>
     <button class="batchBar__button" :disabled="!canClear" @click="clearAll">
       <div>Clear</div>
     </button>
   </div>
 
-  <!-- Progress / status -->
+
+
+  <!-- Processing indicator -->
   <div v-if="isProcessing" class="progressCard">
     <div class="progressCard__top">
       <strong>{{ mode === 'protect' ? 'Encrypting PDF…' : 'Decrypting PDF…' }}</strong>
     </div>
     <div class="progressBar">
-      <div class="progressBar__fill" style="width: 100%; animation: indeterminate 1.2s ease infinite;"></div>
+      <div class="progressBar__fill progressBar__fill--indeterminate"></div>
     </div>
   </div>
 
   <!-- Error state -->
-  <div v-if="hasError" class="errorCard">
-    <strong>⚠️ {{ mode === 'unlock' ? 'Incorrect Password or Unsupported Encryption' : 'Error' }}</strong>
-    <p>{{ errorMessage }}</p>
-  </div>
+  <error-card 
+    :show="hasError" 
+    :title="mode === 'unlock' ? 'Incorrect Password or Unsupported Encryption' : 'Error'" 
+    :message="errorMessage" 
+  />
 
-  <!-- Success / download -->
+  <!-- Download card -->
   <div v-if="outputUrl" class="downloadCard">
     <div>
       <strong>{{ outputName }}</strong>
-      <p>Your PDF is ready. {{ mode === 'protect' ? 'It is now password protected.' : 'The password has been removed.' }}</p>
+      <p>{{ mode === 'protect' ? 'Your PDF is now password protected.' : 'The password has been removed.' }}</p>
     </div>
-    <a :href="outputUrl" :download="outputName" class="downloadCard__button">Download</a>
+    <a :href="outputUrl" :download="outputName">Download</a>
   </div>
 
-  <div class="infomationContainer">
+  <div class="files" v-if="pdfFile">
+    <div class="fileRow">
+      <div class="fileRow__copy">
+        <div class="fileRow__name">{{ pdfFile.name }}</div>
+      </div>
+      <button
+        class="iconButton iconButton--remove"
+        type="button"
+        :disabled="isProcessing"
+        @click="clearAll"
+        title="Remove"
+        aria-label="Remove file"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="informationContainer">
     <information>
-      <template #header>{{ mode === 'protect' ? 'Protect Sensitive PDFs' : 'Remove Forgotten Passwords' }}</template>
+      <template #header>{{ mode === 'protect' ? 'Protect Sensitive PDFs' : 'Remove PDF Passwords' }}</template>
       <template #description>
         {{ mode === 'protect'
           ? 'Add RC4 128-bit encryption to any PDF to prevent unauthorised access. Ideal for contracts, invoices, and private documents.'
@@ -181,11 +200,12 @@ import { decryptPDF, isEncrypted } from '@pdfsmaller/pdf-decrypt';
 import Descriptor from '@/components/descriptor.vue';
 import Information from '@/components/information.vue';
 import Faq from '@/components/faq.vue';
+import ErrorCard from '@/components/errorCard.vue';
 import { useMeta } from 'vue-meta';
 
 export default {
   name: 'PdfPassword',
-  components: { Descriptor, Information, Faq },
+  components: { Descriptor, Information, Faq, ErrorCard },
 
   data() {
     useMeta({
@@ -212,7 +232,7 @@ export default {
     });
 
     return {
-      mode: this.$route.params.mode === 'unlock' ? 'unlock' : 'protect',
+      mode: 'protect',
       pdfFile: null,
       userPassword: '',
       ownerPassword: '',
@@ -269,13 +289,6 @@ export default {
     },
   },
 
-  watch: {
-    '$route.params.mode'(newMode) {
-      const m = newMode === 'unlock' ? 'unlock' : 'protect';
-      if (this.mode !== m) this.switchMode(m, false);
-    },
-  },
-
   beforeUnmount() {
     this.revokeOutput();
   },
@@ -285,13 +298,10 @@ export default {
       if (this.outputUrl) URL.revokeObjectURL(this.outputUrl);
     },
 
-    switchMode(newMode, updateRoute = true) {
+    switchMode(newMode) {
       if (this.mode === newMode) return;
       this.mode = newMode;
       this.clearAll();
-      if (updateRoute) {
-        this.$router.replace(`/pdf-password/${newMode}`);
-      }
     },
 
     onInputChange(event) {
@@ -342,13 +352,11 @@ export default {
 
       try {
         const bytes = new Uint8Array(await this.pdfFile.arrayBuffer());
-
-        // First load and re-save with pdf-lib to normalize the document
         const pdfDoc = await PDFDocument.load(bytes);
         const cleanBytes = await pdfDoc.save();
 
         const userPw = this.userPassword.trim();
-        const ownerPw = (this.ownerPassword.trim()) || userPw;
+        const ownerPw = this.ownerPassword.trim() || userPw;
 
         const encryptedBytes = await encryptPDF(cleanBytes, userPw, ownerPw);
         const blob = new Blob([encryptedBytes], { type: 'application/pdf' });
@@ -376,37 +384,28 @@ export default {
       try {
         const bytes = new Uint8Array(await this.pdfFile.arrayBuffer());
         const password = this.userPassword.trim();
+        const baseName = this.pdfFile.name.replace(/\.pdf$/i, '');
 
-        // Check if actually encrypted
         if (!isEncrypted(bytes)) {
-          // Not encrypted — just re-save the PDF cleanly as a no-op unlock
           const pdfDoc = await PDFDocument.load(bytes);
           const cleanBytes = await pdfDoc.save();
           const blob = new Blob([cleanBytes], { type: 'application/pdf' });
-          const baseName = this.pdfFile.name.replace(/\.pdf$/i, '');
           this.outputBlob = blob;
           this.outputUrl = URL.createObjectURL(blob);
           this.outputName = `${baseName}-unlocked.pdf`;
           return;
         }
 
-        // Decrypt the bytes
         const decryptedBytes = await decryptPDF(bytes, password);
-
-        // Re-save with pdf-lib to strip the encryption dictionary
         const pdfDoc = await PDFDocument.load(decryptedBytes, { ignoreEncryption: true });
         const cleanBytes = await pdfDoc.save();
 
         const blob = new Blob([cleanBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const baseName = this.pdfFile.name.replace(/\.pdf$/i, '');
-
         this.outputBlob = blob;
-        this.outputUrl = url;
+        this.outputUrl = URL.createObjectURL(blob);
         this.outputName = `${baseName}-unlocked.pdf`;
       } catch (err) {
         this.hasError = true;
-        // Distinguish wrong password from other errors
         const msg = (err.message || '').toLowerCase();
         if (msg.includes('password') || msg.includes('decrypt') || msg.includes('incorrect') || msg.includes('wrong')) {
           this.errorMessage = 'Incorrect password. Please check the password and try again.';
@@ -444,122 +443,154 @@ export default {
 <style scoped lang="scss">
 @import "src/styles/_utilities";
 
-.modeTabs {
+.familySelector {
   @include mid-width;
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
 
-  &__tab {
-    flex: 1;
-    padding: 0.65rem 1rem;
+  &__button {
+    padding: 0.55rem 0.95rem;
+    background-color: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: $default-radius;
-    background-color: var(--bg-surface);
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s, background-color 0.15s;
 
     &:hover {
       border-color: var(--accent);
-      color: var(--text-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
     }
 
     &--active {
-      border-color: var(--accent);
       background-color: var(--accent);
-      color: #fff;
+      border-color: var(--accent);
+      color: var(--accent-text, #fff);
+      cursor: default;
+      transform: none;
+      box-shadow: none;
     }
   }
 }
 
 .fileInput {
   @include mid-width;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed var(--border);
-  border-radius: $default-radius;
-  padding: 2.5rem 1.5rem;
+  display: block;
+  height: 9rem;
+  margin-bottom: 0.5rem;
+  position: relative;
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
-  margin-bottom: 1rem;
+  border-radius: $default-radius;
+  box-shadow: var(--shadow-sm);
 
-  &:hover {
-    border-color: var(--accent);
+  > .file {
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    border-radius: $default-radius;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: var(--bg-surface);
+    border: 2px dashed var(--border);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  &:hover > .file {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+  &:active > .file {
+    transform: translateY(0);
+  }
+  > input {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: -1;
+  }
+  > input:focus + .file {
+    transition: 0.1s ease;
+    box-shadow: 0 0 0 2px var(--border-focus);
   }
 
   &--disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
     pointer-events: none;
+    cursor: not-allowed;
+
+    > .file {
+      opacity: 0.5;
+    }
   }
 
-  input[type='file'] { display: none; }
-
-  .file p {
-    margin: 0;
+  &__notice {
+    @include mid-width;
     text-align: center;
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 }
 
-.fileRow {
+.settingsBar {
   @include mid-width;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: $default-radius;
+  margin-top: 1rem;
   margin-bottom: 1rem;
-
-  &__copy { flex: 1; min-width: 0; }
-
-  &__name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
 }
 
-.passwordCard {
-  @include mid-width;
+.settingsCard {
+  padding: 1.25rem 1.5rem;
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: $default-radius;
-  padding: 1.25rem;
-  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 1rem;
 
-  &__label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 0.4rem;
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
   }
 
-  &__inputWrap {
-    display: flex;
-    align-items: center;
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    overflow: hidden;
-    background-color: var(--bg-primary);
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
 
-    &:focus-within {
-      border-color: var(--accent);
-    }
+  &__hint {
+    margin: 0.35rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+  }
+}
+
+.passwordWrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: $default-radius;
+  background-color: var(--bg-primary);
+  transition: border-color 0.15s;
+
+  &:focus-within {
+    border-color: var(--accent);
   }
 
   &__input {
@@ -574,177 +605,228 @@ export default {
   }
 
   &__toggle {
-    padding: 0 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    opacity: 0.7;
-    transition: opacity 0.15s;
-
-    &:hover { opacity: 1; }
-  }
-
-  &__advancedToggle {
-    background: none;
-    border: none;
-    color: var(--accent);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-    text-align: left;
-  }
-
-  &__hint {
-    margin: 0.4rem 0 0;
     color: var(--text-secondary);
-    font-size: 0.8rem;
+    transition: color 0.15s;
+
+    svg {
+      width: 1.15rem;
+      height: 1.15rem;
+      fill: currentColor;
+    }
+
+    &:hover {
+      color: var(--text-primary);
+    }
+  }
+}
+
+.advancedToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+    flex-shrink: 0;
   }
 }
 
 .batchBar {
   @include mid-width;
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
   flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
 
   &__button {
-    padding: 0.6rem 1.4rem;
+    flex: 1;
+    min-width: 120px;
+    border: none;
+    background-color: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: $default-radius;
-    background-color: var(--bg-surface);
     color: var(--text-primary);
-    font-weight: 600;
+    font-family: inherit;
     font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0;
     cursor: pointer;
-    transition: background-color 0.15s, border-color 0.15s;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    box-shadow: var(--shadow-sm);
 
-    &:hover:not(:disabled) {
-      background-color: var(--bg-surface-hover);
-      border-color: var(--accent);
+    > div {
+      background-color: var(--bg-secondary);
+      padding: 0.55rem 1rem;
+      border-radius: $default-radius;
+      height: 100%;
+      transition: background-color 0.15s, transform 0.15s;
     }
 
-    &:disabled {
-      opacity: 0.45;
+    &[disabled] {
       cursor: not-allowed;
+      opacity: 0.4;
     }
-
-    &--primary:not(:disabled) {
-      background-color: var(--accent);
+    &:not([disabled]):hover {
       border-color: var(--accent);
-      color: #fff;
-
-      &:hover {
-        opacity: 0.9;
-        background-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      > div {
+        background-color: var(--bg-surface-hover);
+        transform: translateY(-2px);
       }
+    }
+    &:not([disabled]):active > div {
+      transform: translateY(0);
     }
   }
 }
 
-.progressCard {
+.progressCard,
+.downloadCard {
   @include mid-width;
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: $default-radius;
-  padding: 1.25rem;
-  margin-bottom: 1.25rem;
+}
 
+.progressCard {
   &__top {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.6rem;
-    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
   }
 }
 
 .progressBar {
-  height: 6px;
-  background-color: var(--border);
-  border-radius: 3px;
+  height: 0.55rem;
+  border-radius: 999px;
   overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.08);
 
   &__fill {
     height: 100%;
-    background-color: var(--accent);
-    border-radius: 3px;
+    background: linear-gradient(90deg, #22c55e 0%, #06b6d4 100%);
+    transition: width 0.2s ease;
+  }
+
+  &__fill--indeterminate {
+    width: 40%;
+    animation: indeterminate 1.2s ease-in-out infinite;
   }
 }
 
 @keyframes indeterminate {
-  0%   { transform: translateX(-100%); width: 50%; }
-  50%  { transform: translateX(100%);  width: 50%; }
-  100% { transform: translateX(200%);  width: 50%; }
-}
-
-.errorCard {
-  @include mid-width;
-  background-color: var(--bg-surface);
-  border: 1px solid #e74c3c;
-  border-radius: $default-radius;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.25rem;
-  color: #e74c3c;
-
-  strong { display: block; margin-bottom: 0.35rem; }
-  p { margin: 0; font-size: 0.9rem; }
+  0%   { transform: translateX(-150%); }
+  100% { transform: translateX(350%); }
 }
 
 .downloadCard {
-  @include mid-width;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+
+  p {
+    margin: 0.35rem 0 0;
+    color: var(--text-secondary);
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 7.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: $default-radius;
+    background-color: var(--accent);
+    color: var(--accent-text, #fff);
+    text-decoration: none;
+    font-weight: 800;
+  }
+}
+
+.files {
+  @include mid-width;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 1.5rem;
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.8rem;
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: $default-radius;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.25rem;
 
-  strong { display: block; margin-bottom: 0.25rem; font-size: 0.95rem; }
-  p { margin: 0; color: var(--text-secondary); font-size: 0.85rem; }
+  &__copy {
+    flex: 1;
+    min-width: 0;
+  }
 
-  &__button {
-    padding: 0.55rem 1.25rem;
-    background-color: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: $default-radius;
-    font-weight: 700;
-    font-size: 0.9rem;
-    text-decoration: none;
-    cursor: pointer;
+  &__name {
+    color: var(--text-primary);
     white-space: nowrap;
-    transition: opacity 0.15s;
-
-    &:hover { opacity: 0.88; }
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
 .iconButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
   width: 2rem;
   height: 2rem;
-  border-radius: $default-radius;
-  border: 1px solid var(--border);
-  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
   cursor: pointer;
-  color: var(--text-secondary);
-  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
-  flex-shrink: 0;
+  transition: transform 0.15s, box-shadow 0.15s;
 
-  &--remove:hover {
-    border-color: #e74c3c;
-    color: #e74c3c;
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: currentColor;
   }
 
-  &:disabled { opacity: 0.4; cursor: not-allowed; }
+  &--remove {
+    background: var(--negative);
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not([disabled]):hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .faqSection {
@@ -762,11 +844,11 @@ export default {
 }
 
 @media only screen and (max-width: 55rem) {
-  .modeTabs, .fileInput, .batchBar, .passwordCard {
-    margin-left: 1.25rem;
-    margin-right: 1.25rem;
+  .downloadCard {
+    flex-direction: column;
+    align-items: flex-start;
+
+    a { width: 100%; }
   }
-  .modeTabs__tab { font-size: 0.82rem; padding: 0.55rem 0.5rem; }
-  .downloadCard { flex-direction: column; align-items: flex-start; }
 }
 </style>

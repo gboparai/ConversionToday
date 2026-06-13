@@ -304,7 +304,7 @@ a {
   flex: 1;
 }
 .informationContainer,
-.infomationContainer {
+.informationContainer {
   display: flex;
   gap: 1.25rem;
   max-width: 55rem;
@@ -317,7 +317,7 @@ a {
 @media only screen and (max-width: 55rem) {
   .informationBar,
   .informationContainer,
-  .infomationContainer {
+  .informationContainer {
     flex-direction: column;
     padding: 0 1.25rem;
     margin-bottom: 0.75rem;

@@ -95,7 +95,7 @@
     </p>
   </section>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Truly Unlimited — No File Size Caps</template>
       <template #description>
@@ -116,7 +116,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Private & Secure — Files Never Leave Your Device</template>
       <template #description>
@@ -137,7 +137,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Fast Browser-Based Conversion</template>
       <template #description>

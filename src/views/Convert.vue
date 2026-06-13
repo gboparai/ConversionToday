@@ -258,7 +258,7 @@
       ></file-cell>
     </transition-group>
   </div>
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Unlimited Conversions</template>
       <template #description>
@@ -276,7 +276,7 @@
       </template>
     </information>
   </div>
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Step 1</template>
       <template #description>
@@ -301,7 +301,7 @@
     <p v-if="fileInDropZone > 0" class="dropTarget">Drop Here</p>
   </transition>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <div>
       <h3 class="supportedConversionsTitle">Supported Conversions</h3>
       <input

@@ -24,9 +24,48 @@
     </div>
   </label>
 
-  <p v-if="pdfFile" class="notice">
+  <p v-if="pdfFile" class="fileInput__notice">
     One PDF is already loaded. Remove it to load a different file.
   </p>
+
+
+
+  <div class="settingsBar" v-if="pdfFile">
+    <div class="settingsCard">
+      <div class="familySelector" style="margin-bottom: 0;">
+        <button
+          class="familySelector__button"
+          :class="{ 'familySelector__button--active': splitMode === 'all' }"
+          type="button"
+          @click="splitMode = 'all'"
+        >
+          Extract All Pages
+        </button>
+        <button
+          class="familySelector__button"
+          :class="{ 'familySelector__button--active': splitMode === 'specific' }"
+          type="button"
+          @click="splitMode = 'specific'"
+        >
+          Extract Specific Pages
+        </button>
+      </div>
+
+      <div v-if="splitMode === 'specific'" class="settingsCard__item" style="margin-top: 1rem;">
+        <span class="settingsCard__label">Page Range</span>
+        <div class="inputWrap">
+          <input
+            class="inputWrap__input"
+            type="text"
+            v-model="pageRange"
+            placeholder="e.g. 1, 3, 5-10"
+            :disabled="isProcessing"
+          />
+        </div>
+        <p class="settingsCard__hint">Enter page numbers and/or ranges separated by commas.</p>
+      </div>
+    </div>
+  </div>
 
   <div class="batchBar">
     <button class="batchBar__button" :disabled="!canProcess" @click="process">
@@ -40,6 +79,8 @@
     </button>
   </div>
 
+
+
   <div v-if="showProgress" class="progressCard">
     <div class="progressCard__top">
       <strong>{{ statusHeading }}</strong>
@@ -51,15 +92,12 @@
     <p>{{ statusMessage }}</p>
   </div>
 
-  <div v-if="hasError" class="errorCard">
-    <strong>⚠️ Error</strong>
-    <p>{{ errorMessage }}</p>
-  </div>
+  <error-card :show="hasError" :message="errorMessage" />
 
   <div v-if="outputPages.length > 0" class="resultsCard">
     <p class="resultsCard__summary">
-      ✅ Split into <strong>{{ outputPages.length }}</strong> page{{ outputPages.length > 1 ? 's' : '' }}.
-      Download the ZIP above or individual pages below.
+      ✅ Split into <strong>{{ outputPages.length }}</strong> file{{ outputPages.length > 1 ? 's' : '' }}.
+      Download the ZIP above or individual files below.
     </p>
     <div class="pageList">
       <div v-for="page in outputPages" :key="page.name" class="fileRow">
@@ -67,34 +105,34 @@
           <div class="fileRow__name">{{ page.name }}</div>
         </div>
         <a class="iconButton iconButton--download" :href="page.url" :download="page.name" title="Download page" aria-label="Download page">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
         </a>
       </div>
     </div>
   </div>
 
-  <div v-if="pdfFile" class="fileRow fileRow--loaded">
-    <div class="fileRow__copy">
-      <div class="fileRow__name">{{ pdfFile.name }}</div>
-      <div class="fileRow__meta" v-if="pageCount">{{ pageCount }} pages</div>
+
+
+  <div class="files" v-if="pdfFile">
+    <div class="fileRow">
+      <div class="fileRow__copy">
+        <div class="fileRow__name">{{ pdfFile.name }}</div>
+        <div class="fileRow__meta" v-if="pageCount">{{ pageCount }} pages</div>
+      </div>
+      <button
+        class="iconButton iconButton--remove"
+        type="button"
+        :disabled="isProcessing"
+        @click="clearAll"
+        title="Remove"
+        aria-label="Remove file"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+      </button>
     </div>
-    <button
-      class="iconButton iconButton--remove"
-      type="button"
-      :disabled="isProcessing"
-      @click="clearAll"
-      title="Remove"
-      aria-label="Remove file"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-      </svg>
-    </button>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Split Any PDF Instantly</template>
       <template #description>
@@ -127,11 +165,12 @@ import JSZip from 'jszip';
 import Descriptor from '@/components/descriptor.vue';
 import Information from '@/components/information.vue';
 import Faq from '@/components/faq.vue';
+import ErrorCard from '@/components/errorCard.vue';
 import { useMeta } from 'vue-meta';
 
 export default {
   name: 'PdfSplit',
-  components: { Descriptor, Information, Faq },
+  components: { Descriptor, Information, Faq, ErrorCard },
 
   data() {
     useMeta({
@@ -169,6 +208,8 @@ export default {
       zipBlob: null,
       zipUrl: null,
       zipName: null,
+      splitMode: 'all',
+      pageRange: '',
       faqs: [
         {
           question: 'How do I split a PDF into individual pages?',
@@ -201,7 +242,9 @@ export default {
 
   computed: {
     canProcess() {
-      return !!this.pdfFile && !this.isProcessing;
+      if (!this.pdfFile || this.isProcessing) return false;
+      if (this.splitMode === 'specific' && !this.pageRange.trim()) return false;
+      return true;
     },
     canDownload() {
       return this.outputPages.length > 0 && !this.isProcessing;
@@ -303,24 +346,46 @@ export default {
         const pages = [];
         const zip = new JSZip();
 
-        for (let i = 0; i < totalPages; i++) {
-          this.statusMessage = `Extracting page ${i + 1} of ${totalPages}…`;
-          this.progress = Math.round(((i) / totalPages) * 90);
+        let targetPages = [];
+        let groups = [];
+        if (this.splitMode === 'all') {
+          for (let i = 0; i < totalPages; i++) {
+            groups.push({ label: String(i + 1), pages: [i + 1] });
+          }
+        } else {
+          groups = this.parsePageGroups(this.pageRange, totalPages);
+          if (groups.length === 0) {
+            throw new Error('No valid pages selected based on your range.');
+          }
+        }
+
+        const count = groups.length;
+        for (let idx = 0; idx < count; idx++) {
+          const group = groups[idx];
+          const zeroIndexedPages = group.pages.map(p => p - 1);
+
+          this.statusMessage = `Extracting ${group.label} (${idx + 1} of ${count})…`;
+          this.progress = Math.round((idx / count) * 90);
 
           const pageDoc = await PDFDocument.create();
-          const [copiedPage] = await pageDoc.copyPages(srcDoc, [i]);
-          pageDoc.addPage(copiedPage);
+          const copiedPages = await pageDoc.copyPages(srcDoc, zeroIndexedPages);
+          copiedPages.forEach(p => pageDoc.addPage(p));
+          
           const pageBytes = await pageDoc.save();
           const blob = new Blob([pageBytes], { type: 'application/pdf' });
           const url = URL.createObjectURL(blob);
-          const padded = String(i + 1).padStart(String(totalPages).length, '0');
-          const name = `${baseName}-page-${padded}.pdf`;
+          
+          const prefix = group.pages.length > 1 ? 'pages' : 'page';
+          const paddedLabel = group.pages.length === 1 
+            ? String(group.pages[0]).padStart(String(totalPages).length, '0')
+            : group.label;
+          const name = `${baseName}-${prefix}-${paddedLabel}.pdf`;
 
           pages.push({ name, blob, url });
           zip.file(name, pageBytes);
 
-          // Yield to UI every 5 pages to avoid freezing
-          if (i % 5 === 4) await new Promise(r => setTimeout(r, 0));
+          // Yield to UI every 5 operations to avoid freezing
+          if (idx % 5 === 4) await new Promise(r => setTimeout(r, 0));
         }
 
         this.statusMessage = 'Packaging ZIP…';
@@ -333,7 +398,7 @@ export default {
 
         this.outputPages = pages;
         this.progress = 100;
-        this.statusMessage = `Done — ${totalPages} pages extracted.`;
+        this.statusMessage = `Done — ${count} file${count > 1 ? 's' : ''} extracted.`;
       } catch (err) {
         this.hasError = true;
         this.errorMessage = err.message || 'Failed to split the PDF. The file may be corrupted or password-protected.';
@@ -350,6 +415,29 @@ export default {
       a.href = this.zipUrl;
       a.download = this.zipName;
       a.click();
+    },
+
+    parsePageGroups(rangeStr, maxPage) {
+      const groups = [];
+      const parts = rangeStr.split(',').map(p => p.trim()).filter(Boolean);
+      for (const part of parts) {
+        if (part.includes('-')) {
+          const [start, end] = part.split('-').map(Number);
+          if (!isNaN(start) && !isNaN(end) && start <= end) {
+            const group = [];
+            for (let i = Math.max(1, start); i <= Math.min(maxPage, end); i++) {
+              group.push(i);
+            }
+            if (group.length > 0) groups.push({ label: `${group[0]}-${group[group.length - 1]}`, pages: group });
+          }
+        } else {
+          const num = Number(part);
+          if (!isNaN(num) && num >= 1 && num <= maxPage) {
+            groups.push({ label: `${num}`, pages: [num] });
+          }
+        }
+      }
+      return groups;
     },
 
     clearAll() {
@@ -379,73 +467,216 @@ export default {
 
 .fileInput {
   @include mid-width;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed var(--border);
-  border-radius: $default-radius;
-  padding: 2.5rem 1.5rem;
-  cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  display: block;
+  height: 9rem;
   margin-bottom: 1rem;
+  position: relative;
+  cursor: pointer;
+  border-radius: $default-radius;
+  box-shadow: var(--shadow-sm);
 
-  &:hover {
-    border-color: var(--accent);
+  > .file {
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    border-radius: $default-radius;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: var(--bg-surface);
+    border: 2px dashed var(--border);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  &:hover > .file {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+  &:active > .file {
+    transform: translateY(0);
+  }
+  > input {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: -1;
+  }
+  > input:focus + .file {
+    transition: 0.1s ease;
+    box-shadow: 0 0 0 2px var(--border-focus);
   }
 
   &--disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
     pointer-events: none;
+    cursor: not-allowed;
+
+    > .file {
+      opacity: 0.5;
+    }
   }
 
-  input[type='file'] {
-    display: none;
-  }
-
-  .file p {
-    margin: 0;
+  &__notice {
+    @include mid-width;
     text-align: center;
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 }
 
-.notice {
+.files {
   @include mid-width;
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.settingsBar {
+  @include mid-width;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.settingsCard {
+  padding: 1.25rem 1.5rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: $default-radius;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__hint {
+    margin: 0.35rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+  }
+}
+
+.familySelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+
+  &__button {
+    flex: 1;
+    padding: 0.55rem 0.95rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: $default-radius;
+    color: var(--text-primary);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s, background-color 0.15s;
+
+    &:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    &--active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text, #fff);
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: $default-radius;
+  background-color: var(--bg-primary);
+  transition: border-color 0.15s;
+
+  &:focus-within {
+    border-color: var(--accent);
+  }
+
+  &__input {
+    flex: 1;
+    padding: 0.55rem 0.75rem;
+    border: none;
+    background: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
 }
 
 .batchBar {
   @include mid-width;
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
   flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
 
   &__button {
-    padding: 0.6rem 1.4rem;
+    flex: 1;
+    min-width: 120px;
+    border: none;
+    background-color: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: $default-radius;
-    background-color: var(--bg-surface);
     color: var(--text-primary);
-    font-weight: 600;
+    font-family: inherit;
     font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0;
     cursor: pointer;
-    transition: background-color 0.15s, border-color 0.15s;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    box-shadow: var(--shadow-sm);
 
-    &:hover:not(:disabled) {
-      background-color: var(--bg-surface-hover);
-      border-color: var(--accent);
+    > div {
+      background-color: var(--bg-secondary);
+      padding: 0.55rem 1rem;
+      border-radius: $default-radius;
+      height: 100%;
+      transition: background-color 0.15s, transform 0.15s;
     }
 
-    &:disabled {
-      opacity: 0.45;
+    &[disabled] {
       cursor: not-allowed;
+      opacity: 0.4;
+    }
+    &:not([disabled]):hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      > div {
+        background-color: var(--bg-surface-hover);
+        transform: translateY(-2px);
+      }
+    }
+    &:not([disabled]):active > div {
+      transform: translateY(0);
     }
   }
 }
@@ -486,26 +717,6 @@ export default {
   }
 }
 
-.errorCard {
-  @include mid-width;
-  background-color: var(--bg-surface);
-  border: 1px solid #e74c3c;
-  border-radius: $default-radius;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.25rem;
-  color: #e74c3c;
-
-  strong {
-    display: block;
-    margin-bottom: 0.35rem;
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.9rem;
-  }
-}
-
 .resultsCard {
   @include mid-width;
   background-color: var(--bg-surface);
@@ -525,10 +736,13 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  max-height: 22rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.25rem;
 }
 
 .fileRow {
-  @include mid-width;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -563,34 +777,42 @@ export default {
 }
 
 .iconButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
   width: 2rem;
   height: 2rem;
-  border-radius: $default-radius;
-  border: 1px solid var(--border);
-  background: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
-  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
   text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
 
-  &:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background-color: var(--bg-surface-hover);
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: currentColor;
   }
 
-  &--remove:hover {
-    border-color: #e74c3c;
-    color: #e74c3c;
+  &--remove {
+    background: var(--negative);
+    color: #fff;
+  }
+
+  &--download {
+    background: var(--positive);
+    color: var(--positive-text);
   }
 
   &:disabled {
-    opacity: 0.4;
+    opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  &:not([disabled]):hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 }
 

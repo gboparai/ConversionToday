@@ -29,6 +29,13 @@
 
   </div>
 
+  <label class="fileInput">
+    <input @change="input" type="file" multiple :accept="acceptAttr" />
+    <div class="file">
+      <p>{{ dropLabel }}</p>
+    </div>
+  </label>
+
   <div class="languageBar">
     <div class="languageCard">
       <label class="languageCard__label" for="ocrLanguageSelect">OCR Language</label>
@@ -42,13 +49,6 @@
       </div>
     </div>
   </div>
-
-  <label class="fileInput">
-    <input @change="input" type="file" multiple :accept="acceptAttr" />
-    <div class="file">
-      <p>{{ dropLabel }}</p>
-    </div>
-  </label>
 
   <div class="batchBar">
     <button
@@ -188,7 +188,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <div>
       <h3 class="supportedConversionsTitle">Supported OCR Conversions</h3>
       <input

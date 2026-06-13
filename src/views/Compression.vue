@@ -86,7 +86,7 @@
     </div>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>{{ selectedFormatInfo.benefitTitle }}</template>
       <template #description>{{ selectedFormatInfo.benefitDescription }}</template>
@@ -106,7 +106,7 @@
       </template>
     </information>
   </div>
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Step 1</template>
       <template #description>

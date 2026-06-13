@@ -44,7 +44,7 @@
     </div>
   </label>
 
-  <p v-if="isPdfToImages && hasPdfFile" class="notice">
+  <p v-if="isPdfToImages && hasPdfFile" class="fileInput__notice">
     One PDF is already added. Remove it to enable drag and drop again.
   </p>
 
@@ -385,7 +385,7 @@ export default {
       return `Add one PDF, then extract all pages as ${this.selectedOutputInfo.title} images.`;
     },
     inputPrompt() {
-      if (this.isImagesToPdf) return `Add ${this.resolvedInputFormat.toUpperCase()} Files Here`;
+      if (this.isImagesToPdf) return "Add images here";
       if (this.hasPdfFile) return `Added: ${this.pdfFile.name}`;
       return "Add One PDF File Here";
     },
@@ -823,7 +823,6 @@ export default {
 
 .fileInput,
 .batchBar,
-.notice,
 .queueHint,
 .progressCard,
 .downloadCard,
@@ -885,6 +884,15 @@ export default {
       color: var(--text-secondary);
     }
   }
+
+  &__notice {
+    @include mid-width;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .batchBar {
@@ -905,24 +913,33 @@ export default {
     font-weight: 700;
     padding: 0;
     cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    box-shadow: var(--shadow-sm);
 
     > div {
       background-color: var(--bg-secondary);
       padding: 0.55rem 1rem;
       border-radius: $default-radius;
+      height: 100%;
+      transition: background-color 0.15s, transform 0.15s;
     }
 
-    &:disabled {
-      opacity: 0.45;
+    &[disabled] {
       cursor: not-allowed;
+      opacity: 0.4;
+    }
+    &:not([disabled]):hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      > div {
+        background-color: var(--bg-surface-hover);
+        transform: translateY(-2px);
+      }
+    }
+    &:not([disabled]):active > div {
+      transform: translateY(0);
     }
   }
-}
-
-.notice {
-  margin-top: 0;
-  margin-bottom: 0.85rem;
-  color: var(--text-secondary);
 }
 
 .settingsBar {

@@ -8,7 +8,7 @@
 
   <format-selector :isFrom="true" path="image" name="from"></format-selector>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>50+ Image Formats Supported Free</template>
       <template #description>
@@ -29,7 +29,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>2,500+ Image Conversion Pairs</template>
       <template #description>
@@ -50,7 +50,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Convert JPG to PNG, WEBP & More</template>
       <template #description>

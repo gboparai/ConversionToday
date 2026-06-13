@@ -25,7 +25,7 @@
     </a>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Compress Unlimited Images at Once</template>
       <template #description>
@@ -46,7 +46,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>4 Image Formats Supported</template>
       <template #description>
