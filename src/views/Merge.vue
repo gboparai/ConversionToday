@@ -47,8 +47,9 @@
     </button>
   </div>
 
-  <p v-if="unsupportedCount > 0" class="notice">
+  <p v-if="unsupportedCount > 0" class="skippedNotice">
     {{ unsupportedCount }} file(s) were skipped. {{ familyConfig.skipText }}
+    <button class="skippedNotice__dismiss" @click="unsupportedCount = 0" aria-label="Dismiss">✕</button>
   </p>
 
   <div v-if="isProcessing || hasOutput || mergeStatus === FILE_STATUS.failed" class="progressCard">
@@ -684,7 +685,6 @@ export default {
   }
 }
 
-.notice,
 .queueHint {
   @include mid-width;
   margin-top: 0;

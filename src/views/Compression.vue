@@ -40,8 +40,9 @@
     </button>
   </div>
 
-  <p v-if="unsupportedCount > 0" class="notice">
+  <p v-if="unsupportedCount > 0" class="skippedNotice">
     {{ unsupportedCount }} file(s) were skipped. Supported: {{ formatLabel }}.
+    <button class="skippedNotice__dismiss" @click="unsupportedCount = 0" aria-label="Dismiss">✕</button>
   </p>
 
   <div class="files">
@@ -676,12 +677,7 @@ export default {
   }
 }
 
-.notice {
-  @include mid-width;
-  color: var(--text-secondary);
-  margin-bottom: 0.8rem;
-  font-size: 0.9rem;
-}
+
 
 .files {
   @include mid-width;

@@ -81,8 +81,9 @@
     </button>
   </div>
 
-  <p v-if="unsupportedCount > 0" class="notice">
+  <p v-if="unsupportedCount > 0" class="skippedNotice">
     {{ unsupportedCount }} file(s) were skipped. {{ skipHelpText }}
+    <button class="skippedNotice__dismiss" @click="unsupportedCount = 0" aria-label="Dismiss">✕</button>
   </p>
 
   <div v-if="running || files.length > 0 || hasOutput" class="progressCard">
@@ -1063,17 +1064,7 @@ export default {
   }
 }
 
-.notice {
-  @include mid-width;
-  margin-top: 0;
-  margin-bottom: 0.85rem;
-  padding: 0.6rem 1rem;
-  background-color: var(--bg-surface);
-  border-left: 3px solid var(--accent);
-  border-radius: $default-radius;
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-}
+
 
 .queueHint {
   margin-top: 0;

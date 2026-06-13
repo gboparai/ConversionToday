@@ -46,43 +46,6 @@
   }
 }
 
-.skippedNotice {
-  @include mid-width;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  padding: 0.55rem 0.85rem;
-  background-color: color-mix(in srgb, var(--warning, #b45309) 12%, var(--bg-surface));
-  border: 1px solid color-mix(in srgb, var(--warning, #b45309) 40%, transparent);
-  border-radius: $default-radius;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  line-height: 1.4;
-
-  strong {
-    font-weight: 700;
-  }
-
-  &__dismiss {
-    margin-left: auto;
-    flex-shrink: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    line-height: 1;
-    padding: 0.1rem 0.25rem;
-    border-radius: 0.25rem;
-    transition: color 0.15s;
-
-    &:hover {
-      color: var(--text-primary);
-    }
-  }
-}
-
 .files {
   @include mid-width;
   display: flex;
