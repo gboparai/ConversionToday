@@ -28,8 +28,7 @@
     >
     <template #description
       >Convert unlimited number of files to and from
-      {{ formatInofo.name }} online. Amongst many others, we support PNG, JPG,
-      GIF, WEBP and BMP.</template
+      {{ formatInofo.name }} online. <span v-if="supportedFormatsString">Amongst many others, we support {{ supportedFormatsString }}.</span></template
     >
   </descriptor>
   <div class="informationBar">
@@ -76,9 +75,9 @@
       </template>
     </information>
     <information>
-      <template #header>50+ formats supported</template>
+      <template #header>{{ outputFormatCount }} formats supported</template>
       <template #description>
-        Convert {{ formatInofo.name.toUpperCase() }} files to more than 50
+        Convert {{ formatInofo.name.toUpperCase() }} files to {{ outputFormatCount }}
         supported output formats with a simple workflow.
       </template>
     </information>
@@ -241,6 +240,23 @@ export default {
       return this.$store.state[this.formatsKey].filter(
         (format) => format.canConvertFrom !== false
       );
+    },
+    supportedFormatsString() {
+      const outputs = this.$store.state[this.formatsKey].filter(
+        (format) => format.canConvertTo !== false && format.name !== this.format
+      );
+      const names = outputs.slice(0, 5).map((f) => f.name.toUpperCase());
+      
+      if (names.length === 0) return '';
+      if (names.length === 1) return names[0];
+      
+      const last = names.pop();
+      return names.join(', ') + ' and ' + last;
+    },
+    outputFormatCount() {
+      return this.$store.state[this.formatsKey].filter(
+        (format) => format.canConvertTo !== false && format.name !== this.format
+      ).length;
     },
   },
 };
