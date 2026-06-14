@@ -6,17 +6,11 @@
     </template>
   </descriptor>
 
-  <div class="familySelector">
-    <button
-      v-for="option in familyOptions"
-      :key="option.value"
-      type="button"
-      :class="['familySelector__button', { 'familySelector__button--active': option.value === category }]"
-      @click="handleFamilyChange(option.value)"
-    >
-      {{ option.label }}
-    </button>
-  </div>
+  <radio-group
+    :options="familyOptions"
+    v-model="category"
+    @update:modelValue="handleFamilyChange"
+  />
 
   <div class="informationBar">
     <card :path="'/metadata-remover/' + category" :formats="availableFormats" :selectedFormat="format" :handleChange="handleFormatChange">
@@ -55,29 +49,21 @@
   </div>
 
 
-  <div class="batchBar">
-    <button class="batchBar__button" :disabled="loadedFiles.length === 0 || isProcessing" @click="processFiles">
-      <div>Strip Metadata</div>
-    </button>
-    <button class="batchBar__button" :disabled="outputFiles.length === 0" @click="downloadAll">
-      <div>Download All</div>
-    </button>
-    <button class="batchBar__button" :disabled="outputFiles.length === 0 || !zipUrl" @click="downloadZip">
-      <div>Download ZIP</div>
-    </button>
-    <button class="batchBar__button" :disabled="loadedFiles.length === 0 && outputFiles.length === 0" @click="clearAll">
-      <div>Clear All</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: 'Strip Metadata', disabled: loadedFiles.length === 0 || isProcessing, onClick: processFiles },
+      { label: 'Download All', disabled: outputFiles.length === 0, onClick: downloadAll },
+      { label: 'Download ZIP', disabled: outputFiles.length === 0 || !zipUrl, onClick: downloadZip },
+      { label: 'Clear All', disabled: loadedFiles.length === 0 && outputFiles.length === 0, onClick: clearAll }
+    ]"
+  />
 
   <div class="files" v-if="loadedFiles.length > 0">
     <div v-for="(file, index) in loadedFiles" :key="index" class="fileRow">
       <div class="fileRow__copy">
         <div class="fileRow__name">{{ file.name }}</div>
       </div>
-      <button class="iconButton iconButton--remove" @click="removeFile(index)" title="Remove file" aria-label="Remove file">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-      </button>
+      <icon-button variant="remove" @click="removeFile(index)" title="Remove file" ariaLabel="Remove file" />
     </div>
   </div>
 
@@ -100,9 +86,7 @@
         <div class="fileRow__copy">
           <div class="fileRow__name">{{ file.name }}</div>
         </div>
-        <a class="iconButton iconButton--download" :href="file.url" :download="file.name" title="Download" aria-label="Download">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-        </a>
+        <icon-button variant="download" :href="file.url" :download="file.name" title="Download" ariaLabel="Download" />
       </div>
     </div>
   </div>
@@ -115,6 +99,9 @@ import Information from "@/components/information.vue";
 import ErrorCard from "@/components/errorCard.vue";
 import Card from "@/components/card.vue";
 import FilePicker from "@/components/file-picker.vue";
+import ActionBar from "@/components/ActionBar.vue";
+import RadioGroup from "@/components/RadioGroup.vue";
+import IconButton from "@/components/IconButton.vue";
 import { useMeta } from "vue-meta";
 import JSZip from "jszip";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
@@ -132,7 +119,7 @@ function ensureMagick() {
 
 export default {
   name: "MetadataRemover",
-  components: { FilePicker, Card, Descriptor, Information, ErrorCard },
+  components: { FilePicker, Card, Descriptor, Information, ErrorCard, ActionBar, RadioGroup, IconButton },
   
   data() {
     return {
@@ -155,8 +142,13 @@ export default {
     format() {
       return this.$route.params.format || "jpg";
     },
-    category() {
-      return this.$route.params.family || "image";
+    category: {
+      get() {
+        return this.$route.params.family || "image";
+      },
+      set(value) {
+        this.handleFamilyChange(value);
+      }
     },
     familyOptions() {
       return [
@@ -437,41 +429,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "src/styles/_utilities";
+@use "@/styles/_utilities.scss" as *;
 
-.familySelector {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
 
-  &__button {
-    padding: 0.55rem 0.95rem;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-weight: 700;
-    cursor: pointer;
-    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
-
-    &:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    &--active {
-      background-color: var(--accent);
-      border-color: var(--accent);
-      color: var(--accent-text);
-      cursor: default;
-      transform: none;
-    }
-  }
-}
 
 .informationBar {
   @include mid-width;
@@ -563,54 +523,7 @@ export default {
   }
 }
 
-.batchBar {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
 
-  &__button {
-    flex: 1;
-    min-width: 120px;
-    border: none;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    transition: box-shadow 0.15s, border-color 0.15s;
-    box-shadow: var(--shadow-sm);
-
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-      height: 100%;
-      transition: background-color 0.15s, transform 0.15s;
-    }
-
-    &[disabled] {
-      cursor: not-allowed;
-      opacity: 0.4;
-    }
-    &:not([disabled]):hover {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-md);
-      > div {
-        background-color: var(--bg-surface-hover);
-        transform: translateY(-2px);
-      }
-    }
-    &:not([disabled]):active > div {
-      transform: translateY(0);
-    }
-  }
-}
 
 .progressCard {
   @include mid-width;
@@ -648,37 +561,5 @@ export default {
   }
 }
 
-.iconButton {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: none;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
 
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
-
-  &--remove {
-    background: var(--negative, #e74c3c);
-    color: #fff;
-  }
-
-  &--download {
-    background: var(--positive, #2ecc71);
-    color: var(--positive-text, #fff);
-  }
-
-  &:hover {
-    transform: scale(1.1);
-  }
-}
 </style>

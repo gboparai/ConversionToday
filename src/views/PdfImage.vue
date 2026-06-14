@@ -71,20 +71,14 @@
     </div>
   </div>
 
-  <div class="batchBar">
-    <button class="batchBar__button" :disabled="!canProcess" @click="process">
-      <div>{{ processLabel }}</div>
-    </button>
-    <button class="batchBar__button" :disabled="!canDownloadAll" @click="downloadAll">
-      <div>Download All</div>
-    </button>
-    <button class="batchBar__button" :disabled="!canDownloadAll" @click="downloadZip">
-      <div>Download ZIP</div>
-    </button>
-    <button class="batchBar__button" :disabled="!canClear" @click="clearAll">
-      <div>Clear All</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: processLabel, disabled: !canProcess, onClick: process },
+      { label: 'Download All', disabled: !canDownloadAll, onClick: downloadAll },
+      { label: 'Download ZIP', disabled: !canDownloadAll, onClick: downloadZip },
+      { label: 'Clear All', disabled: !canClear, onClick: clearAll }
+    ]"
+  />
 
   <div v-if="showProgressCard" class="progressCard">
     <div class="progressCard__top">
@@ -97,13 +91,13 @@
     <p>{{ statusMessage }}</p>
   </div>
 
-  <div class="downloadCard" v-if="isImagesToPdf && hasPdfOutput">
-    <div>
-      <strong>{{ pdfOutput.name }}</strong>
-      <p>Your PDF file is ready.</p>
-    </div>
-    <a :href="pdfOutput.url" :download="pdfOutput.name">Download</a>
-  </div>
+  <download-card
+    v-if="isImagesToPdf && hasPdfOutput"
+    :title="pdfOutput.name"
+    description="Your PDF file is ready."
+    :url="pdfOutput.url"
+    :file-name="pdfOutput.name"
+  />
 
   <div class="files" v-if="isImagesToPdf && imageFiles.length > 0">
     <p v-if="imageFiles.length > 1" class="queueHint">Drag files to change the page order.</p>
@@ -121,16 +115,13 @@
       <div class="fileRow__copy">
         <div class="fileRow__name">{{ file.name }}</div>
       </div>
-      <button
-        class="iconButton iconButton--remove"
-        type="button"
+      <icon-button
+        variant="remove"
         :disabled="isProcessing"
         @click="removeImageFile(file.id)"
         title="Remove"
-        aria-label="Remove file"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-      </button>
+        ariaLabel="Remove file"
+      />
     </div>
   </div>
 
@@ -139,16 +130,13 @@
       <div class="fileRow__copy">
         <div class="fileRow__name">{{ pdfFile.name }}</div>
       </div>
-      <button
-        class="iconButton iconButton--remove"
-        type="button"
+      <icon-button
+        variant="remove"
         :disabled="isProcessing"
         @click="removePdfFile"
         title="Remove"
-        aria-label="Remove file"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-      </button>
+        ariaLabel="Remove file"
+      />
     </div>
   </div>
 
@@ -157,15 +145,13 @@
       <div class="fileRow__copy">
         <div class="fileRow__name">{{ output.name }}</div>
       </div>
-      <a
-        class="iconButton iconButton--download"
+      <icon-button
+        variant="download"
         :href="output.url"
         :download="output.name"
         title="Download"
-        :aria-label="'Download ' + output.name"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zm7-18v10.17l-3.59-3.58L7 10l5 5 5-5-1.41-1.41L13 12.17V2h-1z"/></svg>
-      </a>
+        :ariaLabel="'Download ' + output.name"
+      />
     </div>
   </div>
 
@@ -273,10 +259,13 @@ const IMAGE_MIME_BY_FORMAT = {
 };
 
 import FilePicker from "@/components/file-picker.vue";
+import ActionBar from "@/components/ActionBar.vue";
+import DownloadCard from "@/components/DownloadCard.vue";
+import IconButton from "@/components/IconButton.vue";
 
 export default {
   name: "PdfImage",
-  components: { FilePicker, Card, Descriptor, Information, SearchableSelect },
+  components: { FilePicker, Card, Descriptor, Information, SearchableSelect, ActionBar, DownloadCard, IconButton },
   data() {
     useMeta({
       title: "PDF and Image Tool - No Limit Converter",
@@ -810,13 +799,12 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "src/styles/_utilities";
+@use "@/styles/_utilities.scss" as *;
 
 .fileInput,
 .batchBar,
 .queueHint,
 .progressCard,
-.downloadCard,
 .files {
   @include mid-width;
 }
@@ -886,52 +874,7 @@ export default {
   }
 }
 
-.batchBar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
 
-  &__button {
-    flex: 1;
-    min-width: 130px;
-    border: 1px solid var(--border);
-    background-color: var(--bg-surface);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    transition: box-shadow 0.15s, border-color 0.15s;
-    box-shadow: var(--shadow-sm);
-
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-      height: 100%;
-      transition: background-color 0.15s, transform 0.15s;
-    }
-
-    &[disabled] {
-      cursor: not-allowed;
-      opacity: 0.4;
-    }
-    &:not([disabled]):hover {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-md);
-      > div {
-        background-color: var(--bg-surface-hover);
-        transform: translateY(-2px);
-      }
-    }
-    &:not([disabled]):active > div {
-      transform: translateY(0);
-    }
-  }
-}
 
 .settingsBar {
   @include mid-width;
@@ -969,8 +912,7 @@ export default {
   }
 }
 
-.progressCard,
-.downloadCard {
+.progressCard {
   margin-bottom: 1rem;
   padding: 1rem 1.15rem;
   background-color: var(--bg-surface);
@@ -1001,31 +943,6 @@ export default {
     height: 100%;
     background: linear-gradient(90deg, #22c55e 0%, #06b6d4 100%);
     transition: width 0.2s ease;
-  }
-}
-
-.downloadCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  p {
-    margin: 0.35rem 0 0;
-    color: var(--text-secondary);
-  }
-
-  a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 7.5rem;
-    padding: 0.65rem 1rem;
-    border-radius: $default-radius;
-    background-color: var(--accent);
-    color: var(--accent-text);
-    text-decoration: none;
-    font-weight: 800;
   }
 }
 
@@ -1074,54 +991,7 @@ export default {
   }
 }
 
-.iconButton {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: none;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
 
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
 
-  &--remove {
-    background: var(--negative);
-    color: #fff;
-  }
 
-  &--download {
-    background: var(--positive);
-    color: var(--positive-text);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &:not([disabled]):hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-}
-
-@media only screen and (max-width: 55rem) {
-  .downloadCard {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .downloadCard a {
-    width: 100%;
-  }
-}
 </style>

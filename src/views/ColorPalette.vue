@@ -32,43 +32,33 @@
     </div>
   </div>
 
-  <div class="batchBar">
-    <button class="batchBar__button" :disabled="files.length <= 0 || isProcessing" @click="processAll">
-      <div>{{ isProcessing ? 'Extracting...' : 'Extract Colors' }}</div>
-    </button>
-    <button class="batchBar__button" :disabled="files.length <= 0" @click="clearAll">
-      <div>Clear All</div>
-    </button>
-    <button class="batchBar__button" :disabled="!hasExtractedPalettes" @click="downloadJson">
-      <div>Download All (JSON)</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: isProcessing ? 'Extracting...' : 'Extract Colors', disabled: files.length <= 0 || isProcessing, onClick: processAll },
+      { label: 'Clear All', disabled: files.length <= 0, onClick: clearAll },
+      { label: 'Download All (JSON)', disabled: !hasExtractedPalettes, onClick: downloadJson }
+    ]"
+  />
 
   <div class="files">
     <div v-for="file in files" :key="file.id" class="fileCard">
       <div class="fileCard__info">
         <span class="fileCard__name">{{ file.name }}</span>
         <div class="fileCard__actions">
-          <button
+          <icon-button
             v-if="file.palette"
-            class="iconButton iconButton--download"
-            type="button"
+            variant="download"
             @click="downloadFileJson(file)"
             title="Download Palette (JSON)"
-            aria-label="Download Palette"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zm7-18v10.17l-3.59-3.58L7 10l5 5 5-5-1.41-1.41L13 12.17V2h-1z"/></svg>
-          </button>
-          <button
-          class="iconButton iconButton--remove"
-          type="button"
-          :disabled="isProcessing"
-          @click="removeFile(file.id)"
-          title="Remove"
-          aria-label="Remove file"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-        </button>
+            ariaLabel="Download Palette"
+          />
+          <icon-button
+            variant="remove"
+            :disabled="isProcessing"
+            @click="removeFile(file.id)"
+            title="Remove"
+            ariaLabel="Remove file"
+          />
         </div>
       </div>
 
@@ -120,13 +110,15 @@ import Information from "@/components/information.vue";
 import Card from "@/components/card.vue";
 import FilePicker from "@/components/file-picker.vue";
 import Toast from "@/components/toast.vue";
+import ActionBar from "@/components/ActionBar.vue";
+import IconButton from "@/components/IconButton.vue";
 import { getMediaTypeConfig } from "@/js/media-types";
 import { useMeta } from "vue-meta";
 import { initializeImageMagick, ImageMagick, MagickFormat } from "@imagemagick/magick-wasm";
 
 export default {
   name: "ColorPalette",
-  components: { Descriptor, Card, Information, FilePicker, Toast },
+  components: { Descriptor, Card, Information, FilePicker, Toast, ActionBar, IconButton },
   data() {
     return {
       files: [],
@@ -416,7 +408,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "src/styles/_utilities";
+@use "@/styles/_utilities.scss" as *;
 
 .informationBar {
   @include mid-width;
@@ -475,49 +467,7 @@ export default {
   }
 }
 
-.batchBar {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
 
-  &__button {
-    flex: 1;
-    min-width: 120px;
-    border: none;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    transition: box-shadow 0.15s, border-color 0.15s;
-
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-      height: 100%;
-      transition: background-color 0.15s, transform 0.15s;
-    }
-
-    &[disabled] {
-      cursor: not-allowed;
-      opacity: 0.4;
-    }
-    &:not([disabled]):hover {
-      border-color: var(--accent);
-      > div {
-        background-color: var(--bg-surface-hover);
-        transform: translateY(-2px);
-      }
-    }
-  }
-}
 
 .files {
   @include mid-width;
@@ -601,44 +551,6 @@ export default {
   }
 }
 
-.iconButton {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
-
-  &--remove {
-    background: var(--negative);
-    color: #fff;
-  }
-
-  &--download {
-    background: var(--positive);
-    color: var(--positive-text);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &:not([disabled]):hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-}
 
 .settingsBar {
   @include mid-width;

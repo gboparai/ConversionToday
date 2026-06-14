@@ -1,5 +1,5 @@
 <style scoped lang="scss">
-@import "src/styles/_utilities";
+@use "@/styles/_utilities.scss" as *;
 
 .card {
   padding: 1.25rem 1.5rem 3.5rem;

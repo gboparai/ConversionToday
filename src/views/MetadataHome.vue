@@ -6,36 +6,15 @@
     </template>
   </descriptor>
 
-  <div class="familySelector">
-    <button
-      type="button"
-      :class="['familySelector__button', { 'familySelector__button--active': category === 'image' }]"
-      @click="category = 'image'"
-    >
-      Images
-    </button>
-    <button
-      type="button"
-      :class="['familySelector__button', { 'familySelector__button--active': category === 'video' }]"
-      @click="category = 'video'"
-    >
-      Video
-    </button>
-    <button
-      type="button"
-      :class="['familySelector__button', { 'familySelector__button--active': category === 'audio' }]"
-      @click="category = 'audio'"
-    >
-      Audio
-    </button>
-    <button
-      type="button"
-      :class="['familySelector__button', { 'familySelector__button--active': category === 'document' }]"
-      @click="category = 'document'"
-    >
-      Documents
-    </button>
-  </div>
+  <radio-group
+    :options="[
+      { label: 'Images', value: 'image' },
+      { label: 'Video', value: 'video' },
+      { label: 'Audio', value: 'audio' },
+      { label: 'Documents', value: 'document' }
+    ]"
+    v-model="category"
+  />
 
   <div class="search-wrapper">
     <searchable-select
@@ -101,12 +80,13 @@
 import Descriptor from "@/components/descriptor.vue";
 import Information from "@/components/information.vue";
 import SearchableSelect from "@/components/searchable-select.vue";
+import RadioGroup from "@/components/RadioGroup.vue";
 import { getMediaTypeConfig } from "@/js/media-types";
 import { useMeta } from "vue-meta";
 
 export default {
   name: "MetadataHome",
-  components: { Descriptor, Information, SearchableSelect },
+  components: { Descriptor, Information, SearchableSelect, RadioGroup },
   data() {
     return {
       category: "image"
@@ -179,41 +159,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "src/styles/_utilities";
+@use "@/styles/_utilities.scss" as *;
 
-.familySelector {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
 
-  &__button {
-    padding: 0.55rem 0.95rem;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-weight: 700;
-    cursor: pointer;
-    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
-
-    &:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    &--active {
-      background-color: var(--accent);
-      border-color: var(--accent);
-      color: var(--accent-text);
-      cursor: default;
-      transform: none;
-    }
-  }
-}
 
 .search-wrapper {
   @include mid-width;

@@ -16,15 +16,22 @@ const VIEWS_DIR = path.resolve(__dirname, '../src/views');
 
 describe('Component file integrity', () => {
   const expectedComponents = [
+    'ActionBar.vue',
+    'DownloadCard.vue',
+    'IconButton.vue',
+    'RadioGroup.vue',
     'card.vue',
     'descriptor.vue',
+    'errorCard.vue',
     'faq.vue',
     'file-cell.vue',
+    'file-picker.vue',
     'format-selector.vue',
     'information.vue',
     'list.vue',
     'resize-config.vue',
     'searchable-select.vue',
+    'toast.vue'
   ];
 
   test.each(expectedComponents)('%s exists', (file) => {
@@ -181,6 +188,75 @@ describe('searchable-select component', () => {
   });
 });
 
+// ─── ActionBar Component ────────────────────────────────────────────────────
+
+describe('ActionBar component', () => {
+  let source;
+  beforeAll(() => {
+    source = fs.readFileSync(path.join(COMPONENTS_DIR, 'ActionBar.vue'), 'utf8');
+  });
+
+  test('accepts actions prop', () => {
+    expect(source).toContain('actions:');
+  });
+});
+
+// ─── DownloadCard Component ────────────────────────────────────────────────
+
+describe('DownloadCard component', () => {
+  let source;
+  beforeAll(() => {
+    source = fs.readFileSync(path.join(COMPONENTS_DIR, 'DownloadCard.vue'), 'utf8');
+  });
+
+  test('accepts title, description, url, fileName props', () => {
+    expect(source).toContain('title:');
+    expect(source).toContain('description:');
+    expect(source).toContain('url:');
+    expect(source).toContain('fileName:');
+  });
+});
+
+// ─── IconButton Component ──────────────────────────────────────────────────
+
+describe('IconButton component', () => {
+  let source;
+  beforeAll(() => {
+    source = fs.readFileSync(path.join(COMPONENTS_DIR, 'IconButton.vue'), 'utf8');
+  });
+
+  test('accepts variant, href, download, title, ariaLabel, and disabled props', () => {
+    expect(source).toContain('variant:');
+    expect(source).toContain('href:');
+    expect(source).toContain('download:');
+    expect(source).toContain('title:');
+    expect(source).toContain('ariaLabel:');
+    expect(source).toContain('disabled:');
+  });
+
+  test('emits click event', () => {
+    expect(source).toContain('click');
+  });
+});
+
+// ─── RadioGroup Component ──────────────────────────────────────────────────
+
+describe('RadioGroup component', () => {
+  let source;
+  beforeAll(() => {
+    source = fs.readFileSync(path.join(COMPONENTS_DIR, 'RadioGroup.vue'), 'utf8');
+  });
+
+  test('accepts options and modelValue props', () => {
+    expect(source).toContain('options:');
+    expect(source).toContain('modelValue:');
+  });
+
+  test('emits update:modelValue event', () => {
+    expect(source).toContain('update:modelValue');
+  });
+});
+
 // ─── Component Usage in Views ────────────────────────────────────────────────
 
 describe('Component usage in views', () => {
@@ -204,3 +280,4 @@ describe('Component usage in views', () => {
     expect(typeSource).toContain('<template>');
   });
 });
+

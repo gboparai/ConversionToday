@@ -27,20 +27,14 @@
     @files-selected="addFiles"
   />
 
-  <div class="batchBar">
-    <button class="batchBar__button" :disabled="processable.length <= 0 || compressing" @click="compressAll">
-      <div>Compress All</div>
-    </button>
-    <button class="batchBar__button" :disabled="processed.length <= 0" @click="downloadAll">
-      <div>Download All</div>
-    </button>
-    <button class="batchBar__button" :disabled="processed.length <= 0" @click="downloadZip">
-      <div>Download ZIP</div>
-    </button>
-    <button class="batchBar__button" :disabled="files.length <= 0" @click="clearAll">
-      <div>Clear All</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: 'Compress All', disabled: processable.length <= 0 || compressing, onClick: compressAll },
+      { label: 'Download All', disabled: processed.length <= 0, onClick: downloadAll },
+      { label: 'Download ZIP', disabled: processed.length <= 0, onClick: downloadZip },
+      { label: 'Clear All', disabled: files.length <= 0, onClick: clearAll }
+    ]"
+  />
 
 
 
@@ -52,35 +46,29 @@
       </div>
       <div class="fileRow__actions">
         <span :class="['status-badge', statusClass(file.status)]">{{ statusLabel(file.status) }}</span>
-        <button
+        <icon-button
           v-if="file.status === FILE_STATUS.processed"
-          class="iconButton iconButton--preview"
+          variant="preview"
           @click="openPreview(file.id)"
           title="Preview compare"
-          aria-label="Preview compare"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-        </button>
-        <a
+          ariaLabel="Preview compare"
+        />
+        <icon-button
           v-if="file.status === FILE_STATUS.processed"
-          class="iconButton iconButton--download"
+          variant="download"
           :href="file.output.url"
           :download="file.output.name"
           title="Download"
-          :aria-label="'Download ' + file.output.name"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zm7-18v10.17l-3.59-3.58L7 10l5 5 5-5-1.41-1.41L13 12.17V2h-1z"/></svg>
-        </a>
-        <button
+          :ariaLabel="'Download ' + file.output.name"
+        />
+        <icon-button
           v-if="file.status !== FILE_STATUS.processed"
-          class="iconButton iconButton--remove"
+          variant="remove"
           :disabled="file.status === FILE_STATUS.processing"
           @click="removeFile(file.id)"
           title="Remove"
-          aria-label="Remove file"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-        </button>
+          ariaLabel="Remove file"
+        />
       </div>
     </div>
   </div>
@@ -170,7 +158,6 @@ import JSZip from "jszip";
 
 const SUPPORTED = ["jpg", "png", "webp", "avif"];
 const COMPRESSION_OPTIONS = {
-  // The JPEG encoder expects snake_case option names.
   jpg: { quality: 72, progressive: true, optimize_coding: true },
   webp: { quality: 70, method: 6 },
   avif: { quality: 45, speed: 6 },
@@ -183,41 +170,33 @@ const COMPRESSION_FORMATS = [
     name: "jpg",
     title: "Joint Photographic Experts Group",
     shortLabel: "JPG",
-    description:
-      "A JPG file is a raster image saved in the JPEG format, commonly used for digital photographs and web images. It uses lossy compression to reduce file size while preserving strong visual quality.",
+    description: "A JPG file is a raster image saved in the JPEG format, commonly used for digital photographs and web images. It uses lossy compression to reduce file size while preserving strong visual quality.",
     benefitTitle: "Smaller Photo Uploads",
-    benefitDescription:
-      "JPG compression is ideal for shrinking photos, screenshots, and product images so they load faster and take less storage space.",
+    benefitDescription: "JPG compression is ideal for shrinking photos, screenshots, and product images so they load faster and take less storage space.",
   },
   {
     name: "png",
     title: "Portable Network Graphic",
     shortLabel: "PNG",
-    description:
-      "A PNG file is a raster image format commonly used for web graphics, interface elements, and images with transparent backgrounds. PNG preserves fine detail and sharp edges while supporting transparency.",
+    description: "A PNG file is a raster image format commonly used for web graphics, interface elements, and images with transparent backgrounds. PNG preserves fine detail and sharp edges while supporting transparency.",
     benefitTitle: "Cleaner UI Graphics",
-    benefitDescription:
-      "PNG compression helps reduce the size of logos, icons, screenshots, and transparent assets without changing the file format you already use.",
+    benefitDescription: "PNG compression helps reduce the size of logos, icons, screenshots, and transparent assets without changing the file format you already use.",
   },
   {
     name: "webp",
     title: "WebP",
     shortLabel: "WEBP",
-    description:
-      "A WEBP file is a modern image format designed for the web. It supports both lossy and lossless compression, transparency, and excellent size-to-quality efficiency.",
+    description: "A WEBP file is a modern image format designed for the web. It supports both lossy and lossless compression, transparency, and excellent size-to-quality efficiency.",
     benefitTitle: "Optimized for the Web",
-    benefitDescription:
-      "WebP compression is a strong fit for website images when you want smaller file sizes and modern browser-friendly delivery.",
+    benefitDescription: "WebP compression is a strong fit for website images when you want smaller file sizes and modern browser-friendly delivery.",
   },
   {
     name: "avif",
     title: "AV1 Image File Format",
     shortLabel: "AVIF",
-    description:
-      "An AVIF file is a next-generation image format based on the AV1 codec. It can deliver very small files at high visual quality and supports transparency and HDR content.",
+    description: "An AVIF file is a next-generation image format based on the AV1 codec. It can deliver very small files at high visual quality and supports transparency and HDR content.",
     benefitTitle: "Maximum Size Reduction",
-    benefitDescription:
-      "AVIF compression is useful when you want aggressive file size savings while keeping strong visual quality for modern browsers and apps.",
+    benefitDescription: "AVIF compression is useful when you want aggressive file size savings while keeping strong visual quality for modern browsers and apps.",
   },
 ];
 
@@ -230,20 +209,17 @@ function buildFaqs(formatLabel) {
     },
     {
       question: "Are my images uploaded to a server?",
-      answer:
-        "No. Compression runs locally in your browser, so your files stay on your device throughout the process.",
+      answer: "No. Compression runs locally in your browser, so your files stay on your device throughout the process.",
       open: false,
     },
     {
       question: "Can I compress multiple files at once?",
-      answer:
-        "Yes. You can queue multiple images, compress them in a batch, and then download them individually or as a ZIP archive.",
+      answer: "Yes. You can queue multiple images, compress them in a batch, and then download them individually or as a ZIP archive.",
       open: false,
     },
     {
       question: "Will compression reduce image quality?",
-      answer:
-        "Some formats use lossy compression, so there can be some visual change. The built-in preview makes it easy to compare the original and compressed versions before downloading.",
+      answer: "Some formats use lossy compression, so there can be some visual change. The built-in preview makes it easy to compare the original and compressed versions before downloading.",
       open: false,
     },
     {
@@ -255,10 +231,12 @@ function buildFaqs(formatLabel) {
 }
 
 import FilePicker from "@/components/file-picker.vue";
+import ActionBar from "@/components/ActionBar.vue";
+import IconButton from "@/components/IconButton.vue";
 
 export default {
   name: "Compression",
-  components: { FilePicker, Card, Descriptor, Faq, Information },
+  components: { FilePicker, Card, Descriptor, Faq, Information, ActionBar, IconButton },
   mixins: [fileQueueMixin],
   computed: {
     routeFormat() {
@@ -587,7 +565,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "src/styles/_utilities";
+@use "@/styles/_utilities.scss" as *;
 
 .informationBar {
   @include mid-width;
@@ -634,39 +612,7 @@ export default {
   }
 }
 
-.batchBar {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
 
-  &__button {
-    flex: 1;
-    min-width: 150px;
-    border: 1px solid var(--border);
-    background-color: var(--bg-surface);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-    }
-
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-  }
-}
 
 
 
@@ -723,44 +669,7 @@ export default {
   &--successful { background-color: var(--positive);         color: var(--positive-text); }
 }
 
-.iconButton {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: none;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
 
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
-
-  &--preview {
-    background: var(--accent);
-    color: var(--accent-text);
-  }
-  &--download {
-    background: var(--positive);
-    color: var(--positive-text);
-    &:hover { transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-  }
-  &--remove {
-    background: var(--negative);
-    color: #fff;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
 
 .previewModal {
   position: fixed;
