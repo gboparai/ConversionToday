@@ -75,6 +75,16 @@
         <h2>OCR Text Extraction</h2>
         <p>Extract text from images and PDFs free online. 30+ languages. Export to DOCX, XLSX, TXT, CSV and more.</p>
       </a>
+      <a class="mediaHub__card" href="/sprite-sheet">
+        <span class="mediaHub__icon">👾</span>
+        <h2>Sprite Sheet Generator</h2>
+        <p>Stitch up to 50 images into a single PNG sprite sheet with a generated CSS/JSON coordinate map.</p>
+      </a>
+      <a class="mediaHub__card" href="/color-palette">
+        <span class="mediaHub__icon">🎨</span>
+        <h2>Color Palette Extractor</h2>
+        <p>Extract dominant color palettes from images instantly using local canvas processing. Get beautiful HEX swatches.</p>
+      </a>
     </div>
   </section>
 

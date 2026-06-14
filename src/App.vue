@@ -38,6 +38,8 @@
           <router-link to="/merge">Merge</router-link>
           <router-link to="/pdf-image">PDF ↔ Image</router-link>
           <router-link to="/ocr">OCR</router-link>
+          <router-link to="/sprite-sheet">Sprite Sheet</router-link>
+          <router-link to="/color-palette">Color Palette</router-link>
         </div>
       </div>
 

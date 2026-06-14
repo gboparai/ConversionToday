@@ -94,6 +94,22 @@ function generatePrerenderRoutes() {
     });
   });
 
+  // Sprite Sheet routes
+  routes.push('/sprite-sheet');
+  if (formatsByMediaType['image']) {
+    formatsByMediaType['image'].forEach(format => {
+      routes.push(`/sprite-sheet/${format}`);
+    });
+  }
+
+  // Color Palette routes
+  routes.push('/color-palette');
+  if (formatsByMediaType['image']) {
+    formatsByMediaType['image'].forEach(format => {
+      routes.push(`/color-palette/${format}`);
+    });
+  }
+
   return routes;
 }
 

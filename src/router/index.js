@@ -22,6 +22,10 @@ const Ocr = () => import('../views/Ocr.vue')
 const PdfImageHome = () => import('../views/PdfImageHome.vue')
 const PdfImageType = () => import('../views/PdfImageType.vue')
 const PdfImage = () => import('../views/PdfImage.vue')
+const SpriteSheetHome = () => import('../views/SpriteSheetHome.vue')
+const SpriteSheet = () => import('../views/SpriteSheet.vue')
+const ColorPaletteHome = () => import('../views/ColorPaletteHome.vue')
+const ColorPalette = () => import('../views/ColorPalette.vue')
 
 const routes = [
   {
@@ -193,6 +197,28 @@ const routes = [
     path: '/pdf-image/:format/:format2',
     name: 'PdfImage',
     component: PdfImage
+  },
+  // ── Sprite Sheet ──────────────────────────────────────────────────────────
+  {
+    path: '/sprite-sheet',
+    name: 'SpriteSheetHome',
+    component: SpriteSheetHome
+  },
+  {
+    path: '/sprite-sheet/:format',
+    name: 'SpriteSheet',
+    component: SpriteSheet
+  },
+  // ── Color Palette ─────────────────────────────────────────────────────────
+  {
+    path: '/color-palette',
+    name: 'ColorPaletteHome',
+    component: ColorPaletteHome
+  },
+  {
+    path: '/color-palette/:format',
+    name: 'ColorPalette',
+    component: ColorPalette
   },
   {
     path: '/ocr/:outputFormat',

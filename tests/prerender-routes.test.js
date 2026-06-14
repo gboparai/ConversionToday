@@ -77,8 +77,10 @@ describe('Prerender route generation', () => {
     const ocrRouteCount = 1 + OCR_OUTPUT_FORMATS.length;
     const pdfImageRouteCount = 1 + Object.entries(PDF_IMAGE_OUTPUTS_BY_INPUT)
       .reduce((total, [, outputs]) => total + 1 + outputs.length, 0);
+    const spriteSheetRouteCount = formatsByMediaType['image'] ? 1 + formatsByMediaType['image'].length : 1;
+    const colorPaletteRouteCount = formatsByMediaType['image'] ? 1 + formatsByMediaType['image'].length : 1;
 
-    const expectedRouteCount = 1 + mediaTypeRouteCount + ocrRouteCount + pdfImageRouteCount;
+    const expectedRouteCount = 1 + mediaTypeRouteCount + ocrRouteCount + pdfImageRouteCount + spriteSheetRouteCount + colorPaletteRouteCount;
     expect(routes).toHaveLength(expectedRouteCount);
   });
 });

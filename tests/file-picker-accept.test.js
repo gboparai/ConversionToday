@@ -150,9 +150,9 @@ describe('Convert.vue — acceptMimeTypes computed property structure', () => {
     expect(convertSource).toContain('acceptMimeTypes()');
   });
 
-  test('reads extension from the selected input format (formatInofo)', () => {
+  test('reads extension from the selected input format (formatInfo)', () => {
     expect(convertSource).toContain('inputFormat.extension');
-    expect(convertSource).toContain('formatInofo');
+    expect(convertSource).toContain('formatInfo');
   });
 
   test('uses mimeType field from the format object when present', () => {
@@ -718,7 +718,7 @@ describe('Convert.vue — filterFilesByInputFormat source structure', () => {
   });
 
   test('skipped notice shows the expected input format extension', () => {
-    expect(convertSource).toContain('formatInofo.extension || formatInofo.name');
+    expect(convertSource).toContain('formatInfo.extension || formatInfo.name');
   });
 
   test('skipped notice has a dismiss button that resets skippedCount', () => {
