@@ -185,9 +185,6 @@
 </template>
 
 <script>
-import { PDFDocument } from 'pdf-lib';
-import { encryptPDF } from '@pdfsmaller/pdf-encrypt-lite';
-import { decryptPDF, isEncrypted } from '@pdfsmaller/pdf-decrypt';
 import Descriptor from '@/components/descriptor.vue';
 import Information from '@/components/information.vue';
 import Faq from '@/components/faq.vue';
@@ -195,6 +192,7 @@ import ErrorCard from '@/components/errorCard.vue';
 import { useMeta } from 'vue-meta';
 
 import FilePicker from '@/components/file-picker.vue';
+import PdfWorker from "worker-loader!@/js/pdf-worker";
 
 export default {
   name: 'PdfPassword',
@@ -225,6 +223,7 @@ export default {
     });
 
     return {
+      pdfWorker: null,
       mode: 'protect',
       pdfFile: null,
       userPassword: '',
@@ -282,8 +281,15 @@ export default {
     },
   },
 
+  mounted() {
+    this.pdfWorker = new PdfWorker();
+  },
+
   beforeUnmount() {
     this.revokeOutput();
+    if (this.pdfWorker) {
+      this.pdfWorker.terminate();
+    }
   },
 
   methods: {
@@ -347,20 +353,37 @@ export default {
       this.outputName = null;
 
       try {
-        const bytes = new Uint8Array(await this.pdfFile.arrayBuffer());
-        const pdfDoc = await PDFDocument.load(bytes);
-        const cleanBytes = await pdfDoc.save();
-
-        const userPw = this.userPassword.trim();
-        const ownerPw = this.ownerPassword.trim() || userPw;
-
-        const encryptedBytes = await encryptPDF(cleanBytes, userPw, ownerPw);
-        const blob = new Blob([encryptedBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
+        const bytes = await this.pdfFile.arrayBuffer();
+        const userPassword = this.userPassword.trim();
+        const ownerPassword = this.showAdvanced ? this.ownerPassword.trim() : userPassword;
         const baseName = this.pdfFile.name.replace(/\.pdf$/i, '');
+        const id = Math.random().toString(36).substring(7);
 
+        const encryptedBytes = await new Promise((resolve, reject) => {
+          const handler = (e) => {
+            if (e.data.id === id) {
+              if (e.data.status === 'done') {
+                this.pdfWorker.removeEventListener('message', handler);
+                resolve(e.data.buffer);
+              } else if (e.data.status === 'error') {
+                this.pdfWorker.removeEventListener('message', handler);
+                reject(new Error(e.data.error));
+              }
+            }
+          };
+          this.pdfWorker.addEventListener('message', handler);
+          this.pdfWorker.postMessage({
+            id,
+            type: 'encrypt',
+            buffer: bytes,
+            userPassword,
+            ownerPassword
+          }, [bytes]);
+        });
+
+        const blob = new Blob([encryptedBytes], { type: 'application/pdf' });
         this.outputBlob = blob;
-        this.outputUrl = url;
+        this.outputUrl = URL.createObjectURL(blob);
         this.outputName = `${baseName}-protected.pdf`;
       } catch (err) {
         this.hasError = true;
@@ -378,25 +401,33 @@ export default {
       this.outputName = null;
 
       try {
-        const bytes = new Uint8Array(await this.pdfFile.arrayBuffer());
+        const bytes = await this.pdfFile.arrayBuffer();
         const password = this.userPassword.trim();
         const baseName = this.pdfFile.name.replace(/\.pdf$/i, '');
+        const id = Math.random().toString(36).substring(7);
 
-        if (!isEncrypted(bytes)) {
-          const pdfDoc = await PDFDocument.load(bytes);
-          const cleanBytes = await pdfDoc.save();
-          const blob = new Blob([cleanBytes], { type: 'application/pdf' });
-          this.outputBlob = blob;
-          this.outputUrl = URL.createObjectURL(blob);
-          this.outputName = `${baseName}-unlocked.pdf`;
-          return;
-        }
+        const decryptedBytes = await new Promise((resolve, reject) => {
+          const handler = (e) => {
+            if (e.data.id === id) {
+              if (e.data.status === 'done') {
+                this.pdfWorker.removeEventListener('message', handler);
+                resolve(e.data.buffer);
+              } else if (e.data.status === 'error') {
+                this.pdfWorker.removeEventListener('message', handler);
+                reject(new Error(e.data.error));
+              }
+            }
+          };
+          this.pdfWorker.addEventListener('message', handler);
+          this.pdfWorker.postMessage({
+            id,
+            type: 'decrypt',
+            buffer: bytes,
+            userPassword: password
+          }, [bytes]);
+        });
 
-        const decryptedBytes = await decryptPDF(bytes, password);
-        const pdfDoc = await PDFDocument.load(decryptedBytes, { ignoreEncryption: true });
-        const cleanBytes = await pdfDoc.save();
-
-        const blob = new Blob([cleanBytes], { type: 'application/pdf' });
+        const blob = new Blob([decryptedBytes], { type: 'application/pdf' });
         this.outputBlob = blob;
         this.outputUrl = URL.createObjectURL(blob);
         this.outputName = `${baseName}-unlocked.pdf`;

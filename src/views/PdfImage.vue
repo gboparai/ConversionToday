@@ -440,7 +440,7 @@ export default {
     },
   },
   watch: {
-    $route(to, from) {
+    $route() {
       const wasNormalize = this._normalizing;
       this._normalizing = false;
       this.normalizeRoute();

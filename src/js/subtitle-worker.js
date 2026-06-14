@@ -378,7 +378,6 @@ async function handleMessage(data) {
 
             const inputFormatName  = config.inputFormat.name;
             const outputFormatName = config.format.name;
-            const outputExt        = config.format.extension;
 
             postMessage({ status: 'progress', id, progress: 10 });
 

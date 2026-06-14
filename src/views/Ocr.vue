@@ -206,7 +206,6 @@
 import JSZip from "jszip";
 import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
-import Information from "@/components/information.vue";
 import fileQueueMixin from "@/mixins/fileQueueMixin";
 import List from "@/components/list.vue";
 import SearchableSelect from "@/components/searchable-select.vue";

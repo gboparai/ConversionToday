@@ -551,7 +551,7 @@ describe('Accept string format rules — all input-capable formats', () => {
     });
     // For any extension shared by multiple formats, their names should differ
     // (i.e., we are not conflating different formats with identical accept strings incorrectly)
-    Object.entries(byExt).forEach(([ext, names]) => {
+    Object.values(byExt).forEach((names) => {
       if (names.length > 1) {
         // e.g. 'jpg' and 'jpeg' both map to .jpg / .jpeg — acceptable shared extension
         expect(names.length).toBeGreaterThan(0); // trivially passes; documents the situation

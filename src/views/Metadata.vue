@@ -105,10 +105,9 @@ import Card from "@/components/card.vue";
 import FilePicker from "@/components/file-picker.vue";
 import { useMeta } from "vue-meta";
 import JSZip from "jszip";
-import { PDFDocument } from "pdf-lib";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
+import MetadataWorker from "worker-loader!@/js/metadata-worker";
 import { initializeImageMagick, ImageMagick } from "@imagemagick/magick-wasm";
-
 let initPromise = null;
 function ensureMagick() {
   if (!initPromise) {
@@ -125,6 +124,8 @@ export default {
   
   data() {
     return {
+      ffmpeg: null,
+      metadataWorker: null,
       loadedFiles: [],
       outputFiles: [],
       zipUrl: null,
@@ -134,8 +135,7 @@ export default {
       progress: 0,
       statusMessage: "",
       hasError: false,
-      errorMessage: "",
-      ffmpeg: null
+      errorMessage: ""
     };
   },
 
@@ -191,8 +191,15 @@ export default {
     ensureMagick().catch(() => {});
   },
 
+  mounted() {
+    this.metadataWorker = new MetadataWorker();
+  },
+
   beforeUnmount() {
     this.revokeUrls();
+    if (this.metadataWorker) {
+      this.metadataWorker.terminate();
+    }
   },
 
   methods: {
@@ -234,11 +241,11 @@ export default {
 
     async initFFmpeg() {
       if (this.ffmpeg) return;
-      this.ffmpeg = new FFmpeg();
-      await this.ffmpeg.load({
+      this.ffmpeg = new FFmpeg({
         coreURL: new URL('/ffmpeg-core.js', window.location.origin).href,
         wasmURL: new URL('/ffmpeg-core.wasm', window.location.origin).href
       });
+      await this.ffmpeg.load();
     },
 
     getOutputName(originalName) {
@@ -374,96 +381,46 @@ export default {
 
     async processPDF(file) {
       const buffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(buffer);
-      
-      pdfDoc.setTitle("");
-      pdfDoc.setAuthor("");
-      pdfDoc.setSubject("");
-      pdfDoc.setKeywords([]);
-      pdfDoc.setProducer("");
-      pdfDoc.setCreator("");
-      pdfDoc.setCreationDate(new Date(0));
-      pdfDoc.setModificationDate(new Date(0));
-      
-      const bytes = await pdfDoc.save();
-      return new Blob([bytes], { type: "application/pdf" });
+      return new Promise((resolve, reject) => {
+        const id = Math.random().toString(36).substring(7);
+        
+        const handler = (e) => {
+          if (e.data.id === id) {
+            if (e.data.status === 'done') {
+              this.metadataWorker.removeEventListener('message', handler);
+              resolve(new Blob([e.data.buffer], { type: "application/pdf" }));
+            } else if (e.data.status === 'error') {
+              this.metadataWorker.removeEventListener('message', handler);
+              reject(new Error(e.data.error));
+            }
+          }
+        };
+        
+        this.metadataWorker.addEventListener('message', handler);
+        this.metadataWorker.postMessage({ id, type: 'processPDF', buffer }, [buffer]);
+      });
     },
 
     async processArchiveDoc(file) {
-      // DOCX, XLSX, PPTX, ODT, EPUB are zip archives
       const buffer = await file.arrayBuffer();
-      const zip = await JSZip.loadAsync(buffer);
-      
-      // Helper to clear text inside specific tags without deleting the file
-      const clearTags = async (path, tags) => {
-        const file = zip.file(path);
-        if (file) {
-          let str = await file.async("string");
-          tags.forEach(tag => {
-            const regex = new RegExp(`(<${tag}[^>]*>)[\\s\\S]*?(<\\/${tag}>)`, 'gi');
-            str = str.replace(regex, '$1$2');
-          });
-          zip.file(path, str);
-        }
-      };
-
-      // Helper to set specific values inside tags
-      const setTags = async (path, tagValues) => {
-        const file = zip.file(path);
-        if (file) {
-          let str = await file.async("string");
-          Object.keys(tagValues).forEach(tag => {
-            const regex = new RegExp(`(<${tag}[^>]*>)[\\s\\S]*?(<\\/${tag}>)`, 'gi');
-            str = str.replace(regex, `$1${tagValues[tag]}$2`);
-          });
-          zip.file(path, str);
-        }
-      };
-
-      // Office OpenXML properties
-      await clearTags("docProps/core.xml", ["dc:creator", "cp:lastModifiedBy", "dc:title", "dc:description", "dc:subject", "cp:keywords"]);
-      await setTags("docProps/core.xml", {
-        "dcterms:created": "1970-01-01T00:00:00Z",
-        "dcterms:modified": "1970-01-01T00:00:00Z",
-        "cp:lastPrinted": "1970-01-01T00:00:00Z",
-        "cp:revision": "1"
-      });
-      await clearTags("docProps/app.xml", ["Company", "Manager"]);
-      await setTags("docProps/app.xml", { "TotalTime": "0" });
-      // Custom XML often contains custom user properties, we can safely clear property values
-      await clearTags("docProps/custom.xml", ["vt:lpwstr", "vt:i4", "vt:bool"]);
-      
-      // OpenDocument metadata
-      await clearTags("meta.xml", ["meta:initial-creator", "dc:creator", "dc:title", "dc:description", "dc:subject", "meta:keyword"]);
-      await setTags("meta.xml", {
-        "meta:creation-date": "1970-01-01T00:00:00",
-        "dc:date": "1970-01-01T00:00:00",
-        "meta:editing-cycles": "1",
-        "meta:editing-duration": "PT0S"
-      });
-      
-      // EPUB metadata
-      const containerXml = zip.file("META-INF/container.xml");
-      if (containerXml) {
-        const containerStr = await containerXml.async("string");
-        const opfMatch = containerStr.match(/full-path="([^"]+\.opf)"/i);
-        if (opfMatch) {
-          const opfPath = opfMatch[1];
-          const opfFile = zip.file(opfPath);
-          if (opfFile) {
-            let opfStr = await opfFile.async("string");
-            const tagsToRemove = ['creator', 'contributor', 'publisher', 'rights', 'description', 'subject', 'source', 'relation', 'coverage'];
-            tagsToRemove.forEach(tag => {
-              const regex = new RegExp(`<dc:${tag}[^>]*>[\\s\\S]*?<\\/dc:${tag}>`, 'gi');
-              opfStr = opfStr.replace(regex, '');
-            });
-            zip.file(opfPath, opfStr);
+      return new Promise((resolve, reject) => {
+        const id = Math.random().toString(36).substring(7);
+        
+        const handler = (e) => {
+          if (e.data.id === id) {
+            if (e.data.status === 'done') {
+              this.metadataWorker.removeEventListener('message', handler);
+              resolve(new Blob([e.data.buffer], { type: file.type || "application/octet-stream" }));
+            } else if (e.data.status === 'error') {
+              this.metadataWorker.removeEventListener('message', handler);
+              reject(new Error(e.data.error));
+            }
           }
-        }
-      }
-      
-      const newBytes = await zip.generateAsync({ type: "blob" });
-      return new Blob([newBytes], { type: file.type });
+        };
+        
+        this.metadataWorker.addEventListener('message', handler);
+        this.metadataWorker.postMessage({ id, type: 'processArchiveDoc', buffer }, [buffer]);
+      });
     }
   }
 };

@@ -152,14 +152,13 @@
 
 <script>
 import { PDFDocument } from 'pdf-lib';
-import JSZip from 'jszip';
 import Descriptor from '@/components/descriptor.vue';
 import Information from '@/components/information.vue';
 import Faq from '@/components/faq.vue';
 import ErrorCard from '@/components/errorCard.vue';
-import { useMeta } from 'vue-meta';
-
 import FilePicker from '@/components/file-picker.vue';
+import { useMeta } from 'vue-meta';
+import PdfWorker from "worker-loader!@/js/pdf-worker";
 
 export default {
   name: 'PdfSplit',
@@ -190,6 +189,7 @@ export default {
     });
 
     return {
+      pdfWorker: null,
       pdfFile: null,
       pageCount: 0,
       isProcessing: false,
@@ -255,8 +255,15 @@ export default {
     },
   },
 
+  mounted() {
+    this.pdfWorker = new PdfWorker();
+  },
+
   beforeUnmount() {
     this.revokeUrls();
+    if (this.pdfWorker) {
+      this.pdfWorker.terminate();
+    }
   },
 
   methods: {
@@ -339,62 +346,58 @@ export default {
         }
 
         const baseName = this.pdfFile.name.replace(/\.pdf$/i, '');
-        const pages = [];
-        const zip = new JSZip();
+        const groups = this.splitMode === 'all' 
+          ? Array.from({ length: totalPages }, (_, i) => ({ label: String(i + 1), pages: [i + 1] }))
+          : this.parsePageGroups(this.pageRange, totalPages);
 
-        let targetPages = [];
-        let groups = [];
-        if (this.splitMode === 'all') {
-          for (let i = 0; i < totalPages; i++) {
-            groups.push({ label: String(i + 1), pages: [i + 1] });
-          }
-        } else {
-          groups = this.parsePageGroups(this.pageRange, totalPages);
-          if (groups.length === 0) {
-            throw new Error('No valid pages selected based on your range.');
-          }
+        if (groups.length === 0) {
+          throw new Error('No valid pages selected based on your range.');
         }
 
-        const count = groups.length;
-        for (let idx = 0; idx < count; idx++) {
-          const group = groups[idx];
-          const zeroIndexedPages = group.pages.map(p => p - 1);
+        const id = Math.random().toString(36).substring(7);
 
-          this.statusMessage = `Extracting ${group.label} (${idx + 1} of ${count})…`;
-          this.progress = Math.round((idx / count) * 90);
+        const result = await new Promise((resolve, reject) => {
+          const handler = (e) => {
+            if (e.data.id === id) {
+              if (e.data.status === 'progress') {
+                this.progress = e.data.progress;
+                this.statusMessage = e.data.message;
+              } else if (e.data.status === 'done') {
+                this.pdfWorker.removeEventListener('message', handler);
+                resolve(e.data);
+              } else if (e.data.status === 'error') {
+                this.pdfWorker.removeEventListener('message', handler);
+                reject(new Error(e.data.error));
+              }
+            }
+          };
+          this.pdfWorker.addEventListener('message', handler);
+          this.pdfWorker.postMessage({
+            id,
+            type: 'split',
+            buffer: bytes,
+            splitMode: this.splitMode,
+            pageRange: groups
+          }, [bytes]); // Assuming we don't need the original bytes again in this function
+        });
 
-          const pageDoc = await PDFDocument.create();
-          const copiedPages = await pageDoc.copyPages(srcDoc, zeroIndexedPages);
-          copiedPages.forEach(p => pageDoc.addPage(p));
-          
-          const pageBytes = await pageDoc.save();
-          const blob = new Blob([pageBytes], { type: 'application/pdf' });
-          const url = URL.createObjectURL(blob);
-          
-          const prefix = group.pages.length > 1 ? 'pages' : 'page';
-          const paddedLabel = group.pages.length === 1 
-            ? String(group.pages[0]).padStart(String(totalPages).length, '0')
-            : group.label;
-          const name = `${baseName}-${prefix}-${paddedLabel}.pdf`;
-
-          pages.push({ name, blob, url });
-          zip.file(name, pageBytes);
-
-          // Yield to UI every 5 operations to avoid freezing
-          if (idx % 5 === 4) await new Promise(r => setTimeout(r, 0));
-        }
-
-        this.statusMessage = 'Packaging ZIP…';
-        this.progress = 95;
-
-        const zipBytes = await zip.generateAsync({ type: 'blob' });
-        this.zipBlob = zipBytes;
-        this.zipUrl = URL.createObjectURL(zipBytes);
+        // The worker returns { zipBytes, pages: [{ name, buffer }] }
+        const zipBlob = new Blob([result.zipBytes], { type: 'application/zip' });
+        this.zipBlob = zipBlob;
+        this.zipUrl = URL.createObjectURL(zipBlob);
         this.zipName = `${baseName}-split.zip`;
 
-        this.outputPages = pages;
+        this.outputPages = result.pages.map(p => {
+          const blob = new Blob([p.buffer], { type: 'application/pdf' });
+          return {
+            name: p.name,
+            blob,
+            url: URL.createObjectURL(blob)
+          };
+        });
+
         this.progress = 100;
-        this.statusMessage = `Done — ${count} file${count > 1 ? 's' : ''} extracted.`;
+        this.statusMessage = `Done — ${result.count} file${result.count > 1 ? 's' : ''} extracted.`;
       } catch (err) {
         this.hasError = true;
         this.errorMessage = err.message || 'Failed to split the PDF. The file may be corrupted or password-protected.';
