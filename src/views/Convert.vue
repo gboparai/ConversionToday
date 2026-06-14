@@ -54,54 +54,7 @@
   margin-bottom: 1rem;
 }
 
-.batchBar {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
 
-  &__button {
-    flex: 1;
-    min-width: 120px;
-    border: none;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    transition: box-shadow 0.15s, border-color 0.15s;
-    box-shadow: var(--shadow-sm);
-
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-      height: 100%;
-      transition: background-color 0.15s, transform 0.15s;
-    }
-
-    &[disabled] {
-      cursor: not-allowed;
-      opacity: 0.4;
-    }
-    &:not([disabled]):hover {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-md);
-      > div {
-        background-color: var(--bg-surface-hover);
-        transform: translateY(-2px);
-      }
-    }
-    &:not([disabled]):active > div {
-      transform: translateY(0);
-    }
-  }
-}
 
 .dropTarget {
   @include abs-overlay;
@@ -212,36 +165,14 @@
     @files-selected="handleFilesSelected"
   />
 
-  <div class="batchBar">
-    <button
-      class="batchBar__button"
-      :disabled="nonProcessed.length <= 0"
-      @click="process"
-    >
-      <div>Process All</div>
-    </button>
-    <button
-      class="batchBar__button"
-      :disabled="processed.length <= 0"
-      @click="downloadAll"
-    >
-      <div>Download All</div>
-    </button>
-    <button
-      class="batchBar__button"
-      :disabled="processed.length <= 0"
-      @click="downloadZip"
-    >
-      <div>Download ZIP</div>
-    </button>
-    <button
-      class="batchBar__button"
-      :disabled="nonProcessed.length <= 0 && processed.length <= 0"
-      @click="clearAll"
-    >
-      <div>Clear All</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: 'Process All', disabled: nonProcessed.length <= 0, onClick: process },
+      { label: 'Download All', disabled: processed.length <= 0, onClick: downloadAll },
+      { label: 'Download ZIP', disabled: processed.length <= 0, onClick: downloadZip },
+      { label: 'Clear All', disabled: nonProcessed.length <= 0 && processed.length <= 0, onClick: clearAll }
+    ]"
+  />
 
   <div class="files">
     <transition-group name="list">
@@ -320,6 +251,7 @@ import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
 import List from "@/components/list.vue";
 import Information from "@/components/information.vue";
+import ActionBar from "@/components/ActionBar.vue";
 import fileQueueMixin from "@/mixins/fileQueueMixin";
 import { FILE_STATUS } from "@/js/constants";
 import { getMediaTypeFromPath, getMediaTypeConfig } from "@/js/media-types";
@@ -581,6 +513,7 @@ export default {
     Descriptor,
     Information,
     List,
+    ActionBar,
   },
   mounted() {
     this.$store.dispatch(this.mtConfig.setFormat, this.formatInfo2);

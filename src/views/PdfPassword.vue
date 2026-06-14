@@ -7,26 +7,14 @@
   </descriptor>
 
   <!-- Mode tabs -->
-  <div class="familySelector">
-    <button
-      id="pdf-password-tab-protect"
-      class="familySelector__button"
-      :class="{ 'familySelector__button--active': mode === 'protect' }"
-      type="button"
-      @click="switchMode('protect')"
-    >
-      Protect PDF
-    </button>
-    <button
-      id="pdf-password-tab-unlock"
-      class="familySelector__button"
-      :class="{ 'familySelector__button--active': mode === 'unlock' }"
-      type="button"
-      @click="switchMode('unlock')"
-    >
-      Unlock PDF
-    </button>
-  </div>
+  <radio-group
+    :options="[
+      { label: 'Protect PDF', value: 'protect' },
+      { label: 'Unlock PDF', value: 'unlock' }
+    ]"
+    v-model="mode"
+    @update:modelValue="switchMode"
+  />
 
   <file-picker
     :disabled="!!pdfFile"
@@ -100,14 +88,12 @@
     </div>
   </div>
 
-  <div class="batchBar">
-    <button class="batchBar__button" :disabled="!canProcess" @click="process">
-      <div>{{ mode === 'protect' ? 'Protect PDF' : 'Unlock PDF' }}</div>
-    </button>
-    <button class="batchBar__button" :disabled="!canClear" @click="clearAll">
-      <div>Clear</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: mode === 'protect' ? 'Protect PDF' : 'Unlock PDF', disabled: !canProcess, onClick: process },
+      { label: 'Clear', disabled: !canClear, onClick: clearAll }
+    ]"
+  />
 
 
 
@@ -129,29 +115,26 @@
   />
 
   <!-- Download card -->
-  <div v-if="outputUrl" class="downloadCard">
-    <div>
-      <strong>{{ outputName }}</strong>
-      <p>{{ mode === 'protect' ? 'Your PDF is now password protected.' : 'The password has been removed.' }}</p>
-    </div>
-    <a :href="outputUrl" :download="outputName">Download</a>
-  </div>
+  <download-card
+    v-if="outputUrl"
+    :title="outputName"
+    :description="mode === 'protect' ? 'Your PDF is now password protected.' : 'The password has been removed.'"
+    :url="outputUrl"
+    :file-name="outputName"
+  />
 
   <div class="files" v-if="pdfFile">
     <div class="fileRow">
       <div class="fileRow__copy">
         <div class="fileRow__name">{{ pdfFile.name }}</div>
       </div>
-      <button
-        class="iconButton iconButton--remove"
-        type="button"
+      <icon-button
+        variant="remove"
         :disabled="isProcessing"
         @click="clearAll"
         title="Remove"
-        aria-label="Remove file"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-      </button>
+        ariaLabel="Remove file"
+      />
     </div>
   </div>
 
@@ -193,10 +176,14 @@ import { useMeta } from 'vue-meta';
 
 import FilePicker from '@/components/file-picker.vue';
 import PdfWorker from "worker-loader!@/js/pdf-worker";
+import ActionBar from '@/components/ActionBar.vue';
+import DownloadCard from '@/components/DownloadCard.vue';
+import RadioGroup from '@/components/RadioGroup.vue';
+import IconButton from '@/components/IconButton.vue';
 
 export default {
   name: 'PdfPassword',
-  components: { FilePicker, Descriptor, Information, Faq, ErrorCard },
+  components: { FilePicker, Descriptor, Information, Faq, ErrorCard, ActionBar, DownloadCard, RadioGroup, IconButton },
 
   data() {
     useMeta({
@@ -470,42 +457,7 @@ export default {
 <style scoped lang="scss">
 @import "src/styles/_utilities";
 
-.familySelector {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
 
-  &__button {
-    padding: 0.55rem 0.95rem;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-family: inherit;
-    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s, background-color 0.15s;
-
-    &:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    &--active {
-      background-color: var(--accent);
-      border-color: var(--accent);
-      color: var(--accent-text, #fff);
-      cursor: default;
-      transform: none;
-      box-shadow: none;
-    }
-  }
-}
 
 .fileInput {
   @include mid-width;
@@ -677,57 +629,9 @@ export default {
   }
 }
 
-.batchBar {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
 
-  &__button {
-    flex: 1;
-    min-width: 120px;
-    border: none;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    transition: box-shadow 0.15s, border-color 0.15s;
-    box-shadow: var(--shadow-sm);
 
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-      height: 100%;
-      transition: background-color 0.15s, transform 0.15s;
-    }
-
-    &[disabled] {
-      cursor: not-allowed;
-      opacity: 0.4;
-    }
-    &:not([disabled]):hover {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-md);
-      > div {
-        background-color: var(--bg-surface-hover);
-        transform: translateY(-2px);
-      }
-    }
-    &:not([disabled]):active > div {
-      transform: translateY(0);
-    }
-  }
-}
-
-.progressCard,
-.downloadCard {
+.progressCard {
   @include mid-width;
   margin-bottom: 1rem;
   padding: 1rem 1.15rem;
@@ -767,30 +671,7 @@ export default {
   100% { transform: translateX(350%); }
 }
 
-.downloadCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
 
-  p {
-    margin: 0.35rem 0 0;
-    color: var(--text-secondary);
-  }
-
-  a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 7.5rem;
-    padding: 0.65rem 1rem;
-    border-radius: $default-radius;
-    background-color: var(--accent);
-    color: var(--accent-text, #fff);
-    text-decoration: none;
-    font-weight: 800;
-  }
-}
 
 .files {
   @include mid-width;
@@ -822,39 +703,7 @@ export default {
   }
 }
 
-.iconButton {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
 
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
-
-  &--remove {
-    background: var(--negative);
-    color: #fff;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &:not([disabled]):hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-}
 
 .faqSection {
   @include mid-width;
@@ -870,12 +719,5 @@ export default {
   }
 }
 
-@media only screen and (max-width: 55rem) {
-  .downloadCard {
-    flex-direction: column;
-    align-items: flex-start;
 
-    a { width: 100%; }
-  }
-}
 </style>

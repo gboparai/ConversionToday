@@ -51,36 +51,14 @@
     </div>
   </div>
 
-  <div class="batchBar">
-    <button
-      class="batchBar__button"
-      :disabled="processable.length <= 0 || running"
-      @click="runAll"
-    >
-      <div>Run OCR on All</div>
-    </button>
-    <button
-      class="batchBar__button"
-      :disabled="processed.length <= 0"
-      @click="downloadAll"
-    >
-      <div>Download All</div>
-    </button>
-    <button
-      class="batchBar__button"
-      :disabled="processed.length <= 0"
-      @click="downloadZip"
-    >
-      <div>Download ZIP</div>
-    </button>
-    <button
-      class="batchBar__button"
-      :disabled="files.length <= 0 && !hasOutput"
-      @click="clearAll"
-    >
-      <div>Clear All</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: 'Run OCR on All', disabled: processable.length <= 0 || running, onClick: runAll },
+      { label: 'Download All', disabled: processed.length <= 0, onClick: downloadAll },
+      { label: 'Download ZIP', disabled: processed.length <= 0, onClick: downloadZip },
+      { label: 'Clear All', disabled: files.length <= 0 && !hasOutput, onClick: clearAll }
+    ]"
+  />
 
   <div v-if="running || files.length > 0 || hasOutput" class="progressCard">
     <div class="progressCard__top">
@@ -93,13 +71,13 @@
     <p>{{ progressSummary }}</p>
   </div>
 
-  <div class="downloadCard" v-if="hasOutput">
-    <div>
-      <strong>{{ output.name }}</strong>
-      <p>Your combined OCR output is ready.</p>
-    </div>
-    <a :href="output.url" :download="output.name">Download</a>
-  </div>
+  <download-card
+    v-if="hasOutput"
+    :title="output.name"
+    description="Your combined OCR output is ready."
+    :url="output.url"
+    :file-name="output.name"
+  />
 
   <div class="files">
     <p v-if="files.length > 1" class="queueHint">Each processed file can be downloaded individually or in bulk.</p>
@@ -115,29 +93,21 @@
       </div>
       <div class="fileRow__actions">
         <span :class="['status-badge', statusClass(file.status)]">{{ statusLabel(file.status) }}</span>
-        <a
+        <icon-button
           v-if="file.output && file.output.url"
-          class="iconButton"
+          variant="download"
           :href="file.output.url"
           :download="file.output.name"
           title="Download"
-          aria-label="Download file"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7 7-7z"/>
-          </svg>
-        </a>
-        <button
-          class="iconButton iconButton--remove"
+          ariaLabel="Download file"
+        />
+        <icon-button
+          variant="remove"
           :disabled="file.status === FILE_STATUS.processing || running"
           @click="removeFile(file.id)"
           title="Remove"
-          aria-label="Remove file"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/>
-          </svg>
-        </button>
+          ariaLabel="Remove file"
+        />
       </div>
     </div>
   </div>
@@ -213,6 +183,9 @@ import { FILE_STATUS } from "@/js/constants";
 import { useMeta } from "vue-meta";
 import DocWorkerClass from "worker-loader!@/js/doc-worker.js";
 import FilePicker from "@/components/file-picker.vue";
+import ActionBar from "@/components/ActionBar.vue";
+import DownloadCard from "@/components/DownloadCard.vue";
+import IconButton from "@/components/IconButton.vue";
 
 const SUPPORTED_IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'tif']);
 const OCR_INPUT_FORMATS = [
@@ -349,7 +322,7 @@ const OCR_LANGUAGES = [
 
 export default {
   name: 'OcrTool',
-  components: { FilePicker, Card, Descriptor, SearchableSelect, List },
+  components: { FilePicker, Card, Descriptor, SearchableSelect, List, ActionBar, DownloadCard, IconButton },
   mixins: [fileQueueMixin],
   computed: {
     routeInputFormat() {
@@ -981,92 +954,13 @@ export default {
   }
 }
 
-.fileInput {
-  @include mid-width;
-  display: block;
-  height: 9rem;
-  margin-bottom: 1rem;
-  position: relative;
-  cursor: pointer;
-  border-radius: $default-radius;
-  box-shadow: var(--shadow-sm);
-
-  > input {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    z-index: -1;
-  }
-
-  > .file {
-    height: 100%;
-    border: 2px dashed var(--border);
-    border-radius: $default-radius;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--bg-surface);
-    color: var(--text-secondary);
-    font-size: 1rem;
-    font-weight: 700;
-    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-
-    p { margin: 0; font-size: 1rem; }
-  }
-
-  &:hover > .file {
-    transform: translateY(-3px);
-    border-color: var(--accent);
-    box-shadow: var(--shadow-md);
-    color: var(--text-primary);
-  }
-}
-
-.batchBar {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
-
-  &__button {
-    flex: 1;
-    min-width: 150px;
-    border: 1px solid var(--border);
-    background-color: var(--bg-surface);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-    }
-
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-  }
-}
-
-
-
 .queueHint {
   margin-top: 0;
   margin-bottom: 0.85rem;
   color: var(--text-secondary);
 }
 
-.progressCard,
-.downloadCard {
+.progressCard {
   @include mid-width;
   margin-bottom: 1rem;
   padding: 1rem 1.15rem;
@@ -1090,30 +984,7 @@ export default {
   }
 }
 
-.downloadCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
 
-  p {
-    margin: 0.35rem 0 0;
-    color: var(--text-secondary);
-  }
-
-  a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 7.5rem;
-    padding: 0.65rem 1rem;
-    border-radius: $default-radius;
-    background-color: var(--accent);
-    color: var(--accent-text);
-    text-decoration: none;
-    font-weight: 800;
-  }
-}
 
 .files {
   @include mid-width;
@@ -1206,40 +1077,6 @@ export default {
   &--failed     { background-color: var(--negative); color: #fff; }
 }
 
-.iconButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  text-decoration: none;
-  color: #fff;
-  background: var(--positive);
-
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
-
-  &--remove {
-    background: var(--negative);
-  }
-
-  &:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: var(--shadow-sm);
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-}
 
 .supportedConversionsTitle {
   @include mid-width;
@@ -1276,14 +1113,9 @@ export default {
 }
 
 @media only screen and (max-width: 55rem) {
-  .downloadCard,
   .fileRow {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .downloadCard a {
-    width: 100%;
   }
 
   .supportedConversionsListContainter {

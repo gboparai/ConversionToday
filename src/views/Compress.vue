@@ -21,14 +21,12 @@
     @files-selected="addFiles"
   />
 
-  <div class="batchBar">
-    <button class="batchBar__button" :disabled="files.length <= 0 || isProcessing" @click="processCompress">
-      <div>Compress Files</div>
-    </button>
-    <button class="batchBar__button" :disabled="files.length <= 0 && !hasOutput" @click="clearAll">
-      <div>Clear All</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: 'Compress Files', disabled: files.length <= 0 || isProcessing, onClick: processCompress },
+      { label: 'Clear All', disabled: files.length <= 0 && !hasOutput, onClick: clearAll }
+    ]"
+  />
 
   <div v-if="isProcessing || hasOutput || mergeStatus === FILE_STATUS.failed" class="progressCard">
     <div class="progressCard__top">
@@ -41,13 +39,13 @@
     <p>{{ statusMessage }}</p>
   </div>
 
-  <div class="downloadCard" v-if="hasOutput">
-    <div>
-      <strong>{{ outputDownloadName }}</strong>
-      <p>Your compressed archive is ready.</p>
-    </div>
-    <a :href="output.url" :download="outputDownloadName">Download</a>
-  </div>
+  <download-card
+    v-if="hasOutput"
+    :title="outputDownloadName"
+    description="Your compressed archive is ready."
+    :url="output.url"
+    :file-name="outputDownloadName"
+  />
 
   <div class="files">
     <div
@@ -58,16 +56,13 @@
       <div class="fileRow__copy">
         <div class="fileRow__name">{{ file.name }}</div>
       </div>
-      <button
-        class="iconButton iconButton--remove"
-        type="button"
+      <icon-button
+        variant="remove"
         :disabled="isProcessing"
         @click="removeFile(file.id)"
         title="Remove"
-        aria-label="Remove file"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-      </button>
+        ariaLabel="Remove file"
+      />
     </div>
   </div>
 
@@ -161,10 +156,13 @@ function buildFaqs(formatName) {
 }
 
 import FilePicker from "@/components/file-picker.vue";
+import ActionBar from "@/components/ActionBar.vue";
+import DownloadCard from "@/components/DownloadCard.vue";
+import IconButton from "@/components/IconButton.vue";
 
 export default {
   name: "Compress",
-  components: { FilePicker, Card, Descriptor, Faq, Information },
+  components: { Card, Descriptor, Faq, Information, FilePicker, ActionBar, DownloadCard, IconButton },
   setup() {
     useMeta({
       title: "Free Archive Compress Tool - No Limit Converter",
@@ -358,39 +356,7 @@ export default {
   }
 }
 
-.batchBar {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
 
-  &__button {
-    flex: 1;
-    min-width: 150px;
-    border: 1px solid var(--border);
-    background-color: var(--bg-surface);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-    }
-
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-  }
-}
 
 .notice {
   @include mid-width;
@@ -399,8 +365,7 @@ export default {
   color: var(--text-secondary);
 }
 
-.progressCard,
-.downloadCard {
+.progressCard {
   @include mid-width;
   margin-bottom: 1rem;
   padding: 1rem 1.15rem;
@@ -467,83 +432,12 @@ export default {
   }
 }
 
-.iconButton {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: none;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
 
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
-
-  &--remove {
-    background: var(--negative);
-    color: #fff;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.downloadCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  p {
-    margin: 0.35rem 0 0;
-    color: var(--text-secondary);
-  }
-
-  a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 7.5rem;
-    padding: 0.65rem 1rem;
-    border-radius: $default-radius;
-    background-color: var(--accent);
-    color: var(--accent-text);
-    text-decoration: none;
-    font-weight: 800;
-  }
-}
-
-.faqSection {
-  @include mid-width;
-  margin-top: 1.75rem;
-  margin-bottom: 2rem;
-
-  &__title {
-    text-align: center;
-    font-size: 1.75rem;
-    margin: 0 0 1rem;
-    color: var(--text-primary);
-  }
-}
 
 @media only screen and (max-width: 55rem) {
-  .downloadCard,
   .fileRow {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .downloadCard a {
-    width: 100%;
   }
 }
 </style>

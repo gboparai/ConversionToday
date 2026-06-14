@@ -23,24 +23,14 @@
 
   <div class="settingsBar" v-if="pdfFile">
     <div class="settingsCard">
-      <div class="familySelector" style="margin-bottom: 0;">
-        <button
-          class="familySelector__button"
-          :class="{ 'familySelector__button--active': splitMode === 'all' }"
-          type="button"
-          @click="splitMode = 'all'"
-        >
-          Extract All Pages
-        </button>
-        <button
-          class="familySelector__button"
-          :class="{ 'familySelector__button--active': splitMode === 'specific' }"
-          type="button"
-          @click="splitMode = 'specific'"
-        >
-          Extract Specific Pages
-        </button>
-      </div>
+      <radio-group
+        :options="[
+          { label: 'Extract All Pages', value: 'all' },
+          { label: 'Extract Specific Pages', value: 'specific' }
+        ]"
+        v-model="splitMode"
+        style="margin-bottom: 0;"
+      />
 
       <div v-if="splitMode === 'specific'" class="settingsCard__item" style="margin-top: 1rem;">
         <span class="settingsCard__label">Page Range</span>
@@ -58,17 +48,13 @@
     </div>
   </div>
 
-  <div class="batchBar">
-    <button class="batchBar__button" :disabled="!canProcess" @click="process">
-      <div>Split PDF</div>
-    </button>
-    <button class="batchBar__button" :disabled="!canDownload" @click="downloadZip">
-      <div>Download ZIP</div>
-    </button>
-    <button class="batchBar__button" :disabled="!canClear" @click="clearAll">
-      <div>Clear</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: 'Split PDF', disabled: !canProcess, onClick: process },
+      { label: 'Download ZIP', disabled: !canDownload, onClick: downloadZip },
+      { label: 'Clear', disabled: !canClear, onClick: clearAll }
+    ]"
+  />
 
 
 
@@ -95,9 +81,7 @@
         <div class="fileRow__copy">
           <div class="fileRow__name">{{ page.name }}</div>
         </div>
-        <a class="iconButton iconButton--download" :href="page.url" :download="page.name" title="Download page" aria-label="Download page">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-        </a>
+        <icon-button variant="download" :href="page.url" :download="page.name" title="Download page" ariaLabel="Download page" />
       </div>
     </div>
   </div>
@@ -110,16 +94,13 @@
         <div class="fileRow__name">{{ pdfFile.name }}</div>
         <div class="fileRow__meta" v-if="pageCount">{{ pageCount }} pages</div>
       </div>
-      <button
-        class="iconButton iconButton--remove"
-        type="button"
+      <icon-button
+        variant="remove"
         :disabled="isProcessing"
         @click="clearAll"
         title="Remove"
-        aria-label="Remove file"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-      </button>
+        ariaLabel="Remove file"
+      />
     </div>
   </div>
 
@@ -159,10 +140,13 @@ import ErrorCard from '@/components/errorCard.vue';
 import FilePicker from '@/components/file-picker.vue';
 import { useMeta } from 'vue-meta';
 import PdfWorker from "worker-loader!@/js/pdf-worker";
+import ActionBar from '@/components/ActionBar.vue';
+import RadioGroup from '@/components/RadioGroup.vue';
+import IconButton from '@/components/IconButton.vue';
 
 export default {
   name: 'PdfSplit',
-  components: { FilePicker, Descriptor, Information, Faq, ErrorCard },
+  components: { FilePicker, Descriptor, Information, Faq, ErrorCard, ActionBar, RadioGroup, IconButton },
 
   data() {
     useMeta({
@@ -568,40 +552,7 @@ export default {
   }
 }
 
-.familySelector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
 
-  &__button {
-    flex: 1;
-    padding: 0.55rem 0.95rem;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-family: inherit;
-    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s, background-color 0.15s;
-
-    &:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    &--active {
-      background-color: var(--accent);
-      border-color: var(--accent);
-      color: var(--accent-text, #fff);
-      cursor: default;
-      transform: none;
-      box-shadow: none;
-    }
-  }
-}
 
 .inputWrap {
   display: flex;
@@ -631,54 +582,7 @@ export default {
   }
 }
 
-.batchBar {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
 
-  &__button {
-    flex: 1;
-    min-width: 120px;
-    border: none;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    transition: box-shadow 0.15s, border-color 0.15s;
-    box-shadow: var(--shadow-sm);
-
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-      height: 100%;
-      transition: background-color 0.15s, transform 0.15s;
-    }
-
-    &[disabled] {
-      cursor: not-allowed;
-      opacity: 0.4;
-    }
-    &:not([disabled]):hover {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-md);
-      > div {
-        background-color: var(--bg-surface-hover);
-        transform: translateY(-2px);
-      }
-    }
-    &:not([disabled]):active > div {
-      transform: translateY(0);
-    }
-  }
-}
 
 .progressCard {
   @include mid-width;
@@ -775,45 +679,7 @@ export default {
   }
 }
 
-.iconButton {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: none;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
 
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
-
-  &--remove {
-    background: var(--negative);
-    color: #fff;
-  }
-
-  &--download {
-    background: var(--positive);
-    color: var(--positive-text);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &:not([disabled]):hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-}
 
 .faqSection {
   @include mid-width;

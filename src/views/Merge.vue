@@ -6,17 +6,11 @@
     </template>
   </descriptor>
 
-  <div class="familySelector">
-    <button
-      v-for="option in familyOptions"
-      :key="option.value"
-      type="button"
-      :class="['familySelector__button', { 'familySelector__button--active': option.value === selectedFamily }]"
-      @click="handleFamilyChange(option.value)"
-    >
-      {{ option.label }}
-    </button>
-  </div>
+  <radio-group
+    :options="familyOptions"
+    v-model="selectedFamilyModel"
+    @update:modelValue="handleFamilyChange"
+  />
 
   <div class="informationBar">
     <card path="/merge" :formats="availableFormats" :selectedFormat="selectedFormat.name" :handleChange="handleFormatChange">
@@ -33,14 +27,12 @@
     @files-selected="handleFilesSelected"
   />
 
-  <div class="batchBar">
-    <button class="batchBar__button" :disabled="files.length <= 1 || isProcessing" @click="processMerge">
-      <div>Merge Files</div>
-    </button>
-    <button class="batchBar__button" :disabled="files.length <= 0 && !hasOutput" @click="clearAll">
-      <div>Clear All</div>
-    </button>
-  </div>
+  <action-bar
+    :actions="[
+      { label: 'Merge Files', disabled: files.length <= 1 || isProcessing, onClick: processMerge },
+      { label: 'Clear All', disabled: files.length <= 0 && !hasOutput, onClick: clearAll }
+    ]"
+  />
 
 
 
@@ -55,13 +47,13 @@
     <p>{{ mergeMessageText }}</p>
   </div>
 
-  <div class="downloadCard" v-if="hasOutput">
-    <div>
-      <strong>{{ output.name }}</strong>
-      <p>Your merged {{ familyConfig.label.toLowerCase() }} file is ready.</p>
-    </div>
-    <a :href="output.url" :download="output.name">Download</a>
-  </div>
+  <download-card
+    v-if="hasOutput"
+    :title="output.name"
+    :description="`Your merged ${familyConfig.label.toLowerCase()} file is ready.`"
+    :url="output.url"
+    :file-name="output.name"
+  />
 
   <div class="files">
     <p v-if="files.length > 1" class="queueHint">Drag files to change the merge order.</p>
@@ -79,16 +71,13 @@
       <div class="fileRow__copy">
         <div class="fileRow__name">{{ file.name }}</div>
       </div>
-      <button
-        class="iconButton iconButton--remove"
-        type="button"
+      <icon-button
+        variant="remove"
         :disabled="isProcessing"
         @click="removeFile(file.id)"
         title="Remove"
-        aria-label="Remove file"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-      </button>
+        ariaLabel="Remove file"
+      />
     </div>
   </div>
 
@@ -275,10 +264,14 @@ function buildMergeFaqs(familyLabel) {
 }
 
 import FilePicker from "@/components/file-picker.vue";
+import ActionBar from "@/components/ActionBar.vue";
+import RadioGroup from "@/components/RadioGroup.vue";
+import DownloadCard from "@/components/DownloadCard.vue";
+import IconButton from "@/components/IconButton.vue";
 
 export default {
   name: "Merge",
-  components: { FilePicker, Card, Descriptor, Faq, Information },
+  components: { FilePicker, Card, Descriptor, Faq, Information, ActionBar, RadioGroup, DownloadCard, IconButton },
   mixins: [fileQueueMixin],
   setup() {
     useMeta({
@@ -315,6 +308,14 @@ export default {
     },
     selectedFamily() {
       return FAMILY_CONFIG[this.$route.params.family] ? this.$route.params.family : "archive";
+    },
+    selectedFamilyModel: {
+      get() {
+        return this.selectedFamily;
+      },
+      set(value) {
+        this.handleFamilyChange(value);
+      }
     },
     familyConfig() {
       return FAMILY_CONFIG[this.selectedFamily];
@@ -545,39 +546,7 @@ export default {
 <style scoped lang="scss">
 @import "src/styles/_utilities";
 
-.familySelector {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
 
-  &__button {
-    padding: 0.55rem 0.95rem;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-weight: 700;
-    cursor: pointer;
-    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
-
-    &:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    &--active {
-      background-color: var(--accent);
-      border-color: var(--accent);
-      color: var(--accent-text);
-      cursor: default;
-      transform: none;
-    }
-  }
-}
 
 .mergeConfig {
   flex: 1;
@@ -639,39 +608,7 @@ export default {
   }
 }
 
-.batchBar {
-  @include mid-width;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
 
-  &__button {
-    flex: 1;
-    min-width: 150px;
-    border: 1px solid var(--border);
-    background-color: var(--bg-surface);
-    border-radius: $default-radius;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-
-    > div {
-      background-color: var(--bg-secondary);
-      padding: 0.55rem 1rem;
-      border-radius: $default-radius;
-    }
-
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-  }
-}
 
 .queueHint {
   @include mid-width;
@@ -680,8 +617,7 @@ export default {
   color: var(--text-secondary);
 }
 
-.progressCard,
-.downloadCard {
+.progressCard {
   @include mid-width;
   margin-bottom: 1rem;
   padding: 1rem 1.15rem;
@@ -758,83 +694,12 @@ export default {
   }
 }
 
-.iconButton {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: none;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
 
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
-
-  &--remove {
-    background: var(--negative);
-    color: #fff;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.downloadCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  p {
-    margin: 0.35rem 0 0;
-    color: var(--text-secondary);
-  }
-
-  a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 7.5rem;
-    padding: 0.65rem 1rem;
-    border-radius: $default-radius;
-    background-color: var(--accent);
-    color: var(--accent-text);
-    text-decoration: none;
-    font-weight: 800;
-  }
-}
-
-.faqSection {
-  @include mid-width;
-  margin-top: 1.75rem;
-  margin-bottom: 2rem;
-
-  &__title {
-    text-align: center;
-    font-size: 1.75rem;
-    margin: 0 0 1rem;
-    color: var(--text-primary);
-  }
-}
 
 @media only screen and (max-width: 55rem) {
-  .downloadCard,
   .fileRow {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .downloadCard a {
-    width: 100%;
   }
 }
 </style>
