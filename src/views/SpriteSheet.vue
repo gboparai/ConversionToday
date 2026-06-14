@@ -8,43 +8,20 @@
 
   <div class="informationBar">
     <card path="/sprite-sheet" :formats="availableFormats" :selectedFormat="selectedFormat.name" :handleChange="handleFormatChange">
-      <template #header>Sprite Settings</template>
-      <template #description>
-        <div class="settings">
-          <label>
-            Map Format:
-            <select v-model="mapFormat" class="settings__input">
-              <option value="css">CSS (.css)</option>
-              <option value="json">JSON (.json)</option>
-            </select>
-          </label>
-          <label>
-            Columns:
-            <input type="number" v-model.number="columns" min="1" max="50" class="settings__input settings__input--num" />
-          </label>
-          <label>
-            Padding (px):
-            <input type="number" v-model.number="padding" min="0" max="100" class="settings__input settings__input--num" />
-          </label>
-        </div>
-      </template>
+      <template #header>{{ formatLabel }}</template>
+      <template #description>{{ selectedFormat ? selectedFormat.description : '' }}</template>
     </card>
   </div>
 
-  <label class="fileInput">
-    <input
-      @change="onFileInput"
-      type="file"
-      multiple
-      :accept="acceptAttr"
-      aria-label="Add Images"
-    />
-    <div class="file">
-      <p>Add {{ formatLabel }} Images Here</p>
-    </div>
-  </label>
+  <file-picker
+    :filter-fn="filterImages"
+    :fallback-accept="acceptAttr"
+    :label="formatLabel + ' Images'"
+    :overlay-text="'Drop ' + formatLabel + ' Here'"
+    @files-selected="addFiles"
+  />
 
-  <div class="settingsBar" v-if="!hasOutput && files.length > 0">
+  <div class="settingsBar" v-if="files.length > 0">
     <div class="settingsCard">
       <div class="settingsCard__item">
         <span class="settingsCard__label">Columns</span>
@@ -78,10 +55,16 @@
       <div>Clear All</div>
     </button>
   </div>
+
+  <div class="downloadCard" v-if="hasOutput">
+    <div>
+      <strong>sprite_sheet.zip</strong>
+      <p>Your sprite sheet (PNG) and mapping file ({{ mapFormat.toUpperCase() }}) are ready.</p>
+    </div>
     <a :href="outputUrl" download="sprite_sheet.zip">Download ZIP</a>
   </div>
 
-  <div class="files" v-if="!hasOutput">
+  <div class="files" v-if="files.length > 0">
     <p v-if="files.length > 1" class="queueHint">Drag files to change the sprite order.</p>
     <div
       v-for="file in files"
@@ -110,14 +93,6 @@
     </div>
   </div>
 
-  <div class="downloadCard" v-if="hasOutput">
-    <div>
-      <strong>sprite_sheet.zip</strong>
-      <p>Your sprite sheet (PNG) and mapping file ({{ mapFormat.toUpperCase() }}) are ready.</p>
-    </div>
-    <a :href="outputUrl" download="sprite_sheet.zip">Download ZIP</a>
-  </div>
-
   <div class="informationContainer">
     <information>
       <template #header>Step 1</template>
@@ -132,12 +107,16 @@
       <template #description>Generate your sprite sheet and download the ZIP file instantly.</template>
     </information>
   </div>
+
+  <toast ref="toast" />
 </template>
 
 <script>
 import Descriptor from "@/components/descriptor.vue";
 import Information from "@/components/information.vue";
 import Card from "@/components/card.vue";
+import FilePicker from "@/components/file-picker.vue";
+import Toast from "@/components/toast.vue";
 import { getMediaTypeConfig } from "@/js/media-types";
 import { useMeta } from "vue-meta";
 import { initializeImageMagick, ImageMagick, MagickFormat } from "@imagemagick/magick-wasm";
@@ -145,7 +124,7 @@ import JSZip from "jszip";
 
 export default {
   name: "SpriteSheet",
-  components: { Descriptor, Card, Information },
+  components: { Descriptor, Card, Information, FilePicker, Toast },
   data() {
     return {
       files: [],
@@ -186,8 +165,7 @@ export default {
       this.$router.push({ path: `/sprite-sheet/${formatName}` });
       this.clearAll();
     },
-    onFileInput(e) {
-      const selectedFiles = Array.from(e.target.files);
+    addFiles(selectedFiles) {
       if (!selectedFiles.length) return;
       
       const newFiles = selectedFiles.map(f => ({
@@ -196,7 +174,6 @@ export default {
         name: f.name
       }));
       this.files.push(...newFiles);
-      e.target.value = '';
     },
     removeFile(id) {
       this.files = this.files.filter(f => f.id !== id);
@@ -380,7 +357,8 @@ export default {
         this.outputUrl = URL.createObjectURL(zipBlob);
 
       } catch (e) {
-        alert("Failed to generate sprite sheet: " + e.message);
+        console.error(e);
+        this.$refs.toast.show("Failed to generate sprite sheet: " + e.message);
       } finally {
         this.isProcessing = false;
       }
@@ -523,40 +501,32 @@ export default {
 
 .downloadCard {
   @include mid-width;
-  background-color: var(--accent-light);
-  border: 1px solid var(--accent);
-  border-radius: $default-radius;
-  padding: 1.25rem;
   margin-bottom: 1.5rem;
+  padding: 1rem 1.15rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: $default-radius;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 
-  strong {
-    color: var(--accent-dark);
-    font-size: 1.1rem;
-  }
-  
   p {
-    margin: 0.25rem 0 0 0;
-    color: var(--accent-dark);
-    font-size: 0.9rem;
-    opacity: 0.9;
+    margin: 0.35rem 0 0;
+    color: var(--text-secondary);
   }
 
   a {
-    background: var(--accent);
-    color: var(--accent-text);
-    padding: 0.6rem 1.25rem;
-    border-radius: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 7.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: $default-radius;
+    background-color: var(--accent);
+    color: var(--accent-text, #fff);
     text-decoration: none;
-    font-weight: bold;
-    font-size: 0.95rem;
-    transition: background 0.15s;
-
-    &:hover {
-      background: var(--accent-dark);
-    }
+    font-weight: 800;
   }
 }
 

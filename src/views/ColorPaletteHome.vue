@@ -17,9 +17,9 @@
 
   <div class="selectorCon">
     <div class="selector" v-for="format in formats" :key="format.value">
-      <a class="select" :href="format.href">
+      <router-link class="select" :to="format.href">
         <p>{{ format.label }}</p>
-      </a>
+      </router-link>
     </div>
   </div>
 

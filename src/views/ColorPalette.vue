@@ -8,34 +8,18 @@
 
   <div class="informationBar">
     <card path="/color-palette" :formats="availableFormats" :selectedFormat="selectedFormat.name" :handleChange="handleFormatChange">
-      <template #header>Settings</template>
-      <template #description>
-        <div class="settings">
-          <label>
-            Colors to Extract:
-            <select v-model="colorsToExtract" class="settings__select">
-              <option :value="3">3 Colors</option>
-              <option :value="5">5 Colors</option>
-              <option :value="10">10 Colors</option>
-            </select>
-          </label>
-        </div>
-      </template>
+      <template #header>{{ formatLabel }}</template>
+      <template #description>{{ selectedFormat ? selectedFormat.description : '' }}</template>
     </card>
   </div>
 
-  <label class="fileInput">
-    <input
-      @change="onFileInput"
-      type="file"
-      multiple
-      :accept="acceptAttr"
-      aria-label="Add Images"
-    />
-    <div class="file">
-      <p>Add {{ formatLabel }} Images Here</p>
-    </div>
-  </label>
+  <file-picker
+    :filter-fn="filterImages"
+    :fallback-accept="acceptAttr"
+    :label="formatLabel + ' Images'"
+    :overlay-text="'Drop ' + formatLabel + ' Here'"
+    @files-selected="addFiles"
+  />
 
   <div class="settingsBar" v-if="files.length > 0">
     <div class="settingsCard">
@@ -55,13 +39,27 @@
     <button class="batchBar__button" :disabled="files.length <= 0" @click="clearAll">
       <div>Clear All</div>
     </button>
+    <button class="batchBar__button" :disabled="!hasExtractedPalettes" @click="downloadJson">
+      <div>Download All (JSON)</div>
+    </button>
   </div>
 
   <div class="files">
     <div v-for="file in files" :key="file.id" class="fileCard">
       <div class="fileCard__info">
         <span class="fileCard__name">{{ file.name }}</span>
-        <button
+        <div class="fileCard__actions">
+          <button
+            v-if="file.palette"
+            class="iconButton iconButton--download"
+            type="button"
+            @click="downloadFileJson(file)"
+            title="Download Palette (JSON)"
+            aria-label="Download Palette"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zm7-18v10.17l-3.59-3.58L7 10l5 5 5-5-1.41-1.41L13 12.17V2h-1z"/></svg>
+          </button>
+          <button
           class="iconButton iconButton--remove"
           type="button"
           :disabled="isProcessing"
@@ -71,6 +69,7 @@
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
         </button>
+        </div>
       </div>
 
       <div class="fileCard__status" v-if="file.status === 'processing'">
@@ -84,7 +83,7 @@
             :key="index"
             class="palette__swatch"
             :style="{ backgroundColor: color.hex }"
-            @click="copyHex(color.hex)"
+            @click="copyToClipboard(color.hex)"
             :title="`Click to copy ${color.hex}`"
           >
             <span class="palette__hex" :class="{'dark-text': isLight(color.rgb)}">{{ color.hex }}</span>
@@ -111,19 +110,23 @@
       <template #description>Extract the palettes and copy the HEX or RGB codes instantly.</template>
     </information>
   </div>
+
+  <toast ref="toast" />
 </template>
 
 <script>
 import Descriptor from "@/components/descriptor.vue";
 import Information from "@/components/information.vue";
 import Card from "@/components/card.vue";
+import FilePicker from "@/components/file-picker.vue";
+import Toast from "@/components/toast.vue";
 import { getMediaTypeConfig } from "@/js/media-types";
 import { useMeta } from "vue-meta";
 import { initializeImageMagick, ImageMagick, MagickFormat } from "@imagemagick/magick-wasm";
 
 export default {
   name: "ColorPalette",
-  components: { Descriptor, Card, Information },
+  components: { Descriptor, Card, Information, FilePicker, Toast },
   data() {
     return {
       files: [],
@@ -147,6 +150,9 @@ export default {
     formatLabel() {
       return this.selectedFormat ? this.selectedFormat.name.toUpperCase() : "Image";
     },
+    hasExtractedPalettes() {
+      return this.files.some(f => f.status === 'done' && f.palette);
+    },
     acceptAttr() {
       if (!this.selectedFormat) return "image/*";
       return `.${this.selectedFormat.extension}`;
@@ -156,8 +162,7 @@ export default {
     handleFormatChange(formatName) {
       this.$router.push({ path: `/color-palette/${formatName}` });
     },
-    onFileInput(e) {
-      const selectedFiles = Array.from(e.target.files);
+    addFiles(selectedFiles) {
       if (!selectedFiles.length) return;
       
       const newFiles = selectedFiles.map(f => ({
@@ -169,7 +174,6 @@ export default {
         error: null
       }));
       this.files.push(...newFiles);
-      e.target.value = ''; // reset
     },
     removeFile(id) {
       this.files = this.files.filter(f => f.id !== id);
@@ -348,10 +352,49 @@ export default {
       return boxes.map(b => b.avg);
     },
 
-    copyHex(hex) {
+    copyToClipboard(hex) {
       navigator.clipboard.writeText(hex).then(() => {
-        alert(`Copied ${hex}`);
+        this.$refs.toast.show(`Copied ${hex}`);
+      }).catch(() => {
+        this.$refs.toast.show("Failed to copy to clipboard.");
       });
+    },
+    downloadJson() {
+      const allPalettes = this.files
+        .filter(f => f.status === 'done' && f.palette)
+        .map(f => ({
+          filename: f.name,
+          palette: f.palette.map(c => c.hex)
+        }));
+      
+      if (allPalettes.length === 0) {
+        this.$refs.toast.show("No palettes to download.");
+        return;
+      }
+      
+      const jsonStr = JSON.stringify(allPalettes, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "color_palettes.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    downloadFileJson(file) {
+      if (!file.palette) return;
+      const paletteData = {
+        filename: file.name,
+        palette: file.palette.map(c => c.hex)
+      };
+      const jsonStr = JSON.stringify(paletteData, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${file.name}_palette.json`;
+      a.click();
+      URL.revokeObjectURL(url);
     },
     isLight([r, g, b]) {
       const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
@@ -499,6 +542,12 @@ export default {
     font-size: 0.95rem;
   }
 
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
   &__status {
     font-size: 0.85rem;
     color: var(--text-secondary);
@@ -575,14 +624,19 @@ export default {
     color: #fff;
   }
 
+  &--download {
+    background: var(--positive);
+    color: var(--positive-text);
+  }
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  &:not(:disabled):hover {
+  &:not([disabled]):hover {
     transform: scale(1.1);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 }
 
