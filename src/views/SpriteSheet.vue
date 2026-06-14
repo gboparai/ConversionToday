@@ -44,6 +44,32 @@
     </div>
   </label>
 
+  <div class="settingsBar" v-if="!hasOutput && files.length > 0">
+    <div class="settingsCard">
+      <div class="settingsCard__item">
+        <span class="settingsCard__label">Columns</span>
+        <div class="settingWrap">
+          <input class="settingWrap__input" type="number" v-model.number="columns" min="1" max="100" />
+        </div>
+      </div>
+      <div class="settingsCard__item">
+        <span class="settingsCard__label">Padding (px)</span>
+        <div class="settingWrap">
+          <input class="settingWrap__input" type="number" v-model.number="padding" min="0" max="100" />
+        </div>
+      </div>
+      <div class="settingsCard__item">
+        <span class="settingsCard__label">Mapping Format</span>
+        <div class="settingWrap">
+          <select class="settingWrap__input" v-model="mapFormat">
+            <option value="css">CSS</option>
+            <option value="json">JSON</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="batchBar">
     <button class="batchBar__button" :disabled="files.length <= 1 || isProcessing" @click="generateSpriteSheet">
       <div>{{ isProcessing ? 'Generating...' : 'Generate Sprite Sheet' }}</div>
@@ -52,12 +78,6 @@
       <div>Clear All</div>
     </button>
   </div>
-
-  <div class="downloadCard" v-if="hasOutput">
-    <div>
-      <strong>sprite_sheet.zip</strong>
-      <p>Your sprite sheet (PNG) and mapping file ({{ mapFormat.toUpperCase() }}) are ready.</p>
-    </div>
     <a :href="outputUrl" download="sprite_sheet.zip">Download ZIP</a>
   </div>
 
@@ -85,14 +105,38 @@
         title="Remove"
         aria-label="Remove file"
       >
-        ✕
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>
       </button>
     </div>
+  </div>
+
+  <div class="downloadCard" v-if="hasOutput">
+    <div>
+      <strong>sprite_sheet.zip</strong>
+      <p>Your sprite sheet (PNG) and mapping file ({{ mapFormat.toUpperCase() }}) are ready.</p>
+    </div>
+    <a :href="outputUrl" download="sprite_sheet.zip">Download ZIP</a>
+  </div>
+
+  <div class="informationContainer">
+    <information>
+      <template #header>Step 1</template>
+      <template #description>Choose the image format of the sprites you want to combine.</template>
+    </information>
+    <information>
+      <template #header>Step 2</template>
+      <template #description>Add your images, set the grid columns, padding, and mapping format.</template>
+    </information>
+    <information>
+      <template #header>Step 3</template>
+      <template #description>Generate your sprite sheet and download the ZIP file instantly.</template>
+    </information>
   </div>
 </template>
 
 <script>
 import Descriptor from "@/components/descriptor.vue";
+import Information from "@/components/information.vue";
 import Card from "@/components/card.vue";
 import { getMediaTypeConfig } from "@/js/media-types";
 import { useMeta } from "vue-meta";
@@ -101,7 +145,7 @@ import JSZip from "jszip";
 
 export default {
   name: "SpriteSheet",
-  components: { Descriptor, Card },
+  components: { Descriptor, Card, Information },
   data() {
     return {
       files: [],
@@ -574,15 +618,84 @@ export default {
   justify-content: center;
   border-radius: 50%;
   border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: transform 0.15s, box-shadow 0.15s;
 
-  &:hover {
-    background: var(--negative, #e74c3c);
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: currentColor;
+  }
+
+  &--remove {
+    background: var(--negative);
     color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+.settingsBar {
+  @include mid-width;
+  margin-bottom: 1.5rem;
+}
+
+.settingsCard {
+  padding: 1.25rem 1.5rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: $default-radius;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  align-items: center;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
+.settingWrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: $default-radius;
+  background-color: var(--bg-primary);
+  transition: border-color 0.15s;
+
+  &:focus-within {
+    border-color: var(--accent);
+  }
+
+  &__input {
+    flex: 1;
+    padding: 0.55rem 0.75rem;
+    border: none;
+    background: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    width: 6rem;
   }
 }
 </style>
