@@ -49,7 +49,7 @@
 import Descriptor from "@/components/descriptor.vue";
 import Information from "@/components/information.vue";
 import SearchableSelect from "@/components/searchable-select.vue";
-import { store } from "@/store/index";
+import store from "@/store/index";
 import { useMeta } from "vue-meta";
 
 export default {

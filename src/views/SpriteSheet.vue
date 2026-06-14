@@ -232,9 +232,7 @@ export default {
         // Calculate layout
         const cols = this.columns || 1;
         const pad = this.padding || 0;
-        let maxWidth = 0;
         let rowHeights = [];
-        let currentRowHeight = 0;
         
         let sprites = [];
         
