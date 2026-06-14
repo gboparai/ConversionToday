@@ -94,6 +94,19 @@ function generatePrerenderRoutes() {
     });
   });
 
+  // Metadata Remover routes
+  routes.push('/metadata-remover');
+  ['image', 'video', 'audio', 'document'].forEach(mediaType => {
+    if (formatsByMediaType[mediaType]) {
+      formatsByMediaType[mediaType].forEach(format => {
+        const route = `/metadata-remover/${format}`;
+        if (!routes.includes(route)) {
+          routes.push(route);
+        }
+      });
+    }
+  });
+
   return routes;
 }
 

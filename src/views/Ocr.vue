@@ -29,12 +29,13 @@
 
   </div>
 
-  <label class="fileInput">
-    <input @change="input" type="file" multiple :accept="acceptAttr" />
-    <div class="file">
-      <p>{{ dropLabel }}</p>
-    </div>
-  </label>
+  <file-picker
+    :filter-fn="filterOcrFiles"
+    :fallback-accept="acceptAttr"
+    :label="dropLabel"
+    :overlay-text="'Drop ' + dropLabel + ' Here'"
+    @files-selected="handleFilesSelected"
+  />
 
   <div class="languageBar">
     <div class="languageCard">
@@ -80,11 +81,6 @@
       <div>Clear All</div>
     </button>
   </div>
-
-  <p v-if="skippedCount > 0" class="skippedNotice">
-    {{ skippedCount }} file(s) were skipped. {{ skipHelpText }}
-    <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
-  </p>
 
   <div v-if="running || files.length > 0 || hasOutput" class="progressCard">
     <div class="progressCard__top">
@@ -217,6 +213,7 @@ import SearchableSelect from "@/components/searchable-select.vue";
 import { FILE_STATUS } from "@/js/constants";
 import { useMeta } from "vue-meta";
 import DocWorkerClass from "worker-loader!@/js/doc-worker.js";
+import FilePicker from "@/components/file-picker.vue";
 
 const SUPPORTED_IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'tif']);
 const OCR_INPUT_FORMATS = [
@@ -352,8 +349,8 @@ const OCR_LANGUAGES = [
 ];
 
 export default {
-  name: 'Ocr',
-  components: { Card, Descriptor, Information, List, SearchableSelect },
+  name: 'OcrTool',
+  components: { FilePicker, Card, Descriptor, SearchableSelect, List },
   mixins: [fileQueueMixin],
   computed: {
     routeInputFormat() {
@@ -453,10 +450,6 @@ export default {
     dropLabel() {
       if (this.selectedInputInfo.inputType === 'pdf') return 'Add PDFs Here';
       return `Add ${this.selectedInputInfo.title} Images Here`;
-    },
-    skipHelpText() {
-      if (this.selectedInputInfo.inputType === 'pdf') return 'Supported input is PDF only.';
-      return `Supported input is ${this.selectedInputInfo.title} only.`;
     },
     acceptAttr() {
       return this.selectedInputInfo.accept;
@@ -558,14 +551,10 @@ export default {
         this.tesseractLanguageRef = null;
       }
     },
-    input(e) {
-      this.addFiles(e.target.files);
-      e.target.value = '';
-    },
+
     // ── File management ────────────────────────────────────────────────────
-    addFiles(fileList) {
-      this.clearCombinedOutput();
-      let skipped = 0;
+    filterOcrFiles(fileList) {
+      const accepted = [];
       const selectedInput = this.selectedInputInfo;
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
@@ -573,24 +562,30 @@ export default {
         const isPdf = ext === 'pdf' || file.type === 'application/pdf';
         const isImage = SUPPORTED_IMAGE_EXTS.has(ext) || (file.type && file.type.startsWith('image/'));
         if (selectedInput.inputType === 'pdf' && !isPdf) {
-          skipped++;
           continue;
         }
         if (selectedInput.inputType === 'image' && !isImage) {
-          skipped++;
           continue;
         }
         const mime = (file.type || '').toLowerCase();
         const matchesSelectedType = selectedInput.allowedExts.includes(ext)
           || (selectedInput.allowedMime || []).includes(mime);
         if (selectedInput.inputType === 'image' && !matchesSelectedType) {
-          skipped++;
           continue;
         }
         if (!isPdf && !isImage) {
-          skipped++;
           continue;
         }
+        accepted.push(file);
+      }
+      return accepted;
+    },
+    handleFilesSelected(accepted) {
+      this.clearCombinedOutput();
+      for (let i = 0; i < accepted.length; i++) {
+        const file = accepted[i];
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+        const isPdf = ext === 'pdf' || file.type === 'application/pdf';
         this.files.push({
           id: this.nextId++,
           name: file.name,
@@ -603,7 +598,6 @@ export default {
           output: { blob: null, url: null, name: null },
         });
       }
-      this.trackSkipped(skipped);
     },
     removeFile(id) {
       const file = this.files.find(f => f.id === id);
@@ -617,7 +611,6 @@ export default {
         if (file.output && file.output.url) URL.revokeObjectURL(file.output.url);
       });
       this.clearCombinedOutput();
-      this.resetSkippedCount();
       this.files = [];
     },
 

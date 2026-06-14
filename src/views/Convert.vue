@@ -202,19 +202,15 @@
       <template #description>{{ formatInfo2.description }}</template>
     </card>
   </div>
-  <label class="fileInput">
-    <input @change="input" type="file" name="thing" id="" multiple :accept="acceptMimeTypes" />
-    <div class="file">
-      <p>Add {{ mediaTypeLabel }} Here</p>
-    </div>
-  </label>
-
-  <p v-if="skippedCount > 0" class="skippedNotice">
-    {{ skippedCount }} file{{ skippedCount === 1 ? '' : 's' }} skipped — only
-    <strong>.{{ formatInfo ? (formatInfo.extension || formatInfo.name) : mediaTypeLabel }}</strong>
-    files are accepted on this page.
-    <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
-  </p>
+  <file-picker
+    :format-obj="formatInfo"
+    :media-type-label="mediaTypeLabel"
+    overlay-text="Drop Here"
+    :label="mediaTypeLabel"
+    :fallback-accept="mtConfig.acceptMimeTypes"
+    :track-skipped-metrics="trackSkipped"
+    @files-selected="handleFilesSelected"
+  />
 
   <div class="batchBar">
     <button
@@ -297,9 +293,7 @@
     </information>
   </div>
 
-  <transition name="fade">
-    <p v-if="fileInDropZone > 0" class="dropTarget">Drop Here</p>
-  </transition>
+
 
   <div class="informationContainer">
     <div>
@@ -320,6 +314,7 @@
 </template>
 
 <script>
+import FilePicker from "@/components/file-picker.vue";
 import FileCell from "@/components/file-cell.vue";
 import Card from "@/components/card.vue";
 import Descriptor from "@/components/descriptor.vue";
@@ -415,7 +410,6 @@ export default {
       ],
     });
     return {
-      fileInDropZone: 0,
       format: this.$route.params.format,
       format2: this.$route.params.format2,
       conversionSearch: "",
@@ -448,10 +442,12 @@ export default {
       // Fallback: use the media-type-level accept string when no specific format is resolved.
       if (this.mtConfig.acceptMimeTypes) return this.mtConfig.acceptMimeTypes;
       // Font type (acceptMimeTypes is null): compute dynamically from all formats.
-      const extensions = this.$store.state[this.mtConfig.formatsKey]
-        .map((format) => String(format.extension || '').trim().toLowerCase())
-        .filter((extension, index, list) => extension && list.indexOf(extension) === index);
-      return extensions.map((extension) => `.${extension}`).join(',');
+      if (this.mediaType === 'font') {
+        return this.$store.state.fontFormats
+          .map(f => `.${f.extension || f.name}`)
+          .join(',');
+      }
+      return '*/*';
     },
     formatsKey() {
       return this.mtConfig.formatsKey;
@@ -523,66 +519,8 @@ export default {
     },
   },
   methods: {
-    /**
-     * Filter a FileList (or array of Files) to only those whose extension or
-     * MIME type matches the currently-selected input format.
-     *
-     * The browser's `accept` attribute is advisory-only and can be bypassed,
-     * so we enforce the same restriction in JavaScript for both the file-picker
-     * and drag-and-drop paths.
-     *
-     * Returns an Array<File> (never a raw FileList so it is iterable everywhere).
-     */
-    filterFilesByInputFormat(fileList) {
-      const inputFormat = this.formatInfo;
-      // If we cannot determine the input format, pass all files through so the
-      // converter can handle them as usual.
-      if (!inputFormat) return Array.from(fileList);
-
-      const allowedExt  = String(inputFormat.extension || inputFormat.name || '').trim().toLowerCase();
-      // Some formats (e.g. audio/video) carry a mimeType; build a Set for O(1) lookup.
-      // Split on commas to handle compound values like 'audio/ogg; codecs=opus'.
-      const allowedMimes = new Set(
-        inputFormat.mimeType
-          ? [inputFormat.mimeType.trim().toLowerCase().split(';')[0].trim()]
-          : []
-      );
-
-      return Array.from(fileList).filter((file) => {
-        const fileExt  = (file.name.split('.').pop() || '').toLowerCase();
-        const fileMime = (file.type || '').toLowerCase().split(';')[0].trim();
-        const extMatch  = allowedExt  && fileExt  === allowedExt;
-        const mimeMatch = allowedMimes.size > 0 && allowedMimes.has(fileMime);
-        return extMatch || mimeMatch;
-      });
-    },
-    input(e) {
-      const all = Array.from(e.target.files);
-      const filtered = this.filterFilesByInputFormat(all);
-      this.trackSkipped(all.length - filtered.length);
-      if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
-    },
-    fileDrop(e) {
-      e.preventDefault();
-      const all = Array.from(e.dataTransfer.files);
-      const filtered = this.filterFilesByInputFormat(all);
-      this.trackSkipped(all.length - filtered.length);
-      if (filtered.length) this.$store.dispatch(this.mtConfig.addFiles, filtered);
-      this.fileInDropZone = false;
-    },
-    fileOver(e) {
-      e.preventDefault();
-    },
-    fileEnter(e) {
-      e.preventDefault();
-      this.fileInDropZone++;
-    },
-    fileLeave(e) {
-      e.preventDefault();
-      this.fileInDropZone--;
-    },
-    stopProp(e) {
-      e.stopPropagation();
+    handleFilesSelected(files) {
+      this.$store.dispatch(this.mtConfig.addFiles, files);
     },
     process() {
       this.$store.dispatch(this.mtConfig.processAll);
@@ -628,7 +566,6 @@ export default {
     },
     clearAll() {
       this.$store.dispatch(this.mtConfig.clearFiles);
-      this.resetSkippedCount();
     },
     handleChangeFormat1(event) {
       window.location.href = `/${this.mediaType}/${event.target.value}/${this.format2}`;
@@ -638,6 +575,7 @@ export default {
     },
   },
   components: {
+    FilePicker,
     FileCell,
     Card,
     Descriptor,
@@ -650,17 +588,8 @@ export default {
       this.$store.dispatch(this.mtConfig.setInputFormat, this.formatInfo);
     }
     this.$store.dispatch(this.mtConfig.loadWorker);
-
-    document.body.addEventListener("drop", this.fileDrop);
-    document.body.addEventListener("dragover", this.fileOver);
-    document.body.addEventListener("dragenter", this.fileEnter);
-    document.body.addEventListener("dragleave", this.fileLeave);
   },
-  unmounted() {
-    document.body.removeEventListener("drop", this.fileDrop);
-    document.body.removeEventListener("dragover", this.fileOver);
-    document.body.removeEventListener("dragenter", this.fileEnter);
-    document.body.removeEventListener("dragleave", this.fileLeave);
+  beforeUnmount() {
   },
 };
 </script>

@@ -28,23 +28,14 @@
     </button>
   </div>
 
-  <!-- Drop zone -->
-  <label
-    class="fileInput"
-    :class="{ 'fileInput--disabled': !!pdfFile }"
-    @dragover.prevent="onDragOver"
-    @drop.prevent="onDrop"
-  >
-    <input
-      type="file"
-      accept=".pdf,application/pdf"
-      :disabled="!!pdfFile"
-      @change="onInputChange"
-    />
-    <div class="file">
-      <p>{{ pdfFile ? pdfFile.name : (mode === 'protect' ? 'Drop a PDF to protect or click to browse' : 'Drop a password-protected PDF or click to browse') }}</p>
-    </div>
-  </label>
+  <file-picker
+    :disabled="!!pdfFile"
+    :filter-fn="filterPdfFiles"
+    fallback-accept=".pdf,application/pdf"
+    :label="mode === 'protect' ? 'a PDF' : 'a Password-Protected PDF'"
+    :overlay-text="mode === 'protect' ? 'Drop to Protect' : 'Drop to Unlock'"
+    @files-selected="handleFilesSelected"
+  />
 
   <p v-if="pdfFile" class="fileInput__notice">
     One PDF is already loaded. Remove it to load a different file.
@@ -203,9 +194,11 @@ import Faq from '@/components/faq.vue';
 import ErrorCard from '@/components/errorCard.vue';
 import { useMeta } from 'vue-meta';
 
+import FilePicker from '@/components/file-picker.vue';
+
 export default {
   name: 'PdfPassword',
-  components: { Descriptor, Information, Faq, ErrorCard },
+  components: { FilePicker, Descriptor, Information, Faq, ErrorCard },
 
   data() {
     useMeta({
@@ -304,20 +297,23 @@ export default {
       this.clearAll();
     },
 
-    onInputChange(event) {
-      const file = event.target.files[0];
-      event.target.value = '';
-      if (file) this.loadFile(file);
+    filterPdfFiles(fileList) {
+      const accepted = [];
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext === 'pdf' || file.type === 'application/pdf') {
+          accepted.push(file);
+        }
+      }
+      return accepted;
     },
 
-    onDragOver(event) {
-      event.dataTransfer.dropEffect = this.pdfFile ? 'none' : 'copy';
-    },
-
-    onDrop(event) {
+    handleFilesSelected(accepted) {
       if (this.pdfFile) return;
-      const file = event.dataTransfer.files[0];
-      if (file) this.loadFile(file);
+      if (accepted.length > 0) {
+        this.loadFile(accepted[0]);
+      }
     },
 
     loadFile(file) {

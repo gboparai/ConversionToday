@@ -33,6 +33,7 @@ module.exports = {
                     fs: false,
                     child_process: false,
                     crypto: false,
+                    timers: require.resolve('timers-browserify'),
                 },
             },
         };

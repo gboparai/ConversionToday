@@ -39,6 +39,7 @@
           <router-link to="/pdf-image">PDF ↔ Image</router-link>
           <router-link to="/pdf-split">PDF Splitter</router-link>
           <router-link to="/pdf-password">PDF Password</router-link>
+          <router-link to="/metadata-remover">Metadata Remover</router-link>
           <router-link to="/ocr">OCR</router-link>
         </div>
       </div>

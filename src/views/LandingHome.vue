@@ -80,6 +80,11 @@
         <h2>PDF Password Tool</h2>
         <p>Add a password to protect any PDF, or remove a password from one you already have. Free, private, browser-based.</p>
       </a>
+      <a class="mediaHub__card" href="/metadata-remover">
+        <span class="mediaHub__icon">🕵️</span>
+        <h2>Metadata Remover</h2>
+        <p>Strip hidden EXIF data, GPS location tags, and author info from images, video, audio, and documents. Free online privacy tool.</p>
+      </a>
       <a class="mediaHub__card" href="/ocr">
         <span class="mediaHub__icon">🔍</span>
         <h2>OCR Text Extraction</h2>

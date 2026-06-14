@@ -24,6 +24,8 @@ const PdfImageType = () => import('../views/PdfImageType.vue')
 const PdfImage     = () => import('../views/PdfImage.vue')
 const PdfSplit     = () => import('../views/PdfSplit.vue')
 const PdfPassword  = () => import('../views/PdfPassword.vue')
+const MetadataHome = () => import('../views/MetadataHome.vue')
+const Metadata     = () => import('../views/Metadata.vue')
 
 const routes = [
   {
@@ -212,6 +214,16 @@ const routes = [
     path: '/pdf-password/:mode',
     name: 'PdfPassword',
     component: PdfPassword
+  },
+  {
+    path: '/metadata-remover',
+    name: 'MetadataHome',
+    component: MetadataHome
+  },
+  {
+    path: '/metadata-remover/:format',
+    name: 'Metadata',
+    component: Metadata
   },
   {
     path: '/ocr/:outputFormat',

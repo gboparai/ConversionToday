@@ -25,18 +25,13 @@
     </card>
   </div>
 
-  <label class="fileInput">
-    <input
-      @change="input"
-      type="file"
-      multiple
-      :accept="acceptAttr"
-      :aria-label="'Add ' + familyConfig.addLabel"
-    />
-    <div class="file">
-      <p>Add {{ familyConfig.addLabel }} Here</p>
-    </div>
-  </label>
+  <file-picker
+    :filter-fn="filterMergeFiles"
+    :fallback-accept="acceptAttr"
+    :label="familyConfig.addLabel"
+    :overlay-text="'Drop ' + familyConfig.addLabel + ' Here'"
+    @files-selected="handleFilesSelected"
+  />
 
   <div class="batchBar">
     <button class="batchBar__button" :disabled="files.length <= 1 || isProcessing" @click="processMerge">
@@ -47,10 +42,7 @@
     </button>
   </div>
 
-  <p v-if="skippedCount > 0" class="skippedNotice">
-    {{ skippedCount }} file(s) were skipped. {{ familyConfig.skipText }}
-    <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
-  </p>
+
 
   <div v-if="isProcessing || hasOutput || mergeStatus === FILE_STATUS.failed" class="progressCard">
     <div class="progressCard__top">
@@ -282,9 +274,11 @@ function buildMergeFaqs(familyLabel) {
   ];
 }
 
+import FilePicker from "@/components/file-picker.vue";
+
 export default {
   name: "Merge",
-  components: { Card, Descriptor, Faq, Information },
+  components: { FilePicker, Card, Descriptor, Faq, Information },
   mixins: [fileQueueMixin],
   setup() {
     useMeta({
@@ -443,10 +437,7 @@ export default {
     handleFormatChange(event) {
       this.handleFormatSelect(event.target.value);
     },
-    input(event) {
-      this.addFiles(event.target.files);
-      event.target.value = "";
-    },
+
     fileExtension(file) {
       const parts = String(file.name || "").toLowerCase().split(".");
       return parts.length > 1 ? parts.pop() : "";
@@ -466,9 +457,8 @@ export default {
       if (extension === "pdf") return null;
       return this.documentInputLookup[extension] || null;
     },
-    addFiles(list) {
+    filterMergeFiles(list) {
       const accepted = [];
-      let skipped = 0;
       const requirePdfInput = this.selectedFamily === "document" && this.selectedFormat && this.selectedFormat.name === "pdf";
       for (let i = 0; i < list.length; i++) {
         const file = list[i];
@@ -479,15 +469,12 @@ export default {
         if (this.selectedFamily === "audio" || this.selectedFamily === "video") {
           if (this.audioVideoAllowed(file)) {
             accepted.push({ file });
-          } else {
-            skipped++;
           }
           continue;
         }
         const inputFormat = this.detectDocumentFormat(file);
         if (inputFormat) {
           if (requirePdfInput && inputFormat !== "pdf") {
-            skipped++;
             continue;
           }
           accepted.push({
@@ -495,14 +482,14 @@ export default {
             inputFormat,
             inputExtension: this.fileExtension(file),
           });
-        } else {
-          skipped++;
         }
       }
+      return accepted;
+    },
+    handleFilesSelected(accepted) {
       if (accepted.length) {
         this.$store.dispatch("addMergeFiles", accepted);
       }
-      this.trackSkipped(skipped);
     },
     processMerge() {
       if (this.selectedFamily === "document" && this.files.length > 0) {

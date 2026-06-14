@@ -26,23 +26,14 @@
     </card>
   </div>
 
-  <label
-    class="fileInput"
-    :class="{ 'fileInput--disabled': isPdfToImages && hasPdfFile }"
-    @dragover.prevent="onDragOver"
-    @drop.prevent="onDrop"
-  >
-    <input
-      :disabled="isPdfToImages && hasPdfFile"
-      @change="onInputChange"
-      type="file"
-      :multiple="isImagesToPdf"
-      :accept="acceptAttr"
-    />
-    <div class="file">
-      <p>{{ inputPrompt }}</p>
-    </div>
-  </label>
+  <file-picker
+    :disabled="isPdfToImages && hasPdfFile"
+    :filter-fn="filterPdfImageFiles"
+    :fallback-accept="acceptAttr"
+    :label="isImagesToPdf ? 'Images' : 'PDF'"
+    :overlay-text="inputPrompt"
+    @files-selected="handleFilesSelected"
+  />
 
   <p v-if="isPdfToImages && hasPdfFile" class="fileInput__notice">
     One PDF is already added. Remove it to enable drag and drop again.
@@ -281,9 +272,11 @@ const IMAGE_MIME_BY_FORMAT = {
   webp: "image/webp",
 };
 
+import FilePicker from "@/components/file-picker.vue";
+
 export default {
   name: "PdfImage",
-  components: { Card, Descriptor, Information, SearchableSelect },
+  components: { FilePicker, Card, Descriptor, Information, SearchableSelect },
   data() {
     useMeta({
       title: "PDF and Image Tool - No Limit Converter",
@@ -507,30 +500,28 @@ export default {
       this.revokeImageOutputs();
       this.resetStatus();
     },
-    onInputChange(event) {
-      if (this.isProcessing) return;
-      const list = event.target.files || [];
-      if (this.isImagesToPdf) {
-        this.addImageFiles(list);
-      } else {
-        this.addPdfFile(list[0]);
+    filterPdfImageFiles(fileList) {
+      const accepted = [];
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        if (this.isImagesToPdf) {
+          if (this.isSupportedSelectedImage(file)) {
+            accepted.push(file);
+          }
+        } else {
+          if (this.isPdf(file)) {
+            accepted.push(file);
+          }
+        }
       }
-      event.target.value = "";
+      return accepted;
     },
-    onDragOver(event) {
-      if (this.isPdfToImages && this.hasPdfFile) {
-        event.dataTransfer.dropEffect = "none";
-        return;
-      }
-      event.dataTransfer.dropEffect = "copy";
-    },
-    onDrop(event) {
+    handleFilesSelected(accepted) {
       if (this.isProcessing) return;
-      const list = event.dataTransfer && event.dataTransfer.files ? event.dataTransfer.files : [];
       if (this.isImagesToPdf) {
-        this.addImageFiles(list);
-      } else if (!this.hasPdfFile) {
-        this.addPdfFile(list[0]);
+        this.addImageFiles(accepted);
+      } else if (accepted.length > 0 && !this.hasPdfFile) {
+        this.addPdfFile(accepted[0]);
       }
     },
     addImageFiles(list) {
