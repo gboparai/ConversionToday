@@ -42,7 +42,7 @@ describe('Router route definitions', () => {
   });
 
   test('each media type has home, format, and conversion routes', () => {
-    const mediaTypes = ['image', 'audio', 'video', 'document', 'archive', 'font', 'subtitle'];
+    const mediaTypes = ['image', 'audio', 'video', 'document', 'archive', 'font', 'subtitle', 'audio-extractor'];
     mediaTypes.forEach(type => {
       expect(routerSource).toContain(`'/${type}'`);
       expect(routerSource).toContain(`'/${type}/:format'`);

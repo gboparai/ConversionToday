@@ -29,7 +29,7 @@ You have `FFmpeg.wasm` running for conversions, but what about editing? A tool w
 *Status: Completed & Shipped*
 
 ### 7. Audio Extractor
-Leverage `FFmpeg.wasm` to effortlessly rip the audio track from video files (like MP4 to MP3 or WAV). A highly requested feature for podcasters and content creators to run locally.
+*Status: Completed & Shipped*
 
 ---
 

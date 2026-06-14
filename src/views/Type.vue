@@ -231,13 +231,16 @@ export default {
     formatsKey() {
       return this.mtConfig.formatsKey;
     },
+    inputFormatsKey() {
+      return this.mtConfig.inputFormatsKey || this.mtConfig.formatsKey;
+    },
     formatInfo() {
-      return this.$store.state[this.formatsKey].find((formatObj) => {
+      return this.$store.state[this.inputFormatsKey].find((formatObj) => {
         if (formatObj.name == this.format) return formatObj;
       });
     },
     formats() {
-      return this.$store.state[this.formatsKey].filter(
+      return this.$store.state[this.inputFormatsKey].filter(
         (format) => format.canConvertFrom !== false
       );
     },

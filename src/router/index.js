@@ -101,6 +101,22 @@ const routes = [
     name: 'AudioConversion',
     component: Convert
   },
+  // ── Audio Extractor routes ──────────────────────────────────────────────
+  {
+    path: '/audio-extractor',
+    name: 'AudioExtractorHome',
+    component: () => import('../views/AudioExtractorHome.vue')
+  },
+  {
+    path: '/audio-extractor/:format',
+    name: 'AudioExtractorFormat',
+    component: Type
+  },
+  {
+    path: '/audio-extractor/:format/:format2',
+    name: 'AudioExtractorConversion',
+    component: Convert
+  },
   // ── Video routes ────────────────────────────────────────────────────────
   {
     path: '/video',

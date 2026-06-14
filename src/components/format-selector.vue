@@ -129,15 +129,14 @@ export default {
   },
   computed: {
     formats() {
-      const list = this.$store.state[this.formatsKey];
+      const config = getMediaTypeConfig(this.mediaType);
+      const key = this.isFrom ? (config.inputFormatsKey || config.formatsKey) : config.formatsKey;
+      const list = this.$store.state[key];
       if (this.isFrom) {
         return list.filter((f) => f.canConvertFrom !== false);
       }
       // For output formats, exclude input-only formats.
       return list.filter((f) => f.canConvertTo !== false);
-    },
-    formatsKey() {
-      return getMediaTypeConfig(this.mediaType).formatsKey;
     },
     formatOptions() {
       return this.formats.map((f) => ({ value: f.name, label: f.name.toUpperCase() }));

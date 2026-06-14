@@ -135,6 +135,25 @@ const MEDIA_TYPES = {
         setName: 'setSubtitleName',
         removeFile: 'removeSubtitleFile',
     },
+    'audio-extractor': {
+        filesKey: 'audioExtractorFiles',
+        formatsKey: 'audioFormats',
+        inputFormatsKey: 'videoFormats',
+        nextIndexKey: 'audioExtractorNextIndex',
+        workerKey: 'audioExtractorWorker',
+        configKey: 'audioExtractorConfig',
+        label: 'Audio Extractor',
+        acceptMimeTypes: 'video/*',
+        addFiles: 'addAudioExtractorFiles',
+        clearFiles: 'clearAudioExtractorFiles',
+        processAll: 'processAllAudioExtractorFiles',
+        loadWorker: 'loadAudioExtractorWorker',
+        setFormat: 'setAudioExtractorFormat',
+        setInputFormat: 'setAudioExtractorInputFormat',
+        setUrl: 'setAudioExtractorUrl',
+        setName: 'setAudioExtractorName',
+        removeFile: 'removeAudioExtractorFile',
+    },
 };
 
 /**
@@ -143,6 +162,7 @@ const MEDIA_TYPES = {
  * @returns {string} The media type key (defaults to 'image')
  */
 function getMediaTypeFromPath(path) {
+    if (path.startsWith('/audio-extractor')) return 'audio-extractor';
     if (path.startsWith('/audio')) return 'audio';
     if (path.startsWith('/video')) return 'video';
     if (path.startsWith('/document')) return 'document';

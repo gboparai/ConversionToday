@@ -43,7 +43,7 @@ describe('Media type configuration completeness', () => {
 
   // Extract each media type block (simple validation via regex)
   const mediaTypeBlocks = {};
-  const types = ['image', 'audio', 'video', 'document', 'archive', 'font', 'subtitle'];
+  const types = ['image', 'audio', 'video', 'document', 'archive', 'font', 'subtitle', 'audioExtractor'];
 
   beforeAll(() => {
     types.forEach(type => {
@@ -71,6 +71,7 @@ describe('Media type configuration completeness', () => {
     expect(mediaTypeBlocks.archive).toContain("filesKey: 'archiveFiles'");
     expect(mediaTypeBlocks.font).toContain("filesKey: 'fontFiles'");
     expect(mediaTypeBlocks.subtitle).toContain("filesKey: 'subtitleFiles'");
+    expect(mediaTypeBlocks.audioExtractor).toContain("filesKey: 'audioExtractorFiles'");
   });
 });
 
@@ -78,6 +79,7 @@ describe('Media type configuration completeness', () => {
 
 describe('getMediaTypeFromPath logic', () => {
   test('correctly identifies all media type paths from source', () => {
+    expect(source).toContain("if (path.startsWith('/audio-extractor')) return 'audioExtractor'");
     expect(source).toContain("if (path.startsWith('/audio')) return 'audio'");
     expect(source).toContain("if (path.startsWith('/video')) return 'video'");
     expect(source).toContain("if (path.startsWith('/document')) return 'document'");
@@ -109,6 +111,7 @@ describe('Action name consistency', () => {
       { type: 'document', prefix: 'Document' },
       { type: 'archive', prefix: 'Archive' },
       { type: 'font', prefix: 'Font' },
+      { type: 'audioExtractor', prefix: 'AudioExtractor' },
     ];
     patterns.forEach(({ prefix }) => {
       expect(source).toContain(`addFiles: 'add${prefix}Files'`);
@@ -119,12 +122,13 @@ describe('Action name consistency', () => {
     });
   });
 
-  test('document, archive, font, and subtitle types have setInputFormat action', () => {
+  test('document, archive, font, subtitle, and audioExtractor types have setInputFormat action', () => {
     // These types support input format differentiation
     expect(source).toContain("setInputFormat: 'setDocumentInputFormat'");
     expect(source).toContain("setInputFormat: 'setArchiveInputFormat'");
     expect(source).toContain("setInputFormat: 'setFontInputFormat'");
     expect(source).toContain("setInputFormat: 'setSubtitleInputFormat'");
+    expect(source).toContain("setInputFormat: 'setAudioExtractorInputFormat'");
   });
 
   test('image and audio types do NOT have setInputFormat', () => {

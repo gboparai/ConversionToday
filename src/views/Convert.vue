@@ -384,6 +384,9 @@ export default {
     formatsKey() {
       return this.mtConfig.formatsKey;
     },
+    inputFormatsKey() {
+      return this.mtConfig.inputFormatsKey || this.mtConfig.formatsKey;
+    },
     files() {
       return this.$store.state[this.mtConfig.filesKey];
     },
@@ -396,7 +399,7 @@ export default {
       return this.files.filter((file) => file.status === FILE_STATUS.processed);
     },
     formatInfo() {
-      return this.$store.state[this.formatsKey].find((formatObj) => {
+      return this.$store.state[this.inputFormatsKey].find((formatObj) => {
         if (formatObj.name == this.format) return formatObj;
       });
     },
@@ -422,7 +425,7 @@ export default {
     },
     formatList2() {
       const query = this.conversionSearch.trim().toLowerCase();
-      return this.$store.state[this.formatsKey]
+      return this.$store.state[this.inputFormatsKey]
         .filter((format) => {
           // Exclude input-disabled formats and the currently selected output format.
           if (format.canConvertFrom === false || format.name == this.$route.params.format2) {
@@ -439,7 +442,7 @@ export default {
         });
     },
     formats1() {
-      return this.$store.state[this.formatsKey].filter((format) => {
+      return this.$store.state[this.inputFormatsKey].filter((format) => {
         return (
           format.canConvertFrom !== false && format.name != this.$route.params.format2
         );
