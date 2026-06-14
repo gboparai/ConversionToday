@@ -41,6 +41,8 @@
           <router-link to="/pdf-password">PDF Password</router-link>
           <router-link to="/metadata-remover">Metadata Remover</router-link>
           <router-link to="/ocr">OCR</router-link>
+          <router-link to="/sprite-sheet">Sprite Sheet</router-link>
+          <router-link to="/color-palette">Color Palette</router-link>
         </div>
       </div>
 

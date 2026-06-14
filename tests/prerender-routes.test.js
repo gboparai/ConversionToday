@@ -89,6 +89,9 @@ describe('Prerender route generation', () => {
     const ocrRouteCount = 1 + OCR_OUTPUT_FORMATS.length;
     const pdfImageRouteCount = 1 + Object.entries(PDF_IMAGE_OUTPUTS_BY_INPUT)
       .reduce((total, [, outputs]) => total + 1 + outputs.length, 0);
+    const spriteSheetRouteCount = formatsByMediaType['image'] ? 1 + formatsByMediaType['image'].length : 1;
+    const colorPaletteRouteCount = formatsByMediaType['image'] ? 1 + formatsByMediaType['image'].length : 1;
+
     let metadataFormatsCount = 0;
     ['image', 'video', 'audio', 'document'].forEach(mediaType => {
       if (formatsByMediaType[mediaType]) {
@@ -97,7 +100,7 @@ describe('Prerender route generation', () => {
     });
     const metadataRemoverRouteCount = 1 + metadataFormatsCount;
 
-    const expectedRouteCount = 1 + mediaTypeRouteCount + ocrRouteCount + pdfImageRouteCount + metadataRemoverRouteCount;
+    const expectedRouteCount = 1 + mediaTypeRouteCount + ocrRouteCount + pdfImageRouteCount + spriteSheetRouteCount + colorPaletteRouteCount + metadataRemoverRouteCount;
     expect(routes).toHaveLength(expectedRouteCount);
   });
 });
