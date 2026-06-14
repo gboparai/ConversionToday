@@ -103,7 +103,7 @@ export default {
       return getMediaTypeConfig("image");
     },
     availableFormats() {
-      return this.config ? this.config.formats : [];
+      return this.config && this.$store ? this.$store.state[this.config.formatsKey] : [];
     },
     selectedFormat() {
       return this.availableFormats.find(f => f.name === this.formatName) || this.availableFormats[0];
