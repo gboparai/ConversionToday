@@ -1,5 +1,5 @@
 <style scoped lang="scss">
-@import "src/styles/_utilities";
+@use "@/styles/_utilities.scss" as *;
 
 .file-row {
   width: 100%;
@@ -83,7 +83,7 @@
     }
 
     &:hover {
-      background-color: darken($negative, 10%);
+      background-color: color-mix(in srgb, $negative, black 10%);
       color: $white;
     }
   }

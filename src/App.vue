@@ -91,8 +91,8 @@
   />
 </template>
 <style lang="scss">
-@import "src/styles/_normalize";
-@import "src/styles/_utilities";
+@use "@/styles/_normalize.scss" as *;
+@use "@/styles/_utilities.scss" as *;
 
 * {
   box-sizing: border-box;

@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "src/styles/_utilities";
+@use "@/styles/_utilities.scss" as *;
 
 .errorCard {
   @include mid-width;
