@@ -50,6 +50,11 @@
   <section class="mediaSection">
     <h2 class="mediaSection__title">Free Online Tools</h2>
     <div class="mediaHub">
+      <a class="mediaHub__card" href="/audio-extractor">
+        <span class="mediaHub__icon">🎵</span>
+        <h2>Audio Extractor</h2>
+        <p>Extract MP3, WAV, AAC and more from any video file free online. No file size limits.</p>
+      </a>
       <a class="mediaHub__card" href="/compression">
         <span class="mediaHub__icon">🧰</span>
         <h2>Image Compression</h2>

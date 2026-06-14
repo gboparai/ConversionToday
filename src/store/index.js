@@ -631,6 +631,12 @@ export default createStore({
                 mimeType: 'audio/ape',
             },
         ],
+        
+        // ── Audio Extractor ──────────────────────────────────────────────────
+        audioExtractorFiles: [],
+        audioExtractorNextIndex: 0,
+        audioExtractorWorker: null,
+        audioExtractorConfig: { format: null, inputFormat: null },
 
         // ── Video ────────────────────────────────────────────────────────────
         videoFiles: [],
@@ -1787,6 +1793,7 @@ export default createStore({
         // ── Generated media-type mutations (Audio, Video, Document, Archive, Font, Subtitle) ──
         ...createMediaMutations('Audio', { filesKey: 'audioFiles', nextIndexKey: 'audioNextIndex', configKey: 'audioConfig' }),
         ...createMediaMutations('Video', { filesKey: 'videoFiles', nextIndexKey: 'videoNextIndex', configKey: 'videoConfig' }),
+        ...createMediaMutations('AudioExtractor', { filesKey: 'audioExtractorFiles', nextIndexKey: 'audioExtractorNextIndex', configKey: 'audioExtractorConfig', hasInputFormat: true }),
         ...createMediaMutations('Document', { filesKey: 'documentFiles', nextIndexKey: 'documentNextIndex', configKey: 'documentConfig', hasInputFormat: true }),
         ...createMediaMutations('Archive', { filesKey: 'archiveFiles', nextIndexKey: 'archiveNextIndex', configKey: 'archiveConfig', hasInputFormat: true }),
         ...createMediaMutations('Font', { filesKey: 'fontFiles', nextIndexKey: 'fontNextIndex', configKey: 'fontConfig', hasInputFormat: true }),
@@ -1938,6 +1945,10 @@ export default createStore({
         ...createMediaActions('Video', {
             filesKey: 'videoFiles', nextIndexKey: 'videoNextIndex', configKey: 'videoConfig',
             workerKey: 'videoWorker', WorkerClass: VideoWorker, maxConcurrency: 1,
+        }),
+        ...createMediaActions('AudioExtractor', {
+            filesKey: 'audioExtractorFiles', nextIndexKey: 'audioExtractorNextIndex', configKey: 'audioExtractorConfig',
+            workerKey: 'audioExtractorWorker', WorkerClass: AudioWorker, maxConcurrency: 1, hasInputFormat: true,
         }),
         ...createMediaActions('Document', {
             filesKey: 'documentFiles', nextIndexKey: 'documentNextIndex', configKey: 'documentConfig',
