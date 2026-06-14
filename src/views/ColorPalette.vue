@@ -83,8 +83,7 @@ import Descriptor from "@/components/descriptor.vue";
 import Card from "@/components/card.vue";
 import { getMediaTypeConfig } from "@/js/media-types";
 import { useMeta } from "vue-meta";
-import { initializeImageMagick, ImageMagick } from "@imagemagick/magick-wasm/image-magick";
-import { MagickFormat } from "@imagemagick/magick-wasm/magick-format";
+import { initializeImageMagick, ImageMagick, MagickFormat } from "@imagemagick/magick-wasm";
 
 export default {
   name: "ColorPalette",

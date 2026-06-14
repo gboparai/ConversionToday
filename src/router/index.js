@@ -250,7 +250,6 @@ const routes = [
     path: '/metadata-remover/:family/:format',
     name: 'Metadata',
     component: Metadata
->>>>>>> origin/master
   },
   {
     path: '/ocr/:outputFormat',
