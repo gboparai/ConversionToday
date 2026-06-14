@@ -47,6 +47,7 @@ module.exports = {
                     fs: false,
                     child_process: false,
                     crypto: false,
+                    stream: require.resolve('stream-browserify'),
                     timers: require.resolve('timers-browserify'),
                 },
             },
