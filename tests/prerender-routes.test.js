@@ -69,6 +69,18 @@ describe('Prerender route generation', () => {
     });
   });
 
+  test('includes metadata-remover routes', () => {
+    const routes = generatePrerenderRoutes();
+    expect(routes).toContain('/metadata-remover');
+    ['image', 'video', 'audio', 'document'].forEach(mediaType => {
+      if (formatsByMediaType[mediaType]) {
+        formatsByMediaType[mediaType].forEach(format => {
+          expect(routes).toContain(`/metadata-remover/${mediaType}/${format}`);
+        });
+      }
+    });
+  });
+
   test('matches expected route count', () => {
     const routes = generatePrerenderRoutes();
 
@@ -80,7 +92,15 @@ describe('Prerender route generation', () => {
     const spriteSheetRouteCount = formatsByMediaType['image'] ? 1 + formatsByMediaType['image'].length : 1;
     const colorPaletteRouteCount = formatsByMediaType['image'] ? 1 + formatsByMediaType['image'].length : 1;
 
-    const expectedRouteCount = 1 + mediaTypeRouteCount + ocrRouteCount + pdfImageRouteCount + spriteSheetRouteCount + colorPaletteRouteCount;
+    let metadataFormatsCount = 0;
+    ['image', 'video', 'audio', 'document'].forEach(mediaType => {
+      if (formatsByMediaType[mediaType]) {
+        metadataFormatsCount += formatsByMediaType[mediaType].length;
+      }
+    });
+    const metadataRemoverRouteCount = 1 + metadataFormatsCount;
+
+    const expectedRouteCount = 1 + mediaTypeRouteCount + ocrRouteCount + pdfImageRouteCount + spriteSheetRouteCount + colorPaletteRouteCount + metadataRemoverRouteCount;
     expect(routes).toHaveLength(expectedRouteCount);
   });
 });

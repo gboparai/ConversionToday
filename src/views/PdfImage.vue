@@ -26,25 +26,16 @@
     </card>
   </div>
 
-  <label
-    class="fileInput"
-    :class="{ 'fileInput--disabled': isPdfToImages && hasPdfFile }"
-    @dragover.prevent="onDragOver"
-    @drop.prevent="onDrop"
-  >
-    <input
-      :disabled="isPdfToImages && hasPdfFile"
-      @change="onInputChange"
-      type="file"
-      :multiple="isImagesToPdf"
-      :accept="acceptAttr"
-    />
-    <div class="file">
-      <p>{{ inputPrompt }}</p>
-    </div>
-  </label>
+  <file-picker
+    :disabled="isPdfToImages && hasPdfFile"
+    :filter-fn="filterPdfImageFiles"
+    :fallback-accept="acceptAttr"
+    :label="isImagesToPdf ? 'Images' : 'PDF'"
+    :overlay-text="inputPrompt"
+    @files-selected="handleFilesSelected"
+  />
 
-  <p v-if="isPdfToImages && hasPdfFile" class="notice">
+  <p v-if="isPdfToImages && hasPdfFile" class="fileInput__notice">
     One PDF is already added. Remove it to enable drag and drop again.
   </p>
 
@@ -281,9 +272,11 @@ const IMAGE_MIME_BY_FORMAT = {
   webp: "image/webp",
 };
 
+import FilePicker from "@/components/file-picker.vue";
+
 export default {
   name: "PdfImage",
-  components: { Card, Descriptor, Information, SearchableSelect },
+  components: { FilePicker, Card, Descriptor, Information, SearchableSelect },
   data() {
     useMeta({
       title: "PDF and Image Tool - No Limit Converter",
@@ -385,7 +378,7 @@ export default {
       return `Add one PDF, then extract all pages as ${this.selectedOutputInfo.title} images.`;
     },
     inputPrompt() {
-      if (this.isImagesToPdf) return `Add ${this.resolvedInputFormat.toUpperCase()} Files Here`;
+      if (this.isImagesToPdf) return "Add images here";
       if (this.hasPdfFile) return `Added: ${this.pdfFile.name}`;
       return "Add One PDF File Here";
     },
@@ -447,7 +440,7 @@ export default {
     },
   },
   watch: {
-    $route(to, from) {
+    $route() {
       const wasNormalize = this._normalizing;
       this._normalizing = false;
       this.normalizeRoute();
@@ -507,30 +500,28 @@ export default {
       this.revokeImageOutputs();
       this.resetStatus();
     },
-    onInputChange(event) {
-      if (this.isProcessing) return;
-      const list = event.target.files || [];
-      if (this.isImagesToPdf) {
-        this.addImageFiles(list);
-      } else {
-        this.addPdfFile(list[0]);
+    filterPdfImageFiles(fileList) {
+      const accepted = [];
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        if (this.isImagesToPdf) {
+          if (this.isSupportedSelectedImage(file)) {
+            accepted.push(file);
+          }
+        } else {
+          if (this.isPdf(file)) {
+            accepted.push(file);
+          }
+        }
       }
-      event.target.value = "";
+      return accepted;
     },
-    onDragOver(event) {
-      if (this.isPdfToImages && this.hasPdfFile) {
-        event.dataTransfer.dropEffect = "none";
-        return;
-      }
-      event.dataTransfer.dropEffect = "copy";
-    },
-    onDrop(event) {
+    handleFilesSelected(accepted) {
       if (this.isProcessing) return;
-      const list = event.dataTransfer && event.dataTransfer.files ? event.dataTransfer.files : [];
       if (this.isImagesToPdf) {
-        this.addImageFiles(list);
-      } else if (!this.hasPdfFile) {
-        this.addPdfFile(list[0]);
+        this.addImageFiles(accepted);
+      } else if (accepted.length > 0 && !this.hasPdfFile) {
+        this.addPdfFile(accepted[0]);
       }
     },
     addImageFiles(list) {
@@ -823,7 +814,6 @@ export default {
 
 .fileInput,
 .batchBar,
-.notice,
 .queueHint,
 .progressCard,
 .downloadCard,
@@ -885,6 +875,15 @@ export default {
       color: var(--text-secondary);
     }
   }
+
+  &__notice {
+    @include mid-width;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .batchBar {
@@ -905,24 +904,33 @@ export default {
     font-weight: 700;
     padding: 0;
     cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    box-shadow: var(--shadow-sm);
 
     > div {
       background-color: var(--bg-secondary);
       padding: 0.55rem 1rem;
       border-radius: $default-radius;
+      height: 100%;
+      transition: background-color 0.15s, transform 0.15s;
     }
 
-    &:disabled {
-      opacity: 0.45;
+    &[disabled] {
       cursor: not-allowed;
+      opacity: 0.4;
+    }
+    &:not([disabled]):hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      > div {
+        background-color: var(--bg-surface-hover);
+        transform: translateY(-2px);
+      }
+    }
+    &:not([disabled]):active > div {
+      transform: translateY(0);
     }
   }
-}
-
-.notice {
-  margin-top: 0;
-  margin-bottom: 0.85rem;
-  color: var(--text-secondary);
 }
 
 .settingsBar {

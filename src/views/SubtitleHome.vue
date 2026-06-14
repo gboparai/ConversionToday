@@ -8,7 +8,7 @@
 
   <format-selector :isFrom="true" path="subtitle" name="from" mediaType="subtitle"></format-selector>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>11 Subtitle Formats — All Free</template>
       <template #description>
@@ -29,7 +29,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>100% Free — No Account Needed</template>
       <template #description>
@@ -50,7 +50,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Convert SRT to VTT for Web Video</template>
       <template #description>

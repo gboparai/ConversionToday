@@ -14,17 +14,12 @@
     </card>
   </div>
 
-  <label class="fileInput">
-    <input
-      @change="input"
-      type="file"
-      multiple
-      aria-label="Add files to compress"
-    />
-    <div class="file">
-      <p>Add Files Here</p>
-    </div>
-  </label>
+  <file-picker
+    label="Files"
+    overlay-text="Drop to Compress"
+    fallback-accept="*/*"
+    @files-selected="addFiles"
+  />
 
   <div class="batchBar">
     <button class="batchBar__button" :disabled="files.length <= 0 || isProcessing" @click="processCompress">
@@ -165,9 +160,11 @@ function buildFaqs(formatName) {
   ];
 }
 
+import FilePicker from "@/components/file-picker.vue";
+
 export default {
   name: "Compress",
-  components: { Card, Descriptor, Faq, Information },
+  components: { FilePicker, Card, Descriptor, Faq, Information },
   setup() {
     useMeta({
       title: "Free Archive Compress Tool - No Limit Converter",
@@ -286,10 +283,7 @@ export default {
     handleFormatChange(event) {
       this.$router.push(`/compress/${event.target.value}`);
     },
-    input(event) {
-      this.addFiles(event.target.files);
-      event.target.value = "";
-    },
+
     addFiles(list) {
       const accepted = [];
       for (let i = 0; i < list.length; i++) {

@@ -26,6 +26,10 @@ const SpriteSheetHome = () => import('../views/SpriteSheetHome.vue')
 const SpriteSheet = () => import('../views/SpriteSheet.vue')
 const ColorPaletteHome = () => import('../views/ColorPaletteHome.vue')
 const ColorPalette = () => import('../views/ColorPalette.vue')
+const PdfSplit     = () => import('../views/PdfSplit.vue')
+const PdfPassword  = () => import('../views/PdfPassword.vue')
+const MetadataHome = () => import('../views/MetadataHome.vue')
+const Metadata     = () => import('../views/Metadata.vue')
 
 const routes = [
   {
@@ -219,6 +223,34 @@ const routes = [
     path: '/color-palette/:format',
     name: 'ColorPalette',
     component: ColorPalette
+  },
+  // ── PDF Split ─────────────────────────────────────────────────────────────
+  {
+    path: '/pdf-split',
+    name: 'PdfSplit',
+    component: PdfSplit
+  },
+  // ── PDF Password ──────────────────────────────────────────────────────────
+  {
+    path: '/pdf-password',
+    name: 'PdfPasswordHome',
+    component: PdfPassword
+  },
+  {
+    path: '/pdf-password/:mode',
+    name: 'PdfPassword',
+    component: PdfPassword
+  },
+  {
+    path: '/metadata-remover',
+    name: 'MetadataHome',
+    component: MetadataHome
+  },
+  {
+    path: '/metadata-remover/:family/:format',
+    name: 'Metadata',
+    component: Metadata
+>>>>>>> origin/master
   },
   {
     path: '/ocr/:outputFormat',

@@ -8,7 +8,7 @@
 
   <format-selector :isFrom="true" path="audio" name="from" mediaType="audio"></format-selector>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>11 Audio Formats — All Free</template>
       <template #description>
@@ -29,7 +29,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>100% Free — No Account Required</template>
       <template #description>

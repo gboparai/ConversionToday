@@ -1,5 +1,15 @@
-import { initializeImageMagick, ImageMagick } from "@imagemagick/magick-wasm/image-magick";
+import { initializeImageMagick, ImageMagick } from "@imagemagick/magick-wasm";
 
+
+let initPromise = null;
+function ensureMagick() {
+    if (!initPromise) {
+        initPromise = fetch('/magick.wasm')
+            .then(res => res.arrayBuffer())
+            .then(buffer => initializeImageMagick(new Uint8Array(buffer)));
+    }
+    return initPromise;
+}
 
 onmessage = e => {
     let payload = e.data;
@@ -16,11 +26,10 @@ onmessage = e => {
         let extension = config.format.extension;
         file.arrayBuffer().then((d) => {
 
-            initializeImageMagick().then(async () => {
+            ensureMagick().then(() => {
 
                 ImageMagick.read(new Uint8Array(d), (image) => {
-
-                    image.write(data => {
+                    const writeCallback = data => {
                         let blob = new Blob([data], { type: `image/${extension}` });
                         postMessage({
                             status: "processed",
@@ -28,9 +37,13 @@ onmessage = e => {
                             config: config,
                             id: payload.id,
                         });
+                    };
 
-                    }, config.format.magickFormat);
-
+                    if (config.format && config.format.magickFormat) {
+                        image.write(config.format.magickFormat, writeCallback);
+                    } else {
+                        image.write(writeCallback);
+                    }
                 });
             }).catch(err => {
                 console.log(err)

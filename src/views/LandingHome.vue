@@ -70,6 +70,21 @@
         <h2>PDF ↔ Image Tool</h2>
         <p>Extract every PDF page as an image, or combine unlimited images into one PDF. Free, no restrictions.</p>
       </a>
+      <a class="mediaHub__card" href="/pdf-split">
+        <span class="mediaHub__icon">✂️</span>
+        <h2>PDF Splitter</h2>
+        <p>Split any multi-page PDF into individual pages. Download every page as a separate PDF in a ZIP. Free, no limits.</p>
+      </a>
+      <a class="mediaHub__card" href="/pdf-password">
+        <span class="mediaHub__icon">🔒</span>
+        <h2>PDF Password Tool</h2>
+        <p>Add a password to protect any PDF, or remove a password from one you already have. Free, private, browser-based.</p>
+      </a>
+      <a class="mediaHub__card" href="/metadata-remover">
+        <span class="mediaHub__icon">🕵️</span>
+        <h2>Metadata Remover</h2>
+        <p>Strip hidden EXIF data, GPS location tags, and author info from images, video, audio, and documents. Free online privacy tool.</p>
+      </a>
       <a class="mediaHub__card" href="/ocr">
         <span class="mediaHub__icon">🔍</span>
         <h2>OCR Text Extraction</h2>
@@ -95,7 +110,7 @@
     </p>
   </section>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Truly Unlimited — No File Size Caps</template>
       <template #description>
@@ -116,7 +131,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Private & Secure — Files Never Leave Your Device</template>
       <template #description>
@@ -137,7 +152,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Fast Browser-Based Conversion</template>
       <template #description>

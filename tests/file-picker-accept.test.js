@@ -1,19 +1,19 @@
 /**
  * File Picker Accept Attribute & Drag-and-Drop Filter Tests
  *
- * Verifies that the acceptMimeTypes computed property in Convert.vue correctly
+ * Verifies that the acceptMimeTypes computed property in file-picker.vue correctly
  * restricts the file picker to the selected input format, AND that the
- * filterFilesByInputFormat method enforces the same restriction for drag-and-drop
+ * filterFiles method enforces the same restriction for drag-and-drop
  * (and as a defence-in-depth layer for the file picker). Tests cover:
  *
- *   1.  The computed property logic in Convert.vue (source analysis)
+ *   1.  The computed property logic in file-picker.vue (source analysis)
  *   2.  Format data integrity — every input-capable format has the fields
  *       needed to build a non-empty accept string
  *   3.  Per-media-type spot checks (image, audio, video, document, archive, font)
  *   4.  Fallback behaviour when no specific format is resolved
  *   5.  The file input element actually carries the :accept binding
- *   6.  filterFilesByInputFormat source structure
- *   7.  filterFilesByInputFormat logic (pure-JS simulation)
+ *   6.  filterFiles source structure
+ *   7.  filterFiles logic (pure-JS simulation)
  *   8.  Drag-and-drop handler wiring — fileDrop uses the filter
  *   9.  File-picker handler wiring — input uses the filter
  */
@@ -24,16 +24,16 @@ const path = require('path');
 
 // ─── Source files ─────────────────────────────────────────────────────────────
 
-const CONVERT_VIEW_PATH  = path.resolve(__dirname, '../src/views/Convert.vue');
+const PICKER_PATH        = path.resolve(__dirname, '../src/components/file-picker.vue');
 const STORE_PATH         = path.resolve(__dirname, '../src/store/index.js');
 const MEDIA_TYPES_PATH   = path.resolve(__dirname, '../src/js/media-types.js');
 
-let convertSource;
+let pickerSource;
 let storeSource;
 let mediaTypesSource;
 
 beforeAll(() => {
-  convertSource    = fs.readFileSync(CONVERT_VIEW_PATH,  'utf8');
+  pickerSource     = fs.readFileSync(PICKER_PATH,  'utf8');
   storeSource      = fs.readFileSync(STORE_PATH,         'utf8');
   mediaTypesSource = fs.readFileSync(MEDIA_TYPES_PATH,   'utf8');
 });
@@ -121,12 +121,12 @@ function parseStoreFormats(arrayName) {
 }
 
 /**
- * Simulate the acceptMimeTypes computed property logic from Convert.vue.
+ * Simulate the acceptMimeTypes computed property logic from file-picker.vue.
  * Given a format object (as it exists in the store), return what the
  * accept string would be.
  */
 function simulateAcceptMimeTypes(inputFormat, mtConfigAcceptMimeTypes) {
-  // Mirror the exact logic in Convert.vue acceptMimeTypes()
+  // Mirror the exact logic in file-picker.vue acceptMimeTypes()
   if (inputFormat) {
     const ext   = String(inputFormat.extension || inputFormat.name || '').trim().toLowerCase();
     const parts = ext ? [`.${ext}`] : [];
@@ -139,42 +139,37 @@ function simulateAcceptMimeTypes(inputFormat, mtConfigAcceptMimeTypes) {
   return ''; // font dynamic case — not tested here
 }
 
-// ─── 1. Convert.vue source structure ─────────────────────────────────────────
+// ─── 1. file-picker.vue source structure ─────────────────────────────────────────
 
-describe('Convert.vue — acceptMimeTypes computed property structure', () => {
+describe('file-picker.vue — acceptMimeTypes computed property structure', () => {
   test('file input has :accept binding bound to acceptMimeTypes', () => {
-    expect(convertSource).toContain(':accept="acceptMimeTypes"');
+    expect(pickerSource).toContain(':accept="acceptMimeTypes"');
   });
 
   test('acceptMimeTypes computed property is defined', () => {
-    expect(convertSource).toContain('acceptMimeTypes()');
+    expect(pickerSource).toContain('acceptMimeTypes()');
   });
 
-  test('reads extension from the selected input format (formatInfo)', () => {
-    expect(convertSource).toContain('inputFormat.extension');
-    expect(convertSource).toContain('formatInfo');
+  test('reads extension from the selected input format (formatObj)', () => {
+    expect(pickerSource).toContain('this.formatObj.extension');
+    expect(pickerSource).toContain('this.formatObj.name');
   });
 
   test('uses mimeType field from the format object when present', () => {
-    expect(convertSource).toContain('inputFormat.mimeType');
+    expect(pickerSource).toContain('this.formatObj.mimeType');
   });
 
   test('joins extension and mimeType parts with a comma', () => {
-    expect(convertSource).toContain("parts.join(',')");
+    expect(pickerSource).toContain("parts.join(',')");
   });
 
   test('prepends a dot to the extension', () => {
-    expect(convertSource).toContain('`.${ext}`');
+    expect(pickerSource).toContain('`.${ext}`');
   });
 
-  test('falls back to mtConfig.acceptMimeTypes when no format is resolved', () => {
-    // Both the primary branch and the fallback should reference mtConfig
-    expect(convertSource).toContain('this.mtConfig.acceptMimeTypes');
-  });
-
-  test('fallback path for font (null acceptMimeTypes) computes from store formats', () => {
-    expect(convertSource).toContain('this.$store.state[this.mtConfig.formatsKey]');
-    expect(convertSource).toContain('`.${extension}`');
+  test('falls back to fallbackAccept when no format is resolved', () => {
+    // Both the primary branch and the fallback should reference fallbackAccept
+    expect(pickerSource).toContain('this.fallbackAccept');
   });
 });
 
@@ -556,7 +551,7 @@ describe('Accept string format rules — all input-capable formats', () => {
     });
     // For any extension shared by multiple formats, their names should differ
     // (i.e., we are not conflating different formats with identical accept strings incorrectly)
-    Object.entries(byExt).forEach(([ext, names]) => {
+    Object.values(byExt).forEach((names) => {
       if (names.length > 1) {
         // e.g. 'jpg' and 'jpeg' both map to .jpg / .jpeg — acceptable shared extension
         expect(names.length).toBeGreaterThan(0); // trivially passes; documents the situation
@@ -568,9 +563,9 @@ describe('Accept string format rules — all input-capable formats', () => {
 // ─── 9. Fallback path integrity ───────────────────────────────────────────────
 
 describe('acceptMimeTypes fallback path', () => {
-  test('Convert.vue has a fallback path that uses mtConfig.acceptMimeTypes', () => {
+  test('file-picker.vue has a fallback path that uses fallbackAccept', () => {
     // The fallback should still be reachable in the source
-    expect(convertSource).toContain('if (this.mtConfig.acceptMimeTypes) return this.mtConfig.acceptMimeTypes');
+    expect(pickerSource).toContain('return this.fallbackAccept;');
   });
 
   test('media-types.js defines acceptMimeTypes for image, audio, video', () => {
@@ -663,75 +658,76 @@ function simulateFilterFiles(fileList, inputFormat) {
   });
 }
 
-// ─── 11. filterFilesByInputFormat — source structure ──────────────────────────
+// ─── 11. filterFiles — source structure ──────────────────────────
 
-describe('Convert.vue — filterFilesByInputFormat source structure', () => {
-  test('filterFilesByInputFormat method is defined in Convert.vue', () => {
-    expect(convertSource).toContain('filterFilesByInputFormat(fileList)');
+describe('file-picker.vue — filterFiles source structure', () => {
+  test('filterFiles method is defined in file-picker.vue', () => {
+    expect(pickerSource).toContain('filterFiles(fileList)');
   });
 
-  test('method returns early (passes all files) when no inputFormat is resolved', () => {
-    expect(convertSource).toContain('if (!inputFormat) return Array.from(fileList)');
+  test('method returns early (passes all files) when no formatObj is resolved', () => {
+    expect(pickerSource).toContain('if (!this.formatObj) return Array.from(fileList)');
   });
 
-  test('method builds allowedExt from format.extension or format.name', () => {
-    expect(convertSource).toContain('inputFormat.extension || inputFormat.name');
+  test('method builds allowedExt from formatObj.extension or formatObj.name', () => {
+    expect(pickerSource).toContain('this.formatObj.extension || this.formatObj.name');
   });
 
-  test('method builds allowedMimes Set from format.mimeType', () => {
-    expect(convertSource).toContain('new Set(');
-    expect(convertSource).toContain('inputFormat.mimeType');
+  test('method builds allowedMimes Set from formatObj.mimeType', () => {
+    expect(pickerSource).toContain('new Set(');
+    expect(pickerSource).toContain('this.formatObj.mimeType');
   });
 
   test('method strips codecs suffix from MIME type (split on semicolon)', () => {
-    expect(convertSource).toContain(".split(';')[0].trim()");
+    expect(pickerSource).toContain(".split(';')[0].trim()");
   });
 
   test('method matches on extension OR mimeType', () => {
-    expect(convertSource).toContain('extMatch || mimeMatch');
+    expect(pickerSource).toContain('extMatch || mimeMatch');
   });
 
   test('fileDrop handler converts FileList to Array before filtering', () => {
-    expect(convertSource).toContain('Array.from(e.dataTransfer.files)');
+    expect(pickerSource).toContain('Array.from(e.dataTransfer.files)');
   });
 
   test('input handler converts FileList to Array before filtering', () => {
-    expect(convertSource).toContain('Array.from(e.target.files)');
+    expect(pickerSource).toContain('Array.from(e.target.files)');
   });
 
-  test('both handlers compute skipped count and track it using trackSkipped', () => {
-    expect(convertSource).toContain('all.length - filtered.length');
-    expect(convertSource).toContain('this.trackSkipped(');
+  test('both handlers compute skipped count and track it using trackSkippedMetrics', () => {
+    expect(pickerSource).toContain('filesArray.length - filtered.length');
+    expect(pickerSource).toContain('this.trackSkippedMetrics(');
   });
 
-  test('clearAll uses resetSkippedCount', () => {
-    expect(convertSource).toContain('this.resetSkippedCount()');
+  test('resetSkippedCount method is defined', () => {
+    expect(pickerSource).toContain('resetSkippedCount() {');
   });
 
   test('skipped notice is shown when skippedCount > 0', () => {
-    expect(convertSource).toContain('v-if="skippedCount > 0"');
-    expect(convertSource).toContain('skippedNotice');
+    expect(pickerSource).toContain('v-if="skippedCount > 0"');
+    expect(pickerSource).toContain('skippedNotice');
   });
 
   test('skipped notice shows correct singular/plural wording', () => {
-    expect(convertSource).toContain("skippedCount === 1 ? '' : 's'");
+    expect(pickerSource).toContain("skippedCount === 1 ? '' : 's'");
   });
 
-  test('skipped notice shows the expected input format extension', () => {
-    expect(convertSource).toContain('formatInfo.extension || formatInfo.name');
+  test('skipped notice shows the expected input format extension or fallback string', () => {
+    expect(pickerSource).toContain('{{ allowedExtensionsDisplay }}');
   });
 
   test('skipped notice has a dismiss button that resets skippedCount', () => {
-    expect(convertSource).toContain('skippedNotice__dismiss');
-    expect(convertSource).toContain('@click="resetSkippedCount"');
+    expect(pickerSource).toContain('skippedNotice__dismiss');
+    expect(pickerSource).toContain('@click="resetSkippedCount"');
   });
 
   test('both handlers only dispatch when filtered list is non-empty', () => {
-    expect(convertSource).toContain('if (filtered.length) this.$store.dispatch');
+    expect(pickerSource).toContain('if (filtered.length > 0) {');
+    expect(pickerSource).toContain('this.$emit("files-selected", filtered);');
   });
 });
 
-// ─── 12. filterFilesByInputFormat — logic (pure-JS simulation) ────────────────
+// ─── 12. filterFiles — logic (pure-JS simulation) ────────────────
 
 describe('filterFilesByInputFormat — filter logic', () => {
   // ── Extension-only formats (e.g. image) ────────────────────────────────────
@@ -1230,3 +1226,62 @@ describe('filterFilesByInputFormat — subtitle format matching', () => {
   });
 });
 
+// ─── 14. PDF Splitter nav link and landing tile ───────────────────────────────
+
+describe('PDF Splitter nav link and landing tile', () => {
+  let appSource;
+  let landingSource;
+
+  beforeAll(() => {
+    appSource     = require('fs').readFileSync(require('path').resolve(__dirname, '../src/App.vue'), 'utf8');
+    landingSource = require('fs').readFileSync(require('path').resolve(__dirname, '../src/views/LandingHome.vue'), 'utf8');
+  });
+
+  test('App.vue contains a PDF Splitter nav link', () => {
+    expect(appSource).toContain('to="/pdf-split"');
+  });
+
+  test('PDF Splitter link is in the Tools dropdown', () => {
+    const toolsTriggerIdx = appSource.indexOf("activeDropdown === 'tools'");
+    const splitLinkIdx    = appSource.indexOf('to="/pdf-split"');
+    expect(splitLinkIdx).toBeGreaterThan(toolsTriggerIdx);
+  });
+
+  test('LandingHome.vue contains a link to /pdf-split', () => {
+    expect(landingSource).toContain('href="/pdf-split"');
+  });
+
+  test('PDF Splitter tile has a heading', () => {
+    expect(landingSource).toContain('PDF Splitter');
+  });
+});
+
+// ─── 15. PDF Password nav link and landing tile ───────────────────────────────
+
+describe('PDF Password nav link and landing tile', () => {
+  let appSource;
+  let landingSource;
+
+  beforeAll(() => {
+    appSource     = require('fs').readFileSync(require('path').resolve(__dirname, '../src/App.vue'), 'utf8');
+    landingSource = require('fs').readFileSync(require('path').resolve(__dirname, '../src/views/LandingHome.vue'), 'utf8');
+  });
+
+  test('App.vue contains a PDF Password nav link', () => {
+    expect(appSource).toContain('to="/pdf-password"');
+  });
+
+  test('PDF Password link is in the Tools dropdown', () => {
+    const toolsTriggerIdx = appSource.indexOf("activeDropdown === 'tools'");
+    const passLinkIdx     = appSource.indexOf('to="/pdf-password"');
+    expect(passLinkIdx).toBeGreaterThan(toolsTriggerIdx);
+  });
+
+  test('LandingHome.vue contains a link to /pdf-password', () => {
+    expect(landingSource).toContain('href="/pdf-password"');
+  });
+
+  test('PDF Password tile has a heading', () => {
+    expect(landingSource).toContain('PDF Password Tool');
+  });
+});

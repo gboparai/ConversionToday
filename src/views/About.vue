@@ -6,7 +6,7 @@
       Your go-to for free, hassle-free file conversion that's accessible to all!
     </template>
   </descriptor>
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <div>
       <h2>Our Story</h2>
       <p>

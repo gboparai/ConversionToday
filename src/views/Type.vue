@@ -49,7 +49,7 @@
     name="to"
     :mediaType="mediaType"
   ></format-selector>
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Fast Conversion</template>
       <template #description>
@@ -65,7 +65,7 @@
       </template>
     </information>
   </div>
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Unlimited Batch Conversion</template>
       <template #description>

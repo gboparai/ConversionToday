@@ -8,7 +8,7 @@
 
   <format-selector :isFrom="true" path="video" name="from" mediaType="video"></format-selector>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Convert Any Video Format Free</template>
       <template #description>
@@ -29,7 +29,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>100% Free — No Account Needed</template>
       <template #description>

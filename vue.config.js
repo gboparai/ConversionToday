@@ -1,6 +1,20 @@
 // Inside vue.config.js
 const { generatePrerenderRoutes } = require('./build-utils/generatePrerenderRoutes');
 module.exports = {
+    css: {
+        loaderOptions: {
+            scss: {
+                sassOptions: {
+                    silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin'],
+                },
+            },
+            sass: {
+                sassOptions: {
+                    silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin'],
+                },
+            },
+        },
+    },
     publicPath: '/',
 
     // Transpile mediabunny, @ffmpeg, and pandoc-wasm packages through Babel (they use modern JS syntax)
@@ -33,7 +47,12 @@ module.exports = {
                     fs: false,
                     child_process: false,
                     crypto: false,
+                    stream: require.resolve('stream-browserify'),
+                    timers: require.resolve('timers-browserify'),
                 },
+            },
+            module: {
+                exprContextCritical: false,
             },
         };
 
