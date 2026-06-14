@@ -6,7 +6,7 @@
     </template>
   </descriptor>
 
-  <format-selector :isFrom="true" path="audio-extractor" name="from" mediaType="audioExtractor"></format-selector>
+  <format-selector :isFrom="true" path="audio-extractor" name="from" mediaType="audio-extractor"></format-selector>
 
   <div class="informationContainer">
     <information>
