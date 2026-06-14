@@ -133,6 +133,28 @@ const routes = [
     name: 'VideoConversion',
     component: Convert
   },
+  // ── Audio Trimmer routes ────────────────────────────────────────────────
+  {
+    path: '/audio-trimmer',
+    name: 'AudioTrimmerHome',
+    component: () => import('../views/AudioTrimmerHome.vue')
+  },
+  {
+    path: '/audio-trimmer/:format',
+    name: 'AudioTrimmer',
+    component: () => import('../views/Trimmer.vue')
+  },
+  // ── Video Trimmer routes ────────────────────────────────────────────────
+  {
+    path: '/video-trimmer',
+    name: 'VideoTrimmerHome',
+    component: () => import('../views/VideoTrimmerHome.vue')
+  },
+  {
+    path: '/video-trimmer/:format',
+    name: 'VideoTrimmer',
+    component: () => import('../views/Trimmer.vue')
+  },
   // ── Document routes ──────────────────────────────────────────────────────
   {
     path: '/document',

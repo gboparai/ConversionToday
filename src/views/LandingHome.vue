@@ -50,6 +50,16 @@
   <section class="mediaSection">
     <h2 class="mediaSection__title">Free Online Tools</h2>
     <div class="mediaHub">
+      <a class="mediaHub__card" href="/audio-trimmer">
+        <span class="mediaHub__icon">✂️</span>
+        <h2>Audio Trimmer</h2>
+        <p>Trim, cut, and crop MP3, WAV, FLAC and other audio files free online. No file size limits.</p>
+      </a>
+      <a class="mediaHub__card" href="/video-trimmer">
+        <span class="mediaHub__icon">✂️</span>
+        <h2>Video Trimmer</h2>
+        <p>Trim, cut, and crop MP4, WebM, MOV and other video files free online. No file size limits.</p>
+      </a>
       <a class="mediaHub__card" href="/audio-extractor">
         <span class="mediaHub__icon">🎵</span>
         <h2>Audio Extractor</h2>
