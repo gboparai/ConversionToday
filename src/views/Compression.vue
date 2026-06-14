@@ -18,12 +18,14 @@
     </card>
   </div>
 
-  <label class="fileInput">
-    <input @change="input" type="file" multiple :accept="acceptAttr" />
-    <div class="file">
-      <p>Add {{ formatLabel }} Images Here</p>
-    </div>
-  </label>
+  <file-picker
+    :format-obj="routeFormat ? selectedFormatInfo : null"
+    :media-type-label="formatLabel"
+    overlay-text="Drop to Compress"
+    :label="formatLabel + ' Images'"
+    :fallback-accept="acceptAttr"
+    @files-selected="addFiles"
+  />
 
   <div class="batchBar">
     <button class="batchBar__button" :disabled="processable.length <= 0 || compressing" @click="compressAll">
@@ -40,10 +42,7 @@
     </button>
   </div>
 
-  <p v-if="skippedCount > 0" class="skippedNotice">
-    {{ skippedCount }} file(s) were skipped. Supported: {{ formatLabel }}.
-    <button class="skippedNotice__dismiss" @click="resetSkippedCount" aria-label="Dismiss">✕</button>
-  </p>
+
 
   <div class="files">
     <div v-for="file in files" :key="file.id" class="fileRow">
@@ -86,7 +85,7 @@
     </div>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>{{ selectedFormatInfo.benefitTitle }}</template>
       <template #description>{{ selectedFormatInfo.benefitDescription }}</template>
@@ -106,7 +105,7 @@
       </template>
     </information>
   </div>
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Step 1</template>
       <template #description>
@@ -255,9 +254,11 @@ function buildFaqs(formatLabel) {
   ];
 }
 
+import FilePicker from "@/components/file-picker.vue";
+
 export default {
   name: "Compression",
-  components: { Card, Descriptor, Faq, Information },
+  components: { FilePicker, Card, Descriptor, Faq, Information },
   mixins: [fileQueueMixin],
   computed: {
     routeFormat() {
@@ -338,10 +339,7 @@ export default {
     handleChangeFormat(e) {
       this.$router.push(`/compression/${e.target.value}`);
     },
-    input(e) {
-      this.addFiles(e.target.files);
-      e.target.value = "";
-    },
+
     normalizeFormat(format) {
       return format === "jpeg" ? "jpg" : format;
     },
@@ -356,12 +354,10 @@ export default {
       return null;
     },
     addFiles(list) {
-      let skipped = 0;
       for (let i = 0; i < list.length; i++) {
         const file = list[i];
         const format = this.formatFromFile(file);
         if (!format || (this.routeFormat && format !== this.routeFormat)) {
-          skipped++;
           continue;
         }
         this.files.push({
@@ -376,7 +372,6 @@ export default {
           output: { blob: null, url: null, name: null },
         });
       }
-      this.trackSkipped(skipped);
     },
     async codecFor(format) {
       const key = this.normalizeFormat(format);

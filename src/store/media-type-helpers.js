@@ -13,13 +13,6 @@
 import { FILE_STATUS } from '@/js/constants';
 
 /**
- * Capitalize first letter of a string.
- */
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
  * Generate mutations for a media type.
  *
  * @param {string} prefix - e.g. 'Audio', 'Video', 'Document', 'Archive', 'Font'

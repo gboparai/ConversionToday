@@ -8,7 +8,7 @@
 
   <format-selector :isFrom="true" path="document" name="from" mediaType="document"></format-selector>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>60+ Document Formats — All Free</template>
       <template #description>
@@ -29,7 +29,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>2,600+ Document Conversion Pairs</template>
       <template #description>
@@ -50,7 +50,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Convert DOCX to PDF, Markdown & More</template>
       <template #description>

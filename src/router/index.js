@@ -21,7 +21,11 @@ const OcrHome = () => import('../views/OcrHome.vue')
 const Ocr = () => import('../views/Ocr.vue')
 const PdfImageHome = () => import('../views/PdfImageHome.vue')
 const PdfImageType = () => import('../views/PdfImageType.vue')
-const PdfImage = () => import('../views/PdfImage.vue')
+const PdfImage     = () => import('../views/PdfImage.vue')
+const PdfSplit     = () => import('../views/PdfSplit.vue')
+const PdfPassword  = () => import('../views/PdfPassword.vue')
+const MetadataHome = () => import('../views/MetadataHome.vue')
+const Metadata     = () => import('../views/Metadata.vue')
 
 const routes = [
   {
@@ -193,6 +197,33 @@ const routes = [
     path: '/pdf-image/:format/:format2',
     name: 'PdfImage',
     component: PdfImage
+  },
+  // ── PDF Split ─────────────────────────────────────────────────────────────
+  {
+    path: '/pdf-split',
+    name: 'PdfSplit',
+    component: PdfSplit
+  },
+  // ── PDF Password ──────────────────────────────────────────────────────────
+  {
+    path: '/pdf-password',
+    name: 'PdfPasswordHome',
+    component: PdfPassword
+  },
+  {
+    path: '/pdf-password/:mode',
+    name: 'PdfPassword',
+    component: PdfPassword
+  },
+  {
+    path: '/metadata-remover',
+    name: 'MetadataHome',
+    component: MetadataHome
+  },
+  {
+    path: '/metadata-remover/:family/:format',
+    name: 'Metadata',
+    component: Metadata
   },
   {
     path: '/ocr/:outputFormat',

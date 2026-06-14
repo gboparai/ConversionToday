@@ -62,6 +62,22 @@ describe('Router route definitions', () => {
     expect(routerSource).toContain("'/pdf-image/:format/:format2'");
   });
 
+  test('Metadata Remover routes are defined', () => {
+    expect(routerSource).toContain("'/metadata-remover'");
+    expect(routerSource).toContain("'/metadata-remover/:family/:format'");
+  });
+
+  test('PDF-Split route is defined', () => {
+    expect(routerSource).toContain("'/pdf-split'");
+    expect(routerSource).toContain("'PdfSplit'");
+  });
+
+  test('PDF-Password routes are defined', () => {
+    expect(routerSource).toContain("'/pdf-password'");
+    expect(routerSource).toContain("'/pdf-password/:mode'");
+    expect(routerSource).toContain("'PdfPassword'");
+  });
+
   test('compression routes are defined', () => {
     expect(routerSource).toContain("'/compression'");
     expect(routerSource).toContain("'/compression/:format'");
@@ -171,23 +187,23 @@ describe('View files integrity', () => {
     expect(convertSource).toContain('clearAll()');
   });
 
-  test('Convert.vue has drag-and-drop event handlers', () => {
-    const convertSource = fs.readFileSync(path.join(VIEWS_DIR, 'Convert.vue'), 'utf8');
-    expect(convertSource).toContain('fileDrop');
-    expect(convertSource).toContain('fileOver');
-    expect(convertSource).toContain('fileEnter');
-    expect(convertSource).toContain('fileLeave');
+  test('file-picker.vue has drag-and-drop event handlers', () => {
+    const pickerSource = fs.readFileSync(path.join(__dirname, '../src/components/file-picker.vue'), 'utf8');
+    expect(pickerSource).toContain('fileDrop');
+    expect(pickerSource).toContain('fileOver');
+    expect(pickerSource).toContain('fileEnter');
+    expect(pickerSource).toContain('fileLeave');
   });
 
-  test('Convert.vue registers and cleans up body event listeners', () => {
-    const convertSource = fs.readFileSync(path.join(VIEWS_DIR, 'Convert.vue'), 'utf8');
-    expect(convertSource).toContain('addEventListener("drop"');
-    expect(convertSource).toContain('addEventListener("dragover"');
-    expect(convertSource).toContain('addEventListener("dragenter"');
-    expect(convertSource).toContain('addEventListener("dragleave"');
-    expect(convertSource).toContain('removeEventListener("drop"');
-    expect(convertSource).toContain('removeEventListener("dragover"');
-    expect(convertSource).toContain('removeEventListener("dragenter"');
-    expect(convertSource).toContain('removeEventListener("dragleave"');
+  test('file-picker.vue registers and cleans up body event listeners', () => {
+    const pickerSource = fs.readFileSync(path.join(__dirname, '../src/components/file-picker.vue'), 'utf8');
+    expect(pickerSource).toContain('addEventListener("drop"');
+    expect(pickerSource).toContain('addEventListener("dragover"');
+    expect(pickerSource).toContain('addEventListener("dragenter"');
+    expect(pickerSource).toContain('addEventListener("dragleave"');
+    expect(pickerSource).toContain('removeEventListener("drop"');
+    expect(pickerSource).toContain('removeEventListener("dragover"');
+    expect(pickerSource).toContain('removeEventListener("dragenter"');
+    expect(pickerSource).toContain('removeEventListener("dragleave"');
   });
 });

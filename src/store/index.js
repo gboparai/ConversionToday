@@ -8,7 +8,7 @@ import FontWorker from 'worker-loader!@/js/font-worker';
 import MergeWorker from 'worker-loader!@/js/merge-worker';
 import SubtitleWorker from 'worker-loader!@/js/subtitle-worker';
 import { FILE_STATUS } from '@/js/constants';
-import { MagickFormat } from "@imagemagick/magick-wasm/magick-format";
+import { MagickFormat } from "@imagemagick/magick-wasm";
 import { createMediaMutations, createMediaActions } from './media-type-helpers';
 
 export default createStore({
@@ -1358,6 +1358,128 @@ export default createStore({
                 canConvertFrom: false,
                 canConvertTo: true,
                 mimeType: 'application/xml',
+            },
+        ],
+
+        
+        // ── Document Metadata ────────────────────────────────────────────────
+        documentMetadataFormats: [
+            {
+                name: 'odp',
+                extension: 'odp',
+                title: 'OpenDocument Presentation',
+                description: 'OpenDocument presentation format used by LibreOffice Impress.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.oasis.opendocument.presentation',
+            },
+            {
+                name: 'odg',
+                extension: 'odg',
+                title: 'OpenDocument Graphics',
+                description: 'OpenDocument graphics format used by LibreOffice Draw.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.oasis.opendocument.graphics',
+            },
+            {
+                name: 'odf',
+                extension: 'odf',
+                title: 'OpenDocument Formula',
+                description: 'OpenDocument formula format used by LibreOffice Math.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.oasis.opendocument.formula',
+            },
+            {
+                name: 'dotx',
+                extension: 'dotx',
+                title: 'Word Template',
+                description: 'Microsoft Word Template format.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+            },
+            {
+                name: 'xltx',
+                extension: 'xltx',
+                title: 'Excel Template',
+                description: 'Microsoft Excel Template format.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
+            },
+            {
+                name: 'potx',
+                extension: 'potx',
+                title: 'PowerPoint Template',
+                description: 'Microsoft PowerPoint Template format.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.template',
+            },
+            {
+                name: 'ods',
+                extension: 'ods',
+                title: 'OpenDocument Spreadsheet',
+                description: 'OpenDocument spreadsheet format used by LibreOffice and other open-source office suites.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.oasis.opendocument.spreadsheet',
+            },
+            {
+                name: 'pdf',
+                extension: 'pdf',
+                title: 'Portable Document Format',
+                description: 'Publish documents as PDF output by compiling Typst generated from the source document.',
+                canConvertFrom: false,
+                canConvertTo: true,
+                mimeType: 'application/pdf',
+            },
+            {
+                name: 'docx',
+                extension: 'docx',
+                title: 'Microsoft Word',
+                description: 'The modern Microsoft Word document format (.docx) based on the Open XML standard. Widely used in offices and businesses worldwide.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            },
+            {
+                name: 'xlsx',
+                extension: 'xlsx',
+                title: 'Excel Spreadsheets',
+                description: 'Microsoft Excel format for importing tabular data directly from spreadsheet files.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            },
+            {
+                name: 'pptx',
+                extension: 'pptx',
+                title: 'PowerPoint',
+                description: 'Microsoft PowerPoint presentation format, widely used in business and academia.',
+                canConvertFrom: false,
+                canConvertTo: true,
+                mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            },
+            {
+                name: 'odt',
+                extension: 'odt',
+                title: 'OpenDocument Text',
+                description: 'The open standard document format used by LibreOffice, Apache OpenOffice, and other office suites.',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/vnd.oasis.opendocument.text',
+            },
+            {
+                name: 'epub',
+                extension: 'epub',
+                title: 'EPUB',
+                description: 'The open standard e-book format supported by virtually all e-readers (except Kindle).',
+                canConvertFrom: true,
+                canConvertTo: true,
+                mimeType: 'application/epub+zip',
             },
         ],
 

@@ -8,7 +8,7 @@
 
   <format-selector :isFrom="true" path="font" name="from" mediaType="font"></format-selector>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>6 Font Formats — All Free</template>
       <template #description>
@@ -29,7 +29,7 @@
     </information>
   </div>
 
-  <div class="infomationContainer">
+  <div class="informationContainer">
     <information>
       <template #header>Web & Desktop Ready — 30 Conversion Pairs</template>
       <template #description>

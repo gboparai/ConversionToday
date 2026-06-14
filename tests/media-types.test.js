@@ -110,7 +110,7 @@ describe('Action name consistency', () => {
       { type: 'archive', prefix: 'Archive' },
       { type: 'font', prefix: 'Font' },
     ];
-    patterns.forEach(({ type, prefix }) => {
+    patterns.forEach(({ prefix }) => {
       expect(source).toContain(`addFiles: 'add${prefix}Files'`);
       expect(source).toContain(`clearFiles: 'clear${prefix}Files'`);
       expect(source).toContain(`processAll: 'processAll${prefix}Files'`);
