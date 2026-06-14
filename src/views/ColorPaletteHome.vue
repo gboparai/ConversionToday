@@ -58,7 +58,7 @@ export default {
   
   computed: {
     formats() {
-      return store.state.config.formats.map(f => ({
+      return store.state.formats.map(f => ({
         value: f.name,
         label: f.name.toUpperCase(),
         href: `/color-palette/${f.name}`
