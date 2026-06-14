@@ -221,7 +221,7 @@ const routes = [
     component: MetadataHome
   },
   {
-    path: '/metadata-remover/:format',
+    path: '/metadata-remover/:family/:format',
     name: 'Metadata',
     component: Metadata
   },

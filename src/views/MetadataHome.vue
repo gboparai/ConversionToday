@@ -6,23 +6,35 @@
     </template>
   </descriptor>
 
-  <div class="categorySelector">
-    <label class="radioLabel" :class="{ 'is-active': category === 'image' }">
-      <input type="radio" value="image" v-model="category" />
-      <span>🖼️ Images</span>
-    </label>
-    <label class="radioLabel" :class="{ 'is-active': category === 'video' }">
-      <input type="radio" value="video" v-model="category" />
-      <span>🎬 Video</span>
-    </label>
-    <label class="radioLabel" :class="{ 'is-active': category === 'audio' }">
-      <input type="radio" value="audio" v-model="category" />
-      <span>🎵 Audio</span>
-    </label>
-    <label class="radioLabel" :class="{ 'is-active': category === 'document' }">
-      <input type="radio" value="document" v-model="category" />
-      <span>📄 Documents</span>
-    </label>
+  <div class="familySelector">
+    <button
+      type="button"
+      :class="['familySelector__button', { 'familySelector__button--active': category === 'image' }]"
+      @click="category = 'image'"
+    >
+      Images
+    </button>
+    <button
+      type="button"
+      :class="['familySelector__button', { 'familySelector__button--active': category === 'video' }]"
+      @click="category = 'video'"
+    >
+      Video
+    </button>
+    <button
+      type="button"
+      :class="['familySelector__button', { 'familySelector__button--active': category === 'audio' }]"
+      @click="category = 'audio'"
+    >
+      Audio
+    </button>
+    <button
+      type="button"
+      :class="['familySelector__button', { 'familySelector__button--active': category === 'document' }]"
+      @click="category = 'document'"
+    >
+      Documents
+    </button>
   </div>
 
   <div class="search-wrapper">
@@ -36,7 +48,7 @@
 
   <div class="selectorCon">
     <div class="selector" v-for="format in formats" :key="format.name">
-      <a class="select" :href="'/metadata-remover/' + format.name">
+      <a class="select" :href="'/metadata-remover/' + category + '/' + format.name">
         <p>{{ format.name }}</p>
       </a>
     </div>
@@ -169,39 +181,37 @@ export default {
 <style scoped lang="scss">
 @import "src/styles/_utilities";
 
-.categorySelector {
+.familySelector {
   @include mid-width;
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
   justify-content: center;
-}
+  gap: 0.6rem;
+  margin-bottom: 1rem;
 
-.radioLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background-color: var(--bg-surface);
-  border: 2px solid var(--border);
-  border-radius: 2rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 600;
+  &__button {
+    padding: 0.55rem 0.95rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: $default-radius;
+    color: var(--text-primary);
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 
-  input[type="radio"] {
-    display: none;
-  }
+    &:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
 
-  &.is-active {
-    border-color: var(--accent);
-    background-color: var(--accent-light);
-    color: var(--accent-dark);
-  }
-
-  &:hover:not(.is-active) {
-    border-color: var(--text-secondary);
+    &--active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text);
+      cursor: default;
+      transform: none;
+    }
   }
 }
 

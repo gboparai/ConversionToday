@@ -75,7 +75,7 @@ describe('Prerender route generation', () => {
     ['image', 'video', 'audio', 'document'].forEach(mediaType => {
       if (formatsByMediaType[mediaType]) {
         formatsByMediaType[mediaType].forEach(format => {
-          expect(routes).toContain(`/metadata-remover/${format}`);
+          expect(routes).toContain(`/metadata-remover/${mediaType}/${format}`);
         });
       }
     });
@@ -89,13 +89,13 @@ describe('Prerender route generation', () => {
     const ocrRouteCount = 1 + OCR_OUTPUT_FORMATS.length;
     const pdfImageRouteCount = 1 + Object.entries(PDF_IMAGE_OUTPUTS_BY_INPUT)
       .reduce((total, [, outputs]) => total + 1 + outputs.length, 0);
-    const metadataFormats = new Set();
+    let metadataFormatsCount = 0;
     ['image', 'video', 'audio', 'document'].forEach(mediaType => {
       if (formatsByMediaType[mediaType]) {
-        formatsByMediaType[mediaType].forEach(f => metadataFormats.add(f));
+        metadataFormatsCount += formatsByMediaType[mediaType].length;
       }
     });
-    const metadataRemoverRouteCount = 1 + metadataFormats.size;
+    const metadataRemoverRouteCount = 1 + metadataFormatsCount;
 
     const expectedRouteCount = 1 + mediaTypeRouteCount + ocrRouteCount + pdfImageRouteCount + metadataRemoverRouteCount;
     expect(routes).toHaveLength(expectedRouteCount);

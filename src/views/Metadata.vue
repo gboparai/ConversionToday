@@ -6,8 +6,20 @@
     </template>
   </descriptor>
 
+  <div class="familySelector">
+    <button
+      v-for="option in familyOptions"
+      :key="option.value"
+      type="button"
+      :class="['familySelector__button', { 'familySelector__button--active': option.value === category }]"
+      @click="handleFamilyChange(option.value)"
+    >
+      {{ option.label }}
+    </button>
+  </div>
+
   <div class="informationBar">
-    <card path="/metadata-remover" :formats="availableFormats" :selectedFormat="format" :handleChange="handleFormatChange">
+    <card :path="'/metadata-remover/' + category" :formats="availableFormats" :selectedFormat="format" :handleChange="handleFormatChange">
       <template #header>{{ selectedFormatObj.title }}</template>
       <template #description>{{ selectedFormatObj.description }}</template>
     </card>
@@ -144,19 +156,15 @@ export default {
       return this.$route.params.format || "jpg";
     },
     category() {
-      const formatName = this.format;
-      const formatsByMediaType = {
-        image: this.$store.state.formats || [],
-        video: this.$store.state.videoFormats || [],
-        audio: this.$store.state.audioFormats || [],
-        document: this.$store.state.documentFormats || []
-      };
-      for (const [cat, list] of Object.entries(formatsByMediaType)) {
-        if (list.find(f => f.name === formatName)) {
-          return cat;
-        }
-      }
-      return "image";
+      return this.$route.params.family || "image";
+    },
+    familyOptions() {
+      return [
+        { label: "Images", value: "image" },
+        { label: "Videos", value: "video" },
+        { label: "Audio", value: "audio" },
+        { label: "Documents", value: "document" }
+      ];
     },
     categoryLabel() {
       const labels = {
@@ -169,14 +177,11 @@ export default {
     },
 
     availableFormats() {
-      const docs = this.$store.state.documentMetadataFormats || [];
-
-      return [
-        ...(this.$store.state.formats || []),
-        ...(this.$store.state.videoFormats || []),
-        ...(this.$store.state.audioFormats || []),
-        ...docs
-      ];
+      if (this.category === 'image') return this.$store.state.formats || [];
+      if (this.category === 'video') return this.$store.state.videoFormats || [];
+      if (this.category === 'audio') return this.$store.state.audioFormats || [];
+      if (this.category === 'document') return this.$store.state.documentMetadataFormats || [];
+      return [];
     },
     selectedFormatObj() {
       return this.availableFormats.find(f => f.name === this.format) || this.availableFormats[0];
@@ -204,10 +209,15 @@ export default {
 
   methods: {
     handleFormatChange(e) {
-      this.$router.push({ path: `/metadata-remover/${e.target.value}` });
+      this.$router.push({ path: `/metadata-remover/${this.category}/${e.target.value}` });
     },
 
-    handleCategoryChange() {
+    handleFamilyChange(value) {
+      let defaultFormat = "jpg";
+      if (value === "video") defaultFormat = "mp4";
+      if (value === "audio") defaultFormat = "mp3";
+      if (value === "document") defaultFormat = "pdf";
+      this.$router.push({ path: `/metadata-remover/${value}/${defaultFormat}` });
       this.clearAll();
     },
 
@@ -428,6 +438,40 @@ export default {
 
 <style scoped lang="scss">
 @import "src/styles/_utilities";
+
+.familySelector {
+  @include mid-width;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+
+  &__button {
+    padding: 0.55rem 0.95rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: $default-radius;
+    color: var(--text-primary);
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+
+    &:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    &--active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text);
+      cursor: default;
+      transform: none;
+    }
+  }
+}
 
 .informationBar {
   @include mid-width;

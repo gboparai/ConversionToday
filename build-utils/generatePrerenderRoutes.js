@@ -99,7 +99,7 @@ function generatePrerenderRoutes() {
   ['image', 'video', 'audio', 'document'].forEach(mediaType => {
     if (formatsByMediaType[mediaType]) {
       formatsByMediaType[mediaType].forEach(format => {
-        const route = `/metadata-remover/${format}`;
+        const route = `/metadata-remover/${mediaType}/${format}`;
         if (!routes.includes(route)) {
           routes.push(route);
         }

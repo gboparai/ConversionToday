@@ -64,7 +64,7 @@ describe('Router route definitions', () => {
 
   test('Metadata Remover routes are defined', () => {
     expect(routerSource).toContain("'/metadata-remover'");
-    expect(routerSource).toContain("'/metadata-remover/:format'");
+    expect(routerSource).toContain("'/metadata-remover/:family/:format'");
   });
 
   test('PDF-Split route is defined', () => {
